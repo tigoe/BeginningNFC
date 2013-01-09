@@ -1,0 +1,23 @@
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/hello/gen/net/tigoe/hello/R.java \
+ : /Users/tigoe/Documents/gitHub/GettingStartedWithNFC/hello/res/drawable/icon.png \
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/hello/res/drawable-hdpi/ic_launcher.png \
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/hello/res/drawable-hdpi/icon.png \
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/hello/res/drawable-ldpi/ic_launcher.png \
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/hello/res/drawable-ldpi/icon.png \
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/hello/res/drawable-mdpi/ic_launcher.png \
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/hello/res/drawable-mdpi/icon.png \
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/hello/res/drawable-xhdpi/ic_launcher.png \
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/hello/res/drawable-xhdpi/icon.png \
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/hello/res/layout/main.xml \
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/hello/res/values/strings.xml \
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/hello/res/xml/config.xml \
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/hello/bin/res/drawable/icon.png \
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/hello/bin/res/drawable-hdpi/ic_launcher.png \
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/hello/bin/res/drawable-hdpi/icon.png \
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/hello/bin/res/drawable-ldpi/ic_launcher.png \
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/hello/bin/res/drawable-ldpi/icon.png \
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/hello/bin/res/drawable-mdpi/ic_launcher.png \
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/hello/bin/res/drawable-mdpi/icon.png \
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/hello/bin/res/drawable-xhdpi/ic_launcher.png \
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/hello/bin/res/drawable-xhdpi/icon.png \
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/hello/bin/AndroidManifest.xml \
