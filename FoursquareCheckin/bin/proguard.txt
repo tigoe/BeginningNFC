@@ -1,0 +1,3 @@
+# view AndroidManifest.xml #generated:53
+-keep class net.tigoe.foursquarecheckin.FoursquareCheckin { <init>(...); }
+
