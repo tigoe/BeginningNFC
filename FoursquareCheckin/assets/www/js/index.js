@@ -68,7 +68,20 @@ var app = {
 
     writeTag: function() {
         // ignore what's on the tag for now, just overwrite
-        var record = ndef.record(ndef.TNF_WELL_KNOWN, ndef.RTD_URI, [], nfc.stringToBytes("http://m.foursquare.com/venue/4a917563f964a520401a20e3"));
+
+        // to be proper, you should use a TYPE_WELL_KNOWN and a URI recordType,
+        // with a URL shortener:
+        //var payload = nfc.stringToBytes("m.foursquare.com/venue/4a917563f964a520401a20e3");
+        // payload.unshift(0x03);           // add URL shortener code
+        //var record = ndef.record(ndef.TNF_WELL_KNOWN, ndef.RTD_URI, [], payload);
+
+        // here's how you open a particular venue in Foursquare with a URI record:
+        //  var record = Ndef.uriRecord("m.foursquare.com/venue/4a917563f964a520401a20e3");
+
+        // Here's how you open an app on the phone, in this case Foursquare:
+        var recordType = nfc.stringToBytes("android.com:pkg");
+        var payload = nfc.stringToBytes("com.joelapenna.foursquared");
+        var record = ndef.record(ndef.TNF_EXTERNAL_TYPE, recordType, [], payload);
 
         nfc.write(
             [record],
