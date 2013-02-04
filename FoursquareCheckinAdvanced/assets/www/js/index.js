@@ -67,11 +67,41 @@ var app = {
     },
 
     writeTag: function() {
-	    // Put together the pieces for the NDEF record:
-        var recordType = nfc.stringToBytes("android.com:pkg");				// record type: android application record
-        var payload = nfc.stringToBytes("com.joelapenna.foursquared");		// application name
-        // create the actual NDEF record:
-        var record = ndef.record(ndef.TNF_EXTERNAL_TYPE, recordType, [], payload);	
+    	console.log('write tag');
+    	var tnf = parseInt(document.forms[0].elements["tnf"].value),
+    		recordType = document.forms[0].elements["recordType"].value,
+    		payload = nfc.stringToBytes(document.forms[0].elements["payload"].value),
+    		record;
+    	
+    		console.log("tnf: " + tnf + "  record type: " + recordType + "   payload: " + payload);
+    		
+    	switch (tnf) {
+	    	case ndef.TNF_WELL_KNOWN:
+	    		record = ndef.record(ndef.TNF_EXTERNAL_TYPE, nfc.stringToBytes(recordType), [], payload);
+	    		console.log("Well Known record.");
+	    		break;
+	    	case ndef.TNF_MIME_MEDIA:
+	    		record = ndef.mimeMediaRecord(recordType, payload);
+	    		console.log("MIME record.");
+	    		break;
+	    	case ndef.TNF_ABSOLUTE_URI:
+		    	payload.unshift(0x03);           // add URL shortener code
+	    	    record = Ndef.uriRecord(payload);
+	    	    console.log("URI record");
+	    		break;
+	    	case ndef.TNF_EXTERNAL_TYPE:
+	    	 	record = ndef.record(ndef.TNF_EXTERNAL_TYPE, nfc.stringToBytes(recordType), [], payload);
+	    		console.log("External record");
+	    		break;
+	    }
+	    
+	    console.log("record is type: " + tnf);
+	    	
+       // Put together the pieces for the NDEF record:
+       // var recordType = nfc.stringToBytes("android.com:pkg");				// record type: android application record
+       // var payload = nfc.stringToBytes("com.joelapenna.foursquared");		// application name
+       // create the actual NDEF record:
+       //  var record = ndef.record(ndef.TNF_EXTERNAL_TYPE, recordType, [], payload);	
 
         // write the record to the tag:
         nfc.write(

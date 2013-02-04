@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Foursquare Check-in Writer</title>
+    </head>
+    <body>
+        <div class="app">
+            <div id="deviceready" class="blink">
+                <p class="event listening">Connecting to Device</p>
+                <p class="event received">Device is Ready</p>
+            </div>
+            <h1 id="message">Waiting</h1>
+        </div>
+        
+        <form action="">
+        
+	       Type Name Format: <br />
+	       <select name="tnf">
+		     	<option value="0x00" >Empty</option>
+		     	<option value="0x01" >Well Known Type</option>
+		     	<option value="0x02" >MIME Media</option>
+		     	<option value="0x03" >Absolute URI</option>
+		     	<option value="0x04" >External</option>
+		     </select>
+		     <br/> 
+		 Record Type:<br/>
+		 <input type="text" name="recordType" value="U" size="30" /><br/>
+		 Payload:<br/>      
+		 <textarea name="payload" rows="10" cols="30">http://m.foursquare.com/venue/4a917563f964a520401a20e3</textarea>
+	  </form>
+	   <button onClick="app.writeTag();">Write to tag</button>
+        <script type="text/javascript" src="cordova-2.3.0.js"></script>
+        <script type="text/javascript" src="js/phonegap-nfc-0.4.1.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+        <script src="http://debug.phonegap.com/target/target-script-min.js#tigoe"></script>
+        <script type="text/javascript">
+            app.initialize();
+        </script>
+    </body>
+</html>
