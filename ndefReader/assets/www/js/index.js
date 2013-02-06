@@ -43,8 +43,12 @@ var app = {
         */
          nfc.addNdefListener(
             app.onNfc,                                  // tag successfully scanned
-            app.display("Listening for NDEF tags."),    // listener successfully initialized
-            app.display("NDEF failed to initialize")    // listener fails to initialize
+            function (status) {                         // listener successfully initialized
+                app.display("Listening for NDEF tags.");
+            }, 
+            function (error) {                          // listener fails to initialize
+                app.display("NDEF failed to initialize " + JSON.stringify(error));
+            }    
         );
     },
 
