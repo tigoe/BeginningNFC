@@ -17,33 +17,61 @@
  * under the License.
  */
 var app = {
+    locator: null,          // variable to hold an interval timer when it's running
+
     // Application Constructor
     initialize: function() {
         this.bindEvents();
     },
-    // Bind Event Listeners
-    //
+
     // Bind any events that are required on startup. Common events are:
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
     },
+
     // deviceready Event Handler
-    //
-    // The scope of 'this' is the event. In order to call the 'receivedEvent'
-    // function, we must explicity call 'app.receivedEvent(...);'
     onDeviceReady: function() {
-        app.receivedEvent('deviceready');
+        var parentElement = document.getElementById("location");
+        parentElement.innerHTML = "Click to start location service.";
     },
-    // Update DOM on a Received Event
-    receivedEvent: function(id) {
-        var parentElement = document.getElementById(id);
-        var listeningElement = parentElement.querySelector('.listening');
-        var receivedElement = parentElement.querySelector('.received');
 
-        listeningElement.setAttribute('style', 'display:none;');
-        receivedElement.setAttribute('style', 'display:block;');
+    locate: function() {
+        // if the timer variable's empty, start it running:
+        if (app.locator == null) {
+            app.locator = setInterval(getLocation, 1000);
+            // ... and change the label of the button:
+            document.getElementById("locatorButton").innerHTML = "Stop";
 
-        console.log('Received Event: ' + id);
+        // if the timer's running, clear it:
+        } else {
+            clearInterval(app.locator);
+            app.locator = null;         // set the timer variable to null
+            // ... and change the label of the button:
+            document.getElementById("locatorButton").innerHTML = "Start";
+        }
+    },
+
+    // Update location element on an update Event:
+    update: function(id, result) {
+        var parentElement = document.getElementById(id),    // the location div
+            thisElement;                                    // used to add to location
+
+        parentElement.innerHTML = "";                       // clear the location div
+
+        // if you got a location, write its lat and long
+        // to the location div in two paragraphs:
+        if (result != null) {
+             thisElement = document.createElement("p");
+            thisElement.innerHTML =  "Latitude: " + result.latitude;
+            parentElement.appendChild(thisElement);
+            thisElement = document.createElement("p");
+            thisElement.innerHTML =  "Longitude: " + result.longitude;
+            parentElement.appendChild(thisElement);
+
+        // if you got no result, write that to the location div:
+        } else {
+            parentElement.innerHTML = "No location found";
+        }
     }
 };
