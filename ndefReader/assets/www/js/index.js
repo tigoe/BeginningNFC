@@ -33,22 +33,15 @@ var app = {
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
     // function, we must explicity call 'app.receivedEvent(...);'
    onDeviceReady: function() {
-       // app.receivedEvent('deviceready');
-        /*
-        nfc.addTagDiscoveredListener(
-            app.onNfc,                                  // tag successfully scanned
-            app.display("NFC initialized"),             // NFC successfully initialized
-            app.display("NFC failed to initialize")     // Failed to initialize NFC
-        );
-        */
+
          nfc.addNdefListener(
             app.onNfc,                                  // tag successfully scanned
             function (status) {                         // listener successfully initialized
                 app.display("Listening for NDEF tags.");
-            }, 
+            },
             function (error) {                          // listener fails to initialize
                 app.display("NDEF failed to initialize " + JSON.stringify(error));
-            }    
+            }
         );
     },
 
@@ -68,11 +61,11 @@ var app = {
         messageDiv.appendChild(thisElement);
 
         // get the NDEF message as an array of NDEF records:
-        var records = tag.ndefMessage || [];
+        var records = tag.ndefMessage;
         // give info about the length of the NDEF message:
         var displayString = "Scanned an NDEF tag with "
-            + records.length + " record"
-            + ((records.length === 1) ? "": "s");   // if more than one record, pluralize "record"
+            + records.length + " record"                // print the number of records + "record"
+            + ((records.length === 1) ? "": "s");       // if more than one record, pluralize "record"
 
         // create a paragraph to the body div to display the above info:
         thisElement = document.createElement("p");
@@ -101,21 +94,8 @@ var app = {
             p.innerHTML = app.formatRecord(record);
             bodyDiv.appendChild(p);
         }
-
+        // vibrate the device:
         navigator.notification.vibrate(100);
-    },
-
-    // Update DOM on a Received Event:
-    receivedEvent: function(id) {
-        /*
-        var parentElement = document.getElementById(id);
-        var listeningElement = parentElement.querySelector('.listening');
-        var receivedElement = parentElement.querySelector('.received');
-
-        listeningElement.setAttribute('style', 'display:none;');
-        receivedElement.setAttribute('style', 'display:block;');
-        */
-       // console.log('Received Event: ' + id);
     },
 
     /*
