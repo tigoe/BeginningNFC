@@ -61,4 +61,4 @@ var app = {
             }
         );
     }
-};
+};          // end of app
