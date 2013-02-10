@@ -1,21 +1,15 @@
 <!DOCTYPE html>
+
 <html>
     <head>
-        <title>NFC Reader</title>
-    </head>
-    <body>
-        <div class="app">
-            <div id="deviceready" class="blink">
-                <p class="event listening">Connecting to Device</p>
-                <p class="event received">Device is Ready</p>
-            </div>
-            <h1 id="message">Waiting</h1>
-        </div>
+        <title>NFC tag ID reader</title>
         <script type="text/javascript" src="cordova-2.3.0.js"></script>
-        <script type="text/javascript" src="js/phonegap-nfc-0.4.1.js"></script>   
+        <script type="text/javascript" src="js/phonegap-nfc-0.4.1.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
-        <script type="text/javascript">
-            app.initialize();
-        </script>
+    </head>
+    <body onload="app.initialize();">
+        <div class="app">
+            <div id="message">No tag found</div>
+        </div>
     </body>
 </html>

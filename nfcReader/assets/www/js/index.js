@@ -17,45 +17,39 @@
  * under the License.
  */
  var app = {
-        // Application Constructor
-        initialize: function() {
-            this.bindEvents();
-        },
-        // Bind Event Listeners
-        //
-        // Bind any events that are required on startup. Common events are:
-        // 'load', 'deviceready', 'offline', and 'online'.
-        bindEvents: function() {
-            document.addEventListener('deviceready', this.onDeviceReady, false);
-        },
-        // deviceready Event Handler
-        //
-        // The scope of 'this' is the event. In order to call the 'receivedEvent'
-        // function, we must explicity call 'app.receivedEvent(...);'
-        onDeviceReady: function() {
-            app.receivedEvent('deviceready');
-            nfc.addTagDiscoveredListener(
-                app.onNfc,                      // tag successfully scanned 
-                app.display("NFC initialized"), // NFC successfully initialized
-                app.display                     // Failed to initialize NFC
-            );
-        },
-        display: function(message) {
-            document.getElementById("message").innerHTML = message;
-        },
-        onNfc: function(nfcEvent) {
-            var tag = nfcEvent.tag;
-            app.display("Read tag: " + nfc.bytesToHexString(tag.id));
-        },
-        // Update the DOM on a Received Event
-        receivedEvent: function(id) {
-            var parentElement = document.getElementById(id);
-            var listeningElement = parentElement.querySelector('.listening');
-            var receivedElement = parentElement.querySelector('.received');
+        // Application constructor
+    initialize: function() {
+        this.bindEvents();
+        console.log("Starting nfcReader");
+    },
 
-            listeningElement.setAttribute('style', 'display:none;');
-            receivedElement.setAttribute('style', 'display:block;');
+    // bind any events that are required on startup to listeners:
+    bindEvents: function() {
+        document.addEventListener('deviceready', this.onDeviceReady, false);
+    },
 
-            console.log('Received Event: ' + id);
-        }
-    };
+    // this runs when the device is ready for user interaction:
+    onDeviceReady: function() {
+        var parentElement = document.getElementById("message");
+        parentElement.innerHTML = "Tap a tag to read its id number.";
+
+        nfc.addTagDiscoveredListener(
+            app.onNfc,                                  // tag successfully scanned
+            function (status) {                         // listener successfully initialized
+                app.display("Listening for NFC tags.");
+            },
+            function (error) {                          // listener fails to initialize
+                app.display("NFC reader failed to initialize " + JSON.stringify(error));
+            }
+        )
+    },
+
+    onNfc: function(nfcEvent) {
+        var tag = nfcEvent.tag;
+        app.display("Read tag: " + nfc.bytesToHexString(tag.id));
+    },
+
+    display: function(message) {
+        document.getElementById("message").innerHTML = message;
+    }
+};      // end of app
