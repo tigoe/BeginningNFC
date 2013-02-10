@@ -11,22 +11,16 @@
         <div class="app">
             <div id="message">No tag found</div>
 
- <form action="">
-
-           Type Name Format: <br />
-           <select name="tnf">
-                <option value="0x00" >Empty</option>
-                <option value="0x01" >Well Known Type</option>
-                <option value="0x02" >MIME Media</option>
-                <option value="0x03" >Absolute URI</option>
-                <option value="0x04" >External</option>
+        <form>
+           Format tag like: <br />
+           <select name="appType">
+                <option value="1" >NFC Task Launcher</option>
+                <option value="2" >TagStand Writer</option>
+                <option value="3" >NXP TagWriter</option>
+                <option value="4" >Samsung Tectiles</option>
+                <option value="5" >App Launcher NFC</option>
              </select>
-             <br/>
-         Record Type:<br/>
-         <input type="text" name="recordType" value="U" size="30" /><br/>
-         Payload:<br/>
-         <textarea name="payload" rows="10" cols="30">m.foursquare.com/venue/4a917563f964a520401a20e3</textarea>
-      </form>
+        </form>
        <button onClick="app.formatMessage();">Write to tag</button>
 
 

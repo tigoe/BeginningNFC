@@ -35,22 +35,28 @@ var app = {
         document.getElementById("message").innerHTML = message;
     },
 
-    writeTag: function() {
-	    // Put together the pieces for the NDEF record:
-        var recordType = nfc.stringToBytes("android.com:pkg");	// record type: android application record
-        var payload = nfc.stringToBytes("com.joelapenna.foursquared");	// application name
+    formatMessage: function() {
+        // Put together the pieces for the NDEF record:
+        // record type: android application record
+        var recordType = nfc.stringToBytes("android.com:pkg");
+        // application name:
+        var payload = nfc.stringToBytes("com.joelapenna.foursquared");
 
         // create the actual NDEF record:
         var record = ndef.record(ndef.TNF_EXTERNAL_TYPE, recordType, [], payload);
+        //write the record:
+        app.writeTag(record);
+    },
 
+    writeTag: function(record) {
         // write the record to the tag:
         nfc.write(
-            [record],									// write the record itself to the tag
-            function () {								// when complete, run this callback function:
+            [record],								// write the record itself to the tag
+            function () {							// when complete, run this callback function:
                 app.display("Wrote data to tag.");		// notify the user in text on the screen
                 navigator.notification.vibrate(100);	// vibrate the device as well
             },
-            function (reason) {							// this function runs if the write command fails
+            function (reason) {						// this function runs if the write command fails
                 navigator.notification.alert(reason, function() {}, "There was a problem");
             }
         );
