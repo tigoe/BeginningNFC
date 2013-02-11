@@ -71,11 +71,10 @@ var app = {
                 message.push(record);      // push the record onto the message
                 break;
             case 3:         // like NXP TagWriter
-
                 // The payload of a Smart Poster record, is an NDEF message
-                smartPosterPayload = [
+                var smartPosterPayload = [
                     ndef.uriRecord("http://m.foursquare.com/venue/4a917563f964a520401a20e3"),
-                    ndef.textRecord("FourSquare Checkin", "en"),
+                    ndef.textRecord("foursquare checkin"),
                     ndef.record( // Android Application Record
                         ndef.TNF_EXTERNAL_TYPE, 
                         nfc.stringToBytes("android.com:pkg"), [], 
@@ -86,12 +85,52 @@ var app = {
                 // Create the Smart Poster Record
                 tnf = ndef.TNF_WELL_KNOWN;
                 recordType = ndef.RTD_SMART_POSTER;                
-                payload = ndef.encodeMessage(smartPosterPayload);            
+                payload = ndef.encodeMessage(smartPosterPayload);
                 record = ndef.record(tnf, recordType, [], payload);
                 
                 message.push(record); // push the smart poster record onto the message
                 break;
-            case 4:         // like TecTiles
+             case 30:         // like NXP TagWriter
+
+                 // Similar to case 3, but uses smartPoster helper record to encode the payload
+
+                 // The payload of a Smart Poster record, is an NDEF message
+                 var smartPosterPayload = [
+                     ndef.uriRecord("http://m.foursquare.com/venue/4a917563f964a520401a20e3"),
+                     ndef.textRecord("foursquare checkin"),
+                     ndef.record( // Android Application Record
+                         ndef.TNF_EXTERNAL_TYPE,
+                         nfc.stringToBytes("android.com:pkg"), [],
+                         nfc.stringToBytes("com.joelapenna.foursquared")
+                     )
+                 ];
+
+                 // Create the Smart Poster Record
+                 record = ndef.smartPoster(smartPosterPayload);
+
+                 message.push(record); // push the smart poster record onto the message
+                 break;
+
+             case 300:         // like NXP TagWriter
+
+                 // Similar to case 3 & 30, but builds the message inline
+                 // and uses the new processing on ndef.record to that converts
+                 // strings to byte arrays
+
+                 message = [
+                    ndef.smartPoster([
+                        ndef.uriRecord("http://m.foursquare.com/venue/4a917563f964a520401a20e3"),
+                        ndef.textRecord("foursquare checkin"),
+                        ndef.record( // Android Application Record
+                            ndef.TNF_EXTERNAL_TYPE,
+                            "android.com:pkg", [],
+                            "com.joelapenna.foursquared"
+                        )
+                    ])
+                 ];
+
+                 break;
+             case 4:         // like TecTiles
                 // format the record as a Well-Known Type
                 tnf = ndef.TNF_WELL_KNOWN;
                 recordType = ndef.RTD_URI;      // add the URI record type
