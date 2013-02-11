@@ -36,7 +36,7 @@ var app = {
     },
 
 
-    formatMessage: function() {
+    makeMessage: function() {
         // get the app type that the user wants to emulate from the HTML form:
         var appType = parseInt(document.forms[0].elements.appType.value, 10),
             tnf,                // NDEF Type Name Format
@@ -76,18 +76,18 @@ var app = {
                     ndef.uriRecord("http://m.foursquare.com/venue/4a917563f964a520401a20e3"),
                     ndef.textRecord("foursquare checkin"),
                     ndef.record( // Android Application Record
-                        ndef.TNF_EXTERNAL_TYPE, 
-                        nfc.stringToBytes("android.com:pkg"), [], 
+                        ndef.TNF_EXTERNAL_TYPE,
+                        nfc.stringToBytes("android.com:pkg"), [],
                         nfc.stringToBytes("com.joelapenna.foursquared")
                     )
                 ];
 
                 // Create the Smart Poster Record
                 tnf = ndef.TNF_WELL_KNOWN;
-                recordType = ndef.RTD_SMART_POSTER;                
+                recordType = ndef.RTD_SMART_POSTER;
                 payload = ndef.encodeMessage(smartPosterPayload);
                 record = ndef.record(tnf, recordType, [], payload);
-                
+
                 message.push(record); // push the smart poster record onto the message
                 break;
              case 30:         // like NXP TagWriter

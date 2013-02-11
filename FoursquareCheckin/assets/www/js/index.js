@@ -35,7 +35,7 @@ var app = {
         document.getElementById("message").innerHTML = message;
     },
 
-    formatMessage: function() {
+    makeMessage: function() {
         // Put together the pieces for the NDEF record:
         // record type: android application record
         var recordType = nfc.stringToBytes("android.com:pkg");
