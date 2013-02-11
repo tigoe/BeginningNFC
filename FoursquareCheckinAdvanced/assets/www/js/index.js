@@ -23,7 +23,7 @@ var app = {
             function (error) {                          // listener fails to initialize
                 app.display("NFC reader failed to initialize " + JSON.stringify(error));
             }
-        )
+        );
     },
 
     onNfc: function(nfcEvent) {
@@ -38,7 +38,7 @@ var app = {
 
     formatMessage: function() {
         // get the app type that the user wants to emulate from the HTML form:
-        var appType = parseInt(document.forms[0].elements["appType"].value),
+        var appType = parseInt(document.forms[0].elements.appType.value, 10),
             tnf,                // NDEF Type Name Format
             recordType,         // NDEF Record Type
             payload,            // content of the record
@@ -72,35 +72,24 @@ var app = {
                 break;
             case 3:         // like NXP TagWriter
 
-                var smartPosterRecord = [];
-                // format the URI record as an absolute URI:
-                record = ndef.uriRecord("http://m.foursquare.com/venue/4a917563f964a520401a20e3");
-                smartPosterRecord.push(record);     // push the record onto the Smart Poster record
+                // The payload of a Smart Poster record, is an NDEF message
+                smartPosterPayload = [
+                    ndef.uriRecord("http://m.foursquare.com/venue/4a917563f964a520401a20e3"),
+                    ndef.textRecord("FourSquare Checkin", "en"),
+                    ndef.record( // Android Application Record
+                        ndef.TNF_EXTERNAL_TYPE, 
+                        nfc.stringToBytes("android.com:pkg"), [], 
+                        nfc.stringToBytes("com.joelapenna.foursquared")
+                    )
+                ];
 
-                // format a text record:
-                record = ndef.textRecord("foursquare checkin");
-                smartPosterRecord.push(record);     // push the record onto the Smart Poster record
-
-                // format the Smart Poster record itself:
+                // Create the Smart Poster Record
                 tnf = ndef.TNF_WELL_KNOWN;
-                recordType = ndef.RTD_SMART_POSTER;
-
-                /*
-                    Don:
-                    This is where things go awry. A SP is a record composed of records, but
-                    how does one do that?
-
-                */
-
-                var spPayload = ndef.record(tnf, recordType, [], smartPosterRecord);
-                message.push(spPayload);          // push the record onto the message
-
-                // format the Android Application Record:
-                tnf = ndef.TNF_EXTERNAL_TYPE;
-                recordType = nfc.stringToBytes("android.com:pkg");
-                payload = nfc.stringToBytes("com.joelapenna.foursquared");
+                recordType = ndef.RTD_SMART_POSTER;                
+                payload = ndef.encodeMessage(smartPosterPayload);            
                 record = ndef.record(tnf, recordType, [], payload);
-                message.push(record);      // push the record onto the message
+                
+                message.push(record); // push the smart poster record onto the message
                 break;
             case 4:         // like TecTiles
                 // format the record as a Well-Known Type
