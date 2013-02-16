@@ -25,5 +25,5 @@
 /Users/tigoe/Documents/gitHub/GettingStartedWithNFC/FoursquareCheckin/assets/www/index.html \
 /Users/tigoe/Documents/gitHub/GettingStartedWithNFC/FoursquareCheckin/assets/www/js \
 /Users/tigoe/Documents/gitHub/GettingStartedWithNFC/FoursquareCheckin/assets/www/js/index.js \
-/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/FoursquareCheckin/assets/www/js/phonegap-nfc-0.4.1.js \
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/FoursquareCheckin/assets/www/js/phonegap-nfc.js \
 /Users/tigoe/Documents/gitHub/GettingStartedWithNFC/FoursquareCheckin/bin/AndroidManifest.xml \

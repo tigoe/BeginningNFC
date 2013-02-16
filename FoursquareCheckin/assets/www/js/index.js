@@ -38,9 +38,10 @@ var app = {
     makeMessage: function() {
         // Put together the pieces for the NDEF record:
         // record type: android application record
-        var recordType = nfc.stringToBytes("android.com:pkg");
+        var recordType = "android.com:pkg";
+
         // application name:
-        var payload = nfc.stringToBytes("com.joelapenna.foursquared");
+        var payload = "com.joelapenna.foursquared";
 
         // create the actual NDEF record:
         var record = ndef.record(ndef.TNF_EXTERNAL_TYPE, recordType, [], payload);
