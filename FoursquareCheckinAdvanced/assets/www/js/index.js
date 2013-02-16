@@ -49,14 +49,14 @@ var app = {
             case 1:         // like NFC Task Launcher
                 // format the MIME media record:
                 recordType = "x/nfctl";
-                payload = nfc.stringToBytes("enZ:Foursquare;c:4a917563f964a520401a20e3");
+                payload = "enZ:Foursquare;c:4a917563f964a520401a20e3";
                 record = ndef.mimeMediaRecord(recordType, payload);
                 message.push(record);       // push the record onto the message
 
                 // format the Android Application Record:
                 tnf = ndef.TNF_EXTERNAL_TYPE;
-                recordType = nfc.stringToBytes("android.com:pkg");
-                payload = nfc.stringToBytes("com.jwsoft.nfcactionlauncher");
+                recordType = "android.com:pkg";
+                payload = "com.jwsoft.nfcactionlauncher";
                 record = ndef.record(tnf, recordType, [], payload);
                 message.push(record);      // push the record onto the message
                 break;
@@ -70,79 +70,44 @@ var app = {
                 record = ndef.record(tnf, recordType, [], payload);
                 message.push(record);      // push the record onto the message
                 break;
-            case 3:         // like NXP TagWriter
-                // The payload of a Smart Poster record, is an NDEF message
-                var smartPosterPayload = [
-                    ndef.uriRecord("http://m.foursquare.com/venue/4a917563f964a520401a20e3"),
-                    ndef.textRecord("foursquare checkin"),
-                    ndef.record( // Android Application Record
-                        ndef.TNF_EXTERNAL_TYPE,
-                        nfc.stringToBytes("android.com:pkg"), [],
-                        nfc.stringToBytes("com.joelapenna.foursquared")
-                    )
-                ];
 
-                // Create the Smart Poster Record
-                tnf = ndef.TNF_WELL_KNOWN;
-                recordType = ndef.RTD_SMART_POSTER;
-                payload = ndef.encodeMessage(smartPosterPayload);
-                record = ndef.record(tnf, recordType, [], payload);
-
-                message.push(record); // push the smart poster record onto the message
-                break;
-             case 30:         // like NXP TagWriter
-
-                 // Similar to case 3, but uses smartPoster helper record to encode the payload
-
-                 // The payload of a Smart Poster record, is an NDEF message
+             case 3:         // like NXP TagWriter
+                 // The payload of a Smart Poster record is an NDEF message
+                 // so create an array of two records like so:
                  var smartPosterPayload = [
                      ndef.uriRecord("http://m.foursquare.com/venue/4a917563f964a520401a20e3"),
                      ndef.textRecord("foursquare checkin"),
                      ndef.record( // Android Application Record
                          ndef.TNF_EXTERNAL_TYPE,
-                         nfc.stringToBytes("android.com:pkg"), [],
-                         nfc.stringToBytes("com.joelapenna.foursquared")
+                         "android.com:pkg", [],
+                         "com.joelapenna.foursquared"
                      )
                  ];
 
-                 // Create the Smart Poster Record
+                 // Create the Smart Poster Record from the array:
                  record = ndef.smartPoster(smartPosterPayload);
 
                  message.push(record); // push the smart poster record onto the message
                  break;
 
-             case 300:         // like NXP TagWriter
-
-                 // Similar to case 3 & 30, but builds the message inline
-                 // and uses the new processing on ndef.record to that converts
-                 // strings to byte arrays
-
-                 message = [
-                    ndef.smartPoster([
-                        ndef.uriRecord("http://m.foursquare.com/venue/4a917563f964a520401a20e3"),
-                        ndef.textRecord("foursquare checkin"),
-                        ndef.record( // Android Application Record
-                            ndef.TNF_EXTERNAL_TYPE,
-                            "android.com:pkg", [],
-                            "com.joelapenna.foursquared"
-                        )
-                    ])
-                 ];
-
-                 break;
-             case 4:         // like TecTiles
+          case 4:         // like TecTiles
                 // format the record as a Well-Known Type
                 tnf = ndef.TNF_WELL_KNOWN;
                 recordType = ndef.RTD_URI;      // add the URI record type
-                payload = nfc.stringToBytes("tectile://www/samsung.com/us/microsite/error?action=foursquare_checkin&payload=http://m.foursquare.com/venue/4a917563f964a520401a20e3");
+                // this is a long URI, so for formatting's sake, it's broken
+                // into three lines. But it's just a string:
+                var uri = "tectile://www/samsung.com/us/microsite/error?"
+                    + "action=foursquare_checkin&"
+                    + "payload=http://m.foursquare.com/venue/4a917563f964a520401a20e3";
+                payload = nfc.stringToBytes(uri);
                 payload.unshift(0x00);      // URI identifier 0x00 because there's no ID for "tectile://"
                 record = ndef.record(tnf, recordType, [], payload);
                 message.push(record);      // push the record onto the message
 
                 // format the Android Application Record:
                 tnf = ndef.TNF_EXTERNAL_TYPE;
-                recordType = nfc.stringToBytes("android.com:pkg");
-                payload = nfc.stringToBytes("com.samsung.tectile");
+                recordType = "android.com:pkg";
+                payload = "com.samsung.tectile";
                 record = ndef.record(tnf, recordType, [], payload);
                 message.push(record);      // push the record onto the message
                 console.log("External type.");
@@ -150,8 +115,8 @@ var app = {
             case 5:         // like App Launcher NFC
                 // format the Android Application Record:
                 tnf = ndef.TNF_EXTERNAL_TYPE;
-                recordType = nfc.stringToBytes("android.com:pkg");
-                payload = nfc.stringToBytes("com.joelapenna.foursquared");
+                recordType = "android.com:pkg";
+                payload = "com.joelapenna.foursquared";
                 record = ndef.record(tnf, recordType, [], payload);
                 message.push(record);      // push the record onto the message
                 break;
