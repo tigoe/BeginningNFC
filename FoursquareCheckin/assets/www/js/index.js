@@ -36,23 +36,25 @@ var app = {
     },
 
     makeMessage: function() {
-        // Put together the pieces for the NDEF record:
-        // record type: android application record
-        var recordType = "android.com:pkg";
-
-        // application name:
-        var payload = "com.joelapenna.foursquared";
+        // Put together the pieces for the NDEF message:
+        var tnf = ndef.TNF_EXTERNAL_TYPE,               // NDEF Type Name Format
+            recordType = "android.com:pkg",             // NDEF Record Type
+            payload = "com.joelapenna.foursquared",     // content of the record
+            record,                                     // NDEF record object
+            message = [];                   // NDEF Message to pass to writeTag()
 
         // create the actual NDEF record:
-        var record = ndef.record(ndef.TNF_EXTERNAL_TYPE, recordType, [], payload);
-        //write the record:
-        app.writeTag(record);
+        record = ndef.record(tnf, recordType, [], payload);
+        // put the record in the message array:
+        message.push(record);
+        //write the message:
+        app.writeTag(message);
     },
 
-    writeTag: function(record) {
+    writeTag: function(message) {
         // write the record to the tag:
         nfc.write(
-            [record],								// write the record itself to the tag
+            message,								// write the record itself to the tag
             function () {							// when complete, run this callback function:
                 app.display("Wrote data to tag.");		// notify the user in text on the screen
                 navigator.notification.vibrate(100);	// vibrate the device as well
