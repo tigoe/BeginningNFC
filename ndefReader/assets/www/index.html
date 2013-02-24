@@ -1,20 +1,15 @@
 <!DOCTYPE html>
+
 <html>
     <head>
-        <title>NDEF Reader</title>
-        <link rel="stylesheet" href="css/master.css" media="screen" type="text/css" charset="utf-8">
-    </head>
-    <body>
-        <div class="app">
-            <h1 id="message">Waiting</h1>
-            <div id="display"></div>
-        </div>
+        <title>Foo</title>
         <script type="text/javascript" src="cordova-2.3.0.js"></script>
-        <script type="text/javascript" src="js/phonegap-nfc-0.4.1.js"></script>
+        <script type="text/javascript" src="js/phonegap-nfc.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
-        <script type="text/javascript">
-            app.initialize();
-        </script>
-
-    </body>
+    </head>
+    <body onload="app.initialize();">
+        <div class="app">
+            <div id="message">No tag found</div>
+        </div>
+     </body>
 </html>

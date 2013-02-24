@@ -1,166 +1,139 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
 var app = {
-    // Application Constructor
+    // Application constructor
     initialize: function() {
         this.bindEvents();
+        console.log("Starting NDEF Events app");
     },
-    // Bind Event Listeners
-    //
-    // Bind any events that are required on startup. Common events are:
-    // 'load', 'deviceready', 'offline', and 'online'.
+
+    // bind any events that are required on startup to listeners:
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
     },
-    // deviceready Event Handler
-    //
-    // The scope of 'this' is the event. In order to call the 'receivedEvent'
-    // function, we must explicity call 'app.receivedEvent(...);'
-   onDeviceReady: function() {
 
-         nfc.addNdefListener(
+    // this runs when the device is ready for user interaction:
+    onDeviceReady: function() {
+        var parentElement = document.getElementById("message");
+        parentElement.innerHTML = "Tap a tag to read its id number.";
+
+        nfc.addTagDiscoveredListener(
             app.onNfc,                                  // tag successfully scanned
             function (status) {                         // listener successfully initialized
-                app.display("Listening for NDEF tags.");
+                app.display("Listening for NFC tags.");
             },
             function (error) {                          // listener fails to initialize
-                app.display("NDEF failed to initialize " + JSON.stringify(error));
+                app.display("NFC reader failed to initialize " + JSON.stringify(error));
             }
         );
+
+        nfc.addMimeTypeListener(
+            "text/plain",
+            app.onNfc,                                  // tag successfully scanned
+            function (status) {                         // listener successfully initialized
+                app.display("Listening for MIME Types.");
+            },
+            function (error) {                          // listener fails to initialize
+                app.display("NFC reader failed to initialize " + JSON.stringify(error));
+            }
+        );
+
+        nfc.addNdefListener(
+            app.onNfc,                                  // tag successfully scanned
+            function (status) {                         // listener successfully initialized
+                app.display("Listening for NDEF messages.");
+            },
+            function (error) {                          // listener fails to initialize
+                app.display("NFC reader failed to initialize " + JSON.stringify(error));
+            }
+        );
+
+        nfc.addNdefFormatableListener(
+            app.onNfc,                                  // tag successfully scanned
+            function (status) {                         // listener successfully initialized
+                app.display("Listening for NDEF Formatable tags.");
+            },
+            function (error) {                          // listener fails to initialize
+                app.display("NFC reader failed to initialize " + JSON.stringify(error));
+            }
+        );
+
     },
 
     onNfc: function(nfcEvent) {
-        // variables for this function:
-        var tag = nfcEvent.tag,                                // the tag object
-            messageDiv = document.getElementById("message"),   // display header
-            bodyDiv = document.getElementById("display"),      // display body
-            thisElement;                                       // for creating new DOM elements
+        app.clear();                                     // clear the message div
+        app.display(" Event Type: " + nfcEvent.type);    // display the event type
+        app.showTag(nfcEvent.tag);                       // display the tag details
+    },
 
-        // clear the display
-        app.clearDisplay();
+/*
+    clears the message div:
+*/
+    clear: function() {
+        var display = document.getElementById("message");
+        display.innerHTML = "";
+    },
 
-        // add a paragaph to the display header with the tag ID:
-        thisElement = document.createElement("p");
-        thisElement.innerHTML = "Tag ID: " + nfc.bytesToHexString(tag.id);
-        messageDiv.appendChild(thisElement);
+/*
+    writes @tag to the message div:
+*/
 
-        // get the NDEF message as an array of NDEF records:
-        var records = tag.ndefMessage;
-        // give info about the length of the NDEF message:
-        var displayString = "Scanned an NDEF tag with "
-            + records.length + " record"                // print the number of records + "record"
-            + ((records.length === 1) ? "": "s");       // if more than one record, pluralize "record"
+    showTag: function(tag) {
+        // display the tag properties:
+        app.display("Tag ID: " + nfc.bytesToHexString(tag.id));
+        app.display("Tag Type: " +  tag.type);
+        app.display("Max Size: " +  tag.maxSize + " bytes");
+        app.display("Is Writable: " +  tag.isWritable);
+        app.display("Can Make Read Only: " +  tag.canMakeReadOnly);
 
-        // create a paragraph to the body div to display the above info:
-        thisElement = document.createElement("p");
-        thisElement.innerHTML = displayString;
-        bodyDiv.appendChild(thisElement);
+        // if there is an NDEF message on the tag, display it:
+        if (tag.ndefMessage != null) {
+            // get and display the NDEF record count:
+            var records = tag.ndefMessage;
+            app.display("Tag has NDEF message with " + records.length + " records.")
 
-        // add a definition list to the body div:
-        var properties = document.createElement("dl");
-        bodyDiv.appendChild(properties);
-
-        // show the properties of the tag in the definition list:
-        if (device.platform.match(/Android/i)) {
-            if (tag.id) {
-                app.showProperty(properties, "Id", nfc.bytesToHexString(tag.id));
+            // display the details of each NDEF record:
+            for (thisRecord in records)  {
+                app.showRecord(records[thisRecord]);
             }
-            app.showProperty(properties, "Tag Type", tag.type);
-            app.showProperty(properties, "Max Size", tag.maxSize + " bytes");
-            app.showProperty(properties, "Is Writable", tag.isWritable);
-            app.showProperty(properties, "Can Make Read Only", tag.canMakeReadOnly);
         }
-
-        // Display Record Info
-        for (var i = 0; i < records.length; i++) {
-            var record = records[i],
-            p = document.createElement('p');
-            p.innerHTML = app.formatRecord(record);
-            bodyDiv.appendChild(p);
-        }
-        // vibrate the device:
-        navigator.notification.vibrate(100);
     },
 
-    /*
-        format NDEF records for HTML display
-        returns an HTML string
-    */
-    formatRecord: function(record) {
-        var id = "",
-            tnf = app.tnfToString(record.tnf),
-            recordType = nfc.bytesToString(record.type),
-            payload;
+/*
+    writes @record to the message div:
+*/
+    showRecord: function(record) {
+        app.display(" ");           // show a blank line before the record
+        // iterate over the record's properties:
+        for (thisProperty in record) {
+            var value = record[thisProperty];   // get the array element value
 
-        if (record.id && (record.id.length > 0)) {
-            id = "Record Id: <b>" + record.id + "<\/b><br/>";
+            if (thisProperty === "id") {
+                // id is a single-byte array with numeric values, so use toString:
+                app.display(thisProperty + ":" + (value.toString()));
+            } else if (thisProperty === "tnf") {
+                // Convert TNF to a string:
+                var tnfString = app.tnfToString(value);
+                app.display(thisProperty + ":" + tnfString);
+
+            } else {
+                // the other properties are multi-byte arrays so use nfc.bytesToString():
+                app.display(thisProperty + ":" + nfc.bytesToString(value));
+            }
         }
-
-        if (recordType === "T") {
-            var langCodeLength = record.payload[0],
-            text = record.payload.slice((1 + langCodeLength), record.payload.length);
-            payload = nfc.bytesToString(text);
-
-        } else if (recordType === "U") {
-            var url =  nfc.bytesToString(record.payload);
-            payload = "<a href='" + url + "'>" + url + "<\/a>";
-
-        } else {
-            // attempt display as a string
-            payload = nfc.bytesToString(record.payload);
-
-        }
-
-        return (id + "TNF: <b>" + tnf + "<\/b><br/>" +
-        "Record Type: <b>" + recordType + "<\/b>" +
-        "<br/>" + payload
-        );
     },
 
+/*
+    appends @message to the message div:
+*/
     display: function(message) {
-        document.getElementById("message").innerHTML = message;
+        var display = document.getElementById("message"),   // the div you'll write to
+            label,                                          // what you'll write to the div
+            lineBreak = document.createElement("br");       // a line break
+
+        label = document.createTextNode(message);           // create the label
+        display.appendChild(lineBreak);                     // add a line break
+        display.appendChild(label);                         // add the message node
     },
 
-    /*
-        add elements to a definition list.
-        Parameters: parent DL element, name for DT, value for DD
-    */
-    showProperty: function(parent, name, value) {
-        var dt, dd;
-        dt = document.createElement("dt");
-        dt.innerHTML = name;
-        dd = document.createElement("dd");
-        dd.innerHTML = value;
-        parent.appendChild(dt);
-        parent.appendChild(dd);
-    },
-
-    // clear the message and display divs:
-    clearDisplay: function() {
-        document.getElementById("message").innerHTML = "";
-        document.getElementById("display").innerHTML = "";
-    },
-
-    /*
-        convert TNF values to their descriptive names.
-        returns a string
-    */
     tnfToString: function(tnf) {
         var value = tnf;
 
@@ -192,4 +165,4 @@ var app = {
         }
         return value;
     }
-}
+};          // end of app
