@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>CameraTagger</title>
+        <script type="text/javascript" src="cordova-2.3.0.js"></script>
+        <script type="text/javascript" src="js/phonegap-nfc.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+    </head>
+    <body onload="app.initialize();">
+        <div class="app">
+            <div id="message">No tag found</div>
+             <button onclick="app.capturePhoto();">Capture Photo</button> <br>
+            <img src="" id="smallImage" width="200">
+        </div>
+     </body>
+</html>
