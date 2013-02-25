@@ -115,34 +115,18 @@ var app = {
     writes @record to the message div:
 */
     showRecord: function(record) {
+        var value,                  // value of a given record element
+            displayString;          // the string to display onscreen
+
         app.display(" ");           // show a blank line before the record
         // iterate over the record's properties:
         for (thisProperty in record) {
-            var value = record[thisProperty];   // get the array element value
-            var displayString = thisProperty + ":";
-            switch(thisProperty) {
-                case 'id':
-                    displayString += value.toString();
-                    break;
-                case 'type':
-                    displayString += nfc.bytesToString(value);
-                    break;
-                case 'payload':
-                    // need to do something different if the payload is an ndefMessage:
-                   /*
-                    if (record[thisProperty] instanceof ndefMessage) {
-                        // you need to process the smart poster now
+            value = record[thisProperty];   // get the array element value
 
-                    } else {
-                    */
-                    displayString += nfc.bytesToString(value);
-                    //}
-                    break;
-                case 'tnf':
-                    displayString += app.tnfToString(value);
-                    break;
+            // Note: this doesn't handle Smart Posters well. Haven't figured
+            // that out yet
 
-            }
+            displayString = thisProperty + ":" + nfc.bytesToString(value);
             app.display(displayString);
         }
     },
