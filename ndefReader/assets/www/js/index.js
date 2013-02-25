@@ -25,16 +25,16 @@ var app = {
             }
         );
 
-        nfc.addMimeTypeListener(
-            "text/plain",
+        nfc.addNdefFormatableListener(
             app.onNfc,                                  // tag successfully scanned
             function (status) {                         // listener successfully initialized
-                app.display("Listening for MIME Types.");
+                app.display("Listening for NDEF Formatable tags.");
             },
             function (error) {                          // listener fails to initialize
                 app.display("NFC reader failed to initialize " + JSON.stringify(error));
             }
         );
+
 
         nfc.addNdefListener(
             app.onNfc,                                  // tag successfully scanned
@@ -46,30 +46,42 @@ var app = {
             }
         );
 
-        nfc.addNdefFormatableListener(
+        nfc.addMimeTypeListener(
+            "text/plain",
             app.onNfc,                                  // tag successfully scanned
             function (status) {                         // listener successfully initialized
-                app.display("Listening for NDEF Formatable tags.");
+                app.display("Listening for MIME Types.");
             },
             function (error) {                          // listener fails to initialize
                 app.display("NFC reader failed to initialize " + JSON.stringify(error));
             }
         );
-
     },
 
-    onNfc: function(nfcEvent) {
-        app.clear();                                     // clear the message div
-        app.display(" Event Type: " + nfcEvent.type);    // display the event type
-        app.showTag(nfcEvent.tag);                       // display the tag details
-    },
+/*
+    appends @message to the message div:
+*/
+    display: function(message) {
+        var display = document.getElementById("message"),   // the div you'll write to
+            label,                                          // what you'll write to the div
+            lineBreak = document.createElement("br");       // a line break
 
+        label = document.createTextNode(message);           // create the label
+        display.appendChild(lineBreak);                     // add a line break
+        display.appendChild(label);                         // add the message node
+    },
 /*
     clears the message div:
 */
     clear: function() {
         var display = document.getElementById("message");
         display.innerHTML = "";
+    },
+
+    onNfc: function(nfcEvent) {
+        app.clear();                                     // clear the message div
+        app.display(" Event Type: " + nfcEvent.type);    // display the event type
+        app.showTag(nfcEvent.tag);                       // display the tag details
     },
 
 /*
@@ -119,19 +131,6 @@ var app = {
                 app.display(thisProperty + ":" + nfc.bytesToString(value));
             }
         }
-    },
-
-/*
-    appends @message to the message div:
-*/
-    display: function(message) {
-        var display = document.getElementById("message"),   // the div you'll write to
-            label,                                          // what you'll write to the div
-            lineBreak = document.createElement("br");       // a line break
-
-        label = document.createTextNode(message);           // create the label
-        display.appendChild(lineBreak);                     // add a line break
-        display.appendChild(label);                         // add the message node
     },
 
     tnfToString: function(tnf) {
