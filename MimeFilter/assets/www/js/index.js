@@ -81,9 +81,7 @@ var app = {
             var records = tag.ndefMessage;
             app.display("Tag has NDEF message with " + records.length + " records.")
 
-            var mimeType = records[0].type;
-
-            console.log(mimeType);
+            var mimeType =  nfc.bytesToString(records[0].type);
 
             switch (mimeType) {
                 case ndef.RTD_TEXT:
@@ -96,11 +94,11 @@ var app = {
                     app.display("Golly!  That's a smart poster.");
                     break;
                 default:
-                    if (nfc.bytesToString(mimeType) === "android.com:pkg") {
+                    if (mimeType === "android.com:pkg") {
                         app.display("You've got yourself an AAR there.");
                     } else {
                         app.display("I don't know what " +
-                            nfc.bytesToString(mimeType) +
+                            mimeType +
                             " is, must be a custom MIME type");
                     }
                     break;
@@ -121,19 +119,31 @@ var app = {
         // iterate over the record's properties:
         for (thisProperty in record) {
             var value = record[thisProperty];   // get the array element value
+            var displayString = thisProperty + ":";
+            switch(thisProperty) {
+                case 'id':
+                    displayString += value.toString();
+                    break;
+                case 'type':
+                    displayString += nfc.bytesToString(value);
+                    break;
+                case 'payload':
+                    // need to do something different if the payload is an ndefMessage:
+                   /*
+                    if (record[thisProperty] instanceof ndefMessage) {
+                        // you need to process the smart poster now
 
-            if (thisProperty === "id") {
-                // id is a single-byte array with numeric values, so use toString:
-                app.display(thisProperty + ":" + (value.toString()));
-            } else if (thisProperty === "tnf") {
-                // Convert TNF to a string:
-                var tnfString = app.tnfToString(value);
-                app.display(thisProperty + ":" + tnfString);
+                    } else {
+                    */
+                    displayString += nfc.bytesToString(value);
+                    //}
+                    break;
+                case 'tnf':
+                    displayString += app.tnfToString(value);
+                    break;
 
-            } else {
-                // the other properties are multi-byte arrays so use nfc.bytesToString():
-                app.display(thisProperty + ":" + nfc.bytesToString(value));
             }
+            app.display(displayString);
         }
     },
 
