@@ -93,14 +93,15 @@ var app = {
                 case ndef.RTD_SMART_POSTER:
                     app.display("Golly!  That's a smart poster.");
                     break;
+
+                // the user can add cases here:
+                case 'android.com:pkg':
+                    app.display("You've got yourself an AAR there.");
+                    break;
                 default:
-                    if (mimeType === "android.com:pkg") {
-                        app.display("You've got yourself an AAR there.");
-                    } else {
                         app.display("I don't know what " +
                             mimeType +
                             " is, must be a custom MIME type");
-                    }
                     break;
             }
             app.display("MIME type: " + mimeType);
