@@ -28,7 +28,7 @@ function handleNfcFromIntentFilter() {
 document.addEventListener('deviceready', handleNfcFromIntentFilter, false);
 
 var ndef = {
-
+        
     // see android.nfc.NdefRecord for documentation about constants
     // http://developer.android.com/reference/android/nfc/NdefRecord.html
     TNF_EMPTY: 0x0,
@@ -39,41 +39,33 @@ var ndef = {
     TNF_UNKNOWN: 0x05,
     TNF_UNCHANGED: 0x06,
     TNF_RESERVED: 0x07,
-/*
+
     RTD_TEXT: [0x54], // "T"
-    RTD_URI: [0x55], // "U"
+    RTD_URI: [0x55], // "U" 
     RTD_SMART_POSTER: [0x53, 0x70], // "Sp"
     RTD_ALTERNATIVE_CARRIER: [0x61, 0x63], // "ac"
     RTD_HANDOVER_CARRIER: [0x48, 0x63], // "Hc"
     RTD_HANDOVER_REQUEST: [0x48, 0x72], // "Hr"
     RTD_HANDOVER_SELECT: [0x48, 0x73], // "Hs"
-*/
 
-  RTD_TEXT: "T", // "T"
-    RTD_URI: "U", // "U"
-    RTD_SMART_POSTER: "Sp", // "Sp"
-    RTD_ALTERNATIVE_CARRIER: "ac", // "ac"
-    RTD_HANDOVER_CARRIER: "Hc", // "Hc"
-    RTD_HANDOVER_REQUEST: "Hr", // "Hr"
-    RTD_HANDOVER_SELECT: "Hs", // "Hs"
     /**
      * Creates a JSON representation of a NDEF Record.
-     *
+     * 
      * @tnf 3-bit TNF (Type Name Format) - use one of the TNF_* constants
      * @type byte array, containing zero to 255 bytes, must not be null
      * @id byte array, containing zero to 255 bytes, must not be null
      * @payload byte array, containing zero to (2 ** 32 - 1) bytes, must not be null
      *
      * @returns JSON representation of a NDEF record
-     *
-     * @see Ndef.textRecord, Ndef.uriRecord and Ndef.mimeMediaRecord for examples
+     * 
+     * @see Ndef.textRecord, Ndef.uriRecord and Ndef.mimeMediaRecord for examples        
      */
     record: function (tnf, type, id, payload) {
-
+        
         // handle null values
         if (!tnf) { tnf = ndef.TNF_EMPTY; }
         if (!type) { type = []; }
-        if (!id) { id = []; }
+        if (!id) { id = []; }    
         if (!payload) { payload = []; }
 
         // convert strings to arrays
@@ -86,7 +78,7 @@ var ndef = {
         if (!(payload instanceof Array)) {
            payload = nfc.stringToBytes(payload);
         }
-
+                
         return {
             tnf: tnf,
             type: type,
@@ -104,12 +96,12 @@ var ndef = {
      */
     textRecord: function (text, languageCode, id) {
         var payload = [];
-
-        if (!languageCode) { languageCode = 'en'; }
-        if (!id) { id = []; }
-
+            
+        if (!languageCode) { languageCode = 'en'; }   
+        if (!id) { id = []; }   
+        
         // TODO need to handle UTF-16 see Text Record Type Definition Section 3.2.1 Syntax, Table 3
-        payload.push(languageCode.length);
+        payload.push(languageCode.length);        
         nfc.concatArray(payload, nfc.stringToBytes(languageCode));
         nfc.concatArray(payload, nfc.stringToBytes(text));
 
@@ -126,7 +118,7 @@ var ndef = {
         if (!id) { id = []; }
         var payload = nfc.stringToBytes(uri);
         // add identifier code 0x0, meaning no prefix substitution
-        payload.unshift(0x0);
+        payload.unshift(0x0);        
         return ndef.record(ndef.TNF_WELL_KNOWN, ndef.RTD_URI, id, payload);
     },
 
@@ -147,9 +139,9 @@ var ndef = {
      * @mimeType String
      * @payload byte[]
      * @id byte[] (optional)
-     */
+     */    
     mimeMediaRecord: function (mimeType, payload, id) {
-        if (!id) { id = []; }
+        if (!id) { id = []; }   
         return ndef.record(ndef.TNF_MIME_MEDIA, nfc.stringToBytes(mimeType), id, payload);
     },
 
@@ -158,17 +150,17 @@ var ndef = {
      *
      * @ndefRecords array of NDEF Records
      * @id byte[] (optional)
-     */
+     */    
     smartPoster: function (ndefRecords, id) {
         var payload = [];
-
+        
         if (!id) { id = []; }
-
+        
         if (ndefRecords)
         {
             // make sure we have an array of something like NDEF records before encoding
             if (ndefRecords[0] instanceof Object && ndefRecords[0].hasOwnProperty('tnf')) {
-                payload = ndef.encodeMessage(ndefRecords);
+                payload = ndef.encodeMessage(ndefRecords);                
             } else {
                 // assume the caller has already encoded the NDEF records into a byte array
                 payload = ndefRecords;
@@ -176,7 +168,7 @@ var ndef = {
         } else {
             console.log("WARNING: Expecting an array of NDEF records");
         }
-
+                   
         return ndef.record(ndef.TNF_WELL_KNOWN, ndef.RTD_SMART_POSTER, id, payload);
     },
 
@@ -185,16 +177,16 @@ var ndef = {
      *
      */
     emptyRecord: function() {
-        return ndef.record(ndef.TNF_EMPTY, [], [], []);
+        return ndef.record(ndef.TNF_EMPTY, [], [], []);        
     },
-
+    
     /**
      * Encodes an NDEF Message into bytes that can be written to a NFC tag.
-     *
+     * 
      * @ndefRecords an Array of NDEF Records
      *
      * @returns byte array
-     *
+     * 
      * @see NFC Data Exchange Format (NDEF) http://www.nfc-forum.org/specs/spec_list/
      */
     encodeMessage: function (ndefRecords) {
@@ -253,11 +245,11 @@ var ndef = {
 
     /**
      * Decodes an array bytes into an NDEF Message
-     *
+     * 
      * @bytes an array bytes read from a NFC tag
      *
      * @returns array of NDEF Records
-     *
+     * 
      * @see NFC Data Exchange Format (NDEF) http://www.nfc-forum.org/specs/spec_list/
      */
     decodeMessage: function (bytes) {
@@ -271,7 +263,7 @@ var ndef = {
             record_type = [],
             id = [],
             payload = [];
-
+            
         while(bytes.length) {
 
             type_length = bytes.shift();
@@ -282,7 +274,7 @@ var ndef = {
                 // next 4 bytes are length
                 payload_length = ((0xFF & bytes.shift()) << 24) |
                     ((0xFF & bytes.shift()) << 26) |
-                    ((0xFF & bytes.shift()) << 8) |
+                    ((0xFF & bytes.shift()) << 8) | 
                     (0xFF & bytes.shift());
             }
 
@@ -303,10 +295,10 @@ var ndef = {
 
         return ndef_message;
     },
-
+    
     /**
      * Decode the bit flags from a TNF Byte.
-     *
+     * 
      * @returns object with decoded data
      *
      *  See NFC Data Exchange Format (NDEF) Specification Section 3.2 RecordLayout
@@ -324,7 +316,7 @@ var ndef = {
 
     /**
      * Encode NDEF bit flags into a TNF Byte.
-     *
+     * 
      * @returns tnf byte
      *
      *  See NFC Data Exchange Format (NDEF) Specification Section 3.2 RecordLayout
@@ -340,7 +332,7 @@ var ndef = {
         if (me) {
             value = value | 0x40;
         }
-
+        
         // note if cf: me, mb, li must be false and tnf must be 0x6
         if (cf) {
             value = value | 0x20;
@@ -356,7 +348,7 @@ var ndef = {
 
         return value;
     }
-
+    
 };
 
 var nfc = {
@@ -367,12 +359,12 @@ var nfc = {
     },
 
     addMimeTypeListener: function (mimeType, callback, win, fail) {
-        document.addEventListener("ndef-mime", callback, false);
+        document.addEventListener("ndef-mime", callback, false);    
         cordova.exec(win, fail, "NfcPlugin", "registerMimeType", [mimeType]);
     },
-
+    
     addNdefListener: function (callback, win, fail) {
-        document.addEventListener("ndef", callback, false);
+        document.addEventListener("ndef", callback, false);                
         cordova.exec(win, fail, "NfcPlugin", "registerNdef", []);
     },
 
@@ -380,7 +372,7 @@ var nfc = {
         document.addEventListener("ndef-formatable", callback, false);
         cordova.exec(win, fail, "NfcPlugin", "registerNdefFormatable", []);
     },
-
+    
     write: function (ndefMessage, win, fail) {
         cordova.exec(win, fail, "NfcPlugin", "writeTag", [ndefMessage]);
     },
@@ -462,7 +454,7 @@ var nfc = {
         }
         return bytesAsHexString;
     }
-
+    
 };
 
 var util = {
@@ -479,8 +471,8 @@ var util = {
         // zero padding
         if (hex.length == 1) {
             hex = "0" + hex;
-        }
-
+        } 
+        
         return hex;
     },
 

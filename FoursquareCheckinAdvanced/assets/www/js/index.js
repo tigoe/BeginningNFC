@@ -1,16 +1,19 @@
-var app = {
-    // Application constructor
-    initialize: function() {
+ var app = {
+        // Application constructor
+     initialize: function() {
         this.bindEvents();
-        console.log("Starting Foursquare Checkin app");
+        console.log("Starting Foursquare Checkin Advanced app");
     },
-
-    // bind any events that are required on startup to listeners:
+/*
+    bind any events that are required on startup to listeners:
+*/
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
     },
 
-    // this runs when the device is ready for user interaction:
+/*
+    this runs when the device is ready for user interaction:
+*/
     onDeviceReady: function() {
         var parentElement = document.getElementById("message");
         parentElement.innerHTML = "Tap a tag to read its id number.";
@@ -23,18 +26,37 @@ var app = {
             function (error) {                          // listener fails to initialize
                 app.display("NFC reader failed to initialize " + JSON.stringify(error));
             }
-        );
+        )
     },
+
+/*
+    displays tag ID from @nfcEvent in message div:
+*/
 
     onNfc: function(nfcEvent) {
         var tag = nfcEvent.tag;
-        app.display("Read NDEF tag: " + nfc.bytesToHexString(tag.id));
+        app.display("Read tag: " + nfc.bytesToHexString(tag.id));
     },
 
+/*
+    appends @message to the message div:
+*/
     display: function(message) {
-        document.getElementById("message").innerHTML = message;
-    },
+        var display = document.getElementById("message"),   // the div you'll write to
+            label,                                          // what you'll write to the div
+            lineBreak = document.createElement("br");       // a line break
 
+        label = document.createTextNode(message);           // create the label
+        display.appendChild(lineBreak);                     // add a line break
+        display.appendChild(label);                         // add the message node
+    },
+/*
+    clears the message div:
+*/
+    clear: function() {
+        var display = document.getElementById("message");
+        display.innerHTML = "";
+    },
 
     makeMessage: function() {
         // get the app type that the user wants to emulate from the HTML form:
@@ -126,16 +148,17 @@ var app = {
     },
 
     writeTag: function(message) {
-        // write the message to the tag:
+        // write the record to the tag:
         nfc.write(
-            message,								// write the message itself to the tag
-            function () {							// when complete, run this callback function:
-                app.display("Wrote data to tag.");		// notify the user in text on the screen
-                navigator.notification.vibrate(100);	// vibrate the device as well
+            message,                        // write the record itself to the tag
+            function () {                   // when complete, run this callback function:
+                app.clear();                            // clear the message div
+                app.display("Wrote data to tag.");      // notify the user in message div
+                navigator.notification.vibrate(100);    // vibrate the device as well
             },
-            function (reason) {						// this function runs if the write command fails
+            function (reason) {             // this function runs if the write command fails
                 navigator.notification.alert(reason, function() {}, "There was a problem");
             }
         );
     }
-};          // end of app
+};      // end of app

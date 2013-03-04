@@ -3,27 +3,24 @@
 <html>
     <head>
         <title>Foursquare Checkin Tag Writer - Advanced</title>
+        <script type="text/javascript" src="cordova-2.3.0.js"></script>
+        <script type="text/javascript" src="js/phonegap-nfc.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
     </head>
     <body onload="app.initialize();">
         <div class="app">
             <div id="message">No tag found</div>
 
-        <form>
-           Format tag like: <br />
-           <select name="appType">
-                <option value="1" >NFC Task Launcher</option>
-                <option value="2" >TagStand Writer</option>
-                <option value="3" >NXP TagWriter</option>
-               <option value="4" >Samsung TecTiles</option>
-                <option value="5" >App Launcher NFC</option>
-             </select>
-        </form>
-       <button onClick="app.makeMessage();">Write to tag</button>
-
-
+            <form>
+               Format tag like: <br />
+               <select name="appType">
+                    <option value="1" >NFC Task Launcher</option>
+                    <option value="2" >TagStand Writer</option>
+                    <option value="3" >NXP TagWriter</option>
+                   <option value="4" >Samsung TecTiles</option>
+                    <option value="5" >App Launcher NFC</option>
+                 </select>
+            </form>
+           <button onClick="app.makeMessage();">Write to tag</button>
         </div>
-    <script type="text/javascript" src="cordova-2.3.0.js"></script>
-    <script type="text/javascript" src="js/phonegap-nfc.js"></script>
-    <script type="text/javascript" src="js/index.js"></script>
-    </body>
 </html>

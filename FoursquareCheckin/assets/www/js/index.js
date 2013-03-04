@@ -77,12 +77,13 @@ var app = {
     writeTag: function(message) {
         // write the record to the tag:
         nfc.write(
-            message,                                // write the record itself to the tag
-            function () {                           // when complete, run this callback function:
-                app.display("Wrote data to tag.");      // notify the user in text on the screen
+            message,                        // write the record itself to the tag
+            function () {                   // when complete, run this callback function:
+                app.clear();                            // clear the message div
+                app.display("Wrote data to tag.");      // notify the user in message div
                 navigator.notification.vibrate(100);    // vibrate the device as well
             },
-            function (reason) {                     // this function runs if the write command fails
+            function (reason) {             // this function runs if the write command fails
                 navigator.notification.alert(reason, function() {}, "There was a problem");
             }
         );
