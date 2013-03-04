@@ -17,7 +17,7 @@
        under the License.
  */
 
-package net.tigoe.foursquarecheckin;
+package net.tigoe.foursquareCheckin;
 
 import android.app.Activity;
 import android.os.Bundle;
