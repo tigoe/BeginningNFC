@@ -5,7 +5,7 @@
  * should not be modified by hand.
  */
 
-package net.tigoe.foursquarecheckin;
+package net.tigoe.foursquareCheckin;
 
 public final class R {
     public static final class attr {

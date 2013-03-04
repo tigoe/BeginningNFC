@@ -1,4 +1,4 @@
-/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/FoursquareCheckin/gen/net/tigoe/foursquarecheckin/R.java \
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/FoursquareCheckin/gen/net/tigoe/foursquareCheckin/R.java \
  : /Users/tigoe/Documents/gitHub/GettingStartedWithNFC/FoursquareCheckin/res/drawable/icon.png \
 /Users/tigoe/Documents/gitHub/GettingStartedWithNFC/FoursquareCheckin/res/drawable-hdpi/ic_launcher.png \
 /Users/tigoe/Documents/gitHub/GettingStartedWithNFC/FoursquareCheckin/res/drawable-hdpi/icon.png \
