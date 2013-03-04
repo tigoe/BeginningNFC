@@ -1,5 +1,7 @@
- var app = {
-        // Application constructor
+var app = {
+/*
+    Application constructor
+ */
     initialize: function() {
         this.bindEvents();
         console.log("Starting NFC Reader app");

@@ -1,4 +1,4 @@
- var app = {
+var app = {
 /*
     Application constructor
 */
