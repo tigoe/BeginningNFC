@@ -1,81 +1,58 @@
+ var app = {
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-var app = {
-    locatorTimer: null,          // variable to hold an locator timer when it's running
-
-    // Application constructor
+    Application constructor
+*/
     initialize: function() {
         this.bindEvents();
+        console.log("Starting Locator app");
     },
-
-    // bind any events that are required on startup to listeners:
+/*
+    bind any events that are required on startup to listeners:
+*/
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
     },
 
-    // this runs when the device is ready for user interaction:
+/*
+    this runs when the device is ready for user interaction:
+*/
     onDeviceReady: function() {
-        var parentElement = document.getElementById("location");
-        parentElement.innerHTML = "Click to start location service.";
+        app.display("Click to start location service.");
     },
 
+/*
+    Displays the current position in the message div:
+*/
     getLocation: function() {
         // this function is run if the getCurrentPosition is successful:
         var success = function(here) {
-            app.update("location", here.coords);
+            var location = here.coords;         // get the coordinates
+            app.clear();                        // clear the messave div
+
+            // show the location in the message div
+            app.display("Latitude: " + location.latitude);
+            app.display("Longitude: " + location.longitude);
         };
+
         // this function is run if getCurrentPosition fails:
         var failure = function() {
-            app.update("location", null)
+            app.clear();                        // clear the messave div
+            app.display("No location found");   // display failure message
         };
+
         // attempt to get the current position:
         navigator.geolocation.getCurrentPosition(success, failure);
     },
 
-    // Update location element on an update Event:
-    update: function(id, location) {
-        var parentElement = document.getElementById(id),    // the location div
-            thisElement;                                    // used to add to location
+    locatorTimer: null,          // variable to hold a locator timer when it's running
 
-        parentElement.innerHTML = "";                       // clear the location div
-
-        // if you got a location, write its lat and long
-        // to the location div in two paragraphs:
-        if (location != null) {
-             thisElement = document.createElement("p");
-            thisElement.innerHTML =  "Latitude: " + location.latitude;
-            parentElement.appendChild(thisElement);
-            thisElement = document.createElement("p");
-            thisElement.innerHTML =  "Longitude: " + location.longitude;
-            parentElement.appendChild(thisElement);
-
-        // if you got no result, write that to the location div:
-        } else {
-            parentElement.innerHTML = "No location found";
-        }
-    },
-
-    locatorTimer: null,          // variable to hold an locator timer when it's running
-
+/*
+    turns on or off the locator:
+*/
     toggleLocator: function() {
         // if the timer variable's empty, start it running:
         if (app.locatorTimer == null) {
+            // set an inteval of 1 second (1000 ms):
             app.locatorTimer = setInterval(app.getLocation, 1000);
             // ... and change the label of the button:
             document.getElementById("locatorButton").innerHTML = "Stop";
@@ -87,5 +64,24 @@ var app = {
             // ... and change the label of the button:
             document.getElementById("locatorButton").innerHTML = "Start";
         }
+    },
+/*
+    appends @message to the message div:
+*/
+    display: function(message) {
+        var display = document.getElementById("message"),   // the div you'll write to
+            label,                                          // what you'll write to the div
+            lineBreak = document.createElement("br");       // a line break
+
+        label = document.createTextNode(message);           // create the label
+        display.appendChild(lineBreak);                     // add a line break
+        display.appendChild(label);                         // add the message node
+    },
+/*
+    clears the message div:
+*/
+    clear: function() {
+        var display = document.getElementById("message");
+        display.innerHTML = "";
     }
-};          // close of the app
+};      // end of app

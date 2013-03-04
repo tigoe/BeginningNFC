@@ -1,2 +1,2 @@
-/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/locator/bin/AndroidManifest.xml : \
-/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/locator/AndroidManifest.xml \
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/Locator/bin/AndroidManifest.xml : \
+/Users/tigoe/Documents/gitHub/GettingStartedWithNFC/Locator/AndroidManifest.xml \
