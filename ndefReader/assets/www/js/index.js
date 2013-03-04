@@ -1,17 +1,20 @@
-var app = {
-    // Application constructor
-    initialize: function() {
+ var app = {
+        // Application constructor
+     initialize: function() {
         this.bindEvents();
         console.log("Starting NDEF Events app");
     },
-
-    // bind any events that are required on startup to listeners:
+/*
+    bind any events that are required on startup to listeners:
+*/
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
     },
 
-    // this runs when the device is ready for user interaction:
-    onDeviceReady: function() {
+/*
+    this runs when the device is ready for user interaction:
+*/
+onDeviceReady: function() {
         var parentElement = document.getElementById("message");
         parentElement.innerHTML = "Tap a tag to read its id number.";
 
@@ -77,6 +80,10 @@ var app = {
         var display = document.getElementById("message");
         display.innerHTML = "";
     },
+
+/*
+    displays tag ID from @nfcEvent in message div:
+*/
 
     onNfc: function(nfcEvent) {
         app.clear();                                     // clear the message div
@@ -164,4 +171,4 @@ var app = {
         }
         return value;
     }
-};          // end of app
+};      // end of app
