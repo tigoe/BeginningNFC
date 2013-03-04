@@ -45,7 +45,13 @@ var app = {
             label,                                          // what you'll write to the div
             lineBreak = document.createElement("br");       // a line break
 
-        label = document.createTextNode(message);           // create the label
+        // KLUDGE - Smart Poster has embedded HTML
+        if (message.indexOf("&nbsp;") > -1) {
+            label = document.createElement("span");
+            label.innerHTML = message;            
+        } else {
+            label = document.createTextNode(message);           // create the label            
+        }
         display.appendChild(lineBreak);                     // add a line break
         display.appendChild(label);                         // add the message node
     },
@@ -76,11 +82,13 @@ var app = {
         app.display("Can Make Read Only: " +  tag.canMakeReadOnly);
 
         // if there is an NDEF message on the tag, display it:
-        if (tag.ndefMessage != null) {
+        if (tag.ndefMessage !== null) {
             // get and display the NDEF record count:
             var records = tag.ndefMessage;
-            app.display("Tag has NDEF message with " + records.length + " records.")
+            app.display("Tag has NDEF message with " + records.length + " records.");
 
+            // TODO this is only a MIME TYPE when the tnf is TNF_MIME_MEDIA
+            // most of the time it's just a TYPE
             var mimeType =  nfc.bytesToString(records[0].type);
 
             switch (mimeType) {
@@ -106,7 +114,7 @@ var app = {
             }
             app.display("MIME type: " + mimeType);
             // display the details of each NDEF record:
-            for (thisRecord in records)  {
+            for (var thisRecord in records)  {
                 app.showRecord(records[thisRecord]);
             }
         }
@@ -119,20 +127,43 @@ var app = {
         var value,                  // value of a given record element
             displayString;          // the string to display onscreen
 
-        app.display(" ");           // show a blank line before the record
+        app.display(" ");           // show a blank line before the record        
         // iterate over the record's properties:
-        for (thisProperty in record) {
+        for (var thisProperty in record) {
             value = record[thisProperty];   // get the array element value
 
-            // Note: this doesn't handle Smart Posters well. Haven't figured
-            // that out yet
+            // BEGIN SMART POSTER HACK
+            if (thisProperty === "payload" && (nfc.bytesToString(record.type)) === "Sp") {
 
-            displayString = thisProperty + ":" + nfc.bytesToString(value);
+                // the payload of a smartposter is an NDEF message
+                var ndefMessage = ndef.decodeMessage(record.payload);
+                
+                // show each record
+                for (var i = 0; i < ndefMessage.length; i++) { // need zepto or jquery $.each                     
+                    var ndefRecord = ndefMessage[i];
+                    
+                    // This would be SO much clearer with a template (handlebars | mustache | underscore)
+                    value += "<br/>&nbsp;&nbsp;Record: <br/>" +
+                        "&nbsp;&nbsp;&nbsp;&nbsp;TNF: " + ndefRecord.tnf + "<br/>" +
+                        "&nbsp;&nbsp;&nbsp;&nbsp;Type: " + nfc.bytesToString(ndefRecord.type) + "<br/>" +
+                        "&nbsp;&nbsp;&nbsp;&nbsp;Payload: " + nfc.bytesToString(ndefRecord.payload);
+                        
+                    if (ndefRecord.id.length) {
+                        value += "<br/>&nbsp;&nbsp;&nbsp;&nbsp;Id: " + nfc.bytesToString(ndefRecord.id);                                               
+                    }                        
+                }
+            } // END SMART POSTER
+            
+            if (value instanceof Array) {  // type, payload and id are all byte arrays
+                displayString = thisProperty + ":" + nfc.bytesToString(value);                
+            } else { // TNF and decoded SmartPoster payloads are Strings
+                displayString = thisProperty + ":"  + value;
+            }
             app.display(displayString);
         }
     },
 
-    tnfToString: function(tnf) {
+    tnfToString: function(tnf) { // TODO this belongs in PhoneGap NFC
         var value = tnf;
 
         switch (tnf) {
