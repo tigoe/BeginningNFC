@@ -29,21 +29,31 @@ var app = {
 /*
     appends @message to the message div:
 */
-    display: function(message) {
-        var display = document.getElementById("message"),   // the div you'll write to
-            label,                                          // what you'll write to the div
-            lineBreak = document.createElement("br");       // a line break
+    display: function(message, nodeName) {
+        var display,                                    // the div you'll write to
+            label,                                      // what you'll write to the div
+            lineBreak = document.createElement("br");   // a line break
 
-        // KLUDGE - Smart Poster has embedded HTML
-        if (message.indexOf("&nbsp;") > -1) {
-            label = document.createElement("span");
-            label.innerHTML = message;
+        // if there's no nodeName, use the message div,
+        // otherwise write to the given node:
+        if (!nodeName) {
+            display = document.getElementById("message");
         } else {
-            label = document.createTextNode(message);           // create the label
+            display = document.getElementById(nodeName);
         }
-        display.appendChild(lineBreak);                     // add a line break
-        display.appendChild(label);                         // add the message node
+
+        label = document.createTextNode(message);        // create the label
+        display.appendChild(lineBreak);                  // add a line break
+        display.appendChild(label);                      // add the message node
     },
+
+    addDisplayNode: function(nodeName, nodeType) {
+        var display = document.getElementById("message");   // all new nodes in the message div
+        var node = document.createElement(nodeType);        // make the node
+        node.setAttribute("id", nodeName);                  // give it an ID
+        display.appendChild(node);                          // add it to the message div
+    },
+
 /*
     clears the message div:
 */
@@ -79,7 +89,7 @@ var app = {
             var type =  nfc.bytesToString(records[0].type);
             switch (type) {
                 case nfc.bytesToString(ndef.RTD_TEXT):
-                    app.display("Looks like text to me.");
+                    app.display("Looks like a text record to me.");
                     break;
                 case nfc.bytesToString(ndef.RTD_URI):
                     app.display("That's a URI right there");
@@ -87,71 +97,53 @@ var app = {
                 case nfc.bytesToString(ndef.RTD_SMART_POSTER):
                     app.display("Golly!  That's a smart poster.");
                     break;
-
-                // the user can add cases here:
+                // add any custom types here, such as MIME types or external types:
                 case 'android.com:pkg':
                     app.display("You've got yourself an AAR there.");
                     break;
                 default:
-                        app.display("I don't know what " +
-                            type +
-                            " is, must be a custom MIME type");
+                    app.display("I don't know what " +
+                        type +
+                        " is, must be a custom type");
                     break;
             }
-            app.display("type: " + type);
-            // display the details of each NDEF record:
-            for (var thisRecord in records)  {
-                app.showRecord(records[thisRecord]);
-            }
+            app.showMessage("Message Contents: ");
+            app.showMessage(records);
         }
     },
 
+    recordCount: 0,     // how many records have been displayed
+
+    showMessage : function(message) {
+        app.recordCount++;                          // increment the count of records to show
+        var myName = "record" + app.recordCount;    // create a unique name
+        app.addDisplayNode(myName, "span");         // add a display node for it
+
+        for (var thisRecord in message) {
+            record = message[thisRecord];           // get the next record in the message array
+            app.showRecord(record, myName);         // show it
+        }
+    },
 /*
     writes @record to the message div:
 */
-    showRecord: function(record) {
-        var value,                  // value of a given record element
-            displayString;          // the string to display onscreen
+    showRecord: function(record, nodeName) {
+        // display the TNF, Type, and ID in the record's <span> node:
+        app.display(" ", nodeName);
+        app.display("TNF: " + record.tnf, nodeName);
+        app.display("Type: " +  nfc.bytesToString(record.type), nodeName);
+        app.display("ID: " + nfc.bytesToString(record.id), nodeName);
 
-        app.display(" ");           // show a blank line before the record
-        // iterate over the record's properties:
-        for (var thisProperty in record) {
-            value = record[thisProperty];   // get the array element value
+        // if the payload is a Smart Poster, it's an NDEF message.
+        // read it and display it (recursion is your friend here):
+        if (nfc.bytesToString(record.type) === "Sp") {
+            var ndefMessage = ndef.decodeMessage(record.payload);
+            app.showMessage(ndefMessage);
 
-            // BEGIN SMART POSTER HACK
-            if (thisProperty === "payload" && (nfc.bytesToString(record.type)) === "Sp") {
-
-                // the payload of a smartposter is an NDEF message
-                var ndefMessage = ndef.decodeMessage(record.payload);
-
-                // show each record
-                for (var i = 0; i < ndefMessage.length; i++) { // need zepto or jquery $.each
-                    var ndefRecord = ndefMessage[i];
-
-                    // This would be SO much clearer with a template (handlebars | mustache | underscore)
-                    value += "<br/>&nbsp;&nbsp;Record: <br/>" +
-                        "&nbsp;&nbsp;&nbsp;&nbsp;TNF: " + ndefRecord.tnf + "<br/>" +
-                        "&nbsp;&nbsp;&nbsp;&nbsp;Type: " + nfc.bytesToString(ndefRecord.type) + "<br/>" +
-                        "&nbsp;&nbsp;&nbsp;&nbsp;Payload: " + nfc.bytesToString(ndefRecord.payload);
-
-                    if (ndefRecord.id.length) {
-                        value += "<br/>&nbsp;&nbsp;&nbsp;&nbsp;Id: " + nfc.bytesToString(ndefRecord.id);
-                    }
-                }
-            } // END SMART POSTER
-
-            if (value instanceof Array) {  // type, payload and id are all byte arrays
-                displayString = thisProperty + ":" + nfc.bytesToString(value);
-            } else { // TNF and decoded SmartPoster payloads are Strings
-                displayString = thisProperty + ":"  + value;
-            }
-            app.display(displayString);
+        // if the payload's not a Smart Poster, display it:
+        } else {
+            app.display("Payload: " + nfc.bytesToString(record.payload), nodeName);
         }
-    },
-
-    rtdToString: function(rtd) {
-        return rtd.join("");
-
     },
 
     tnfToString: function(tnf) { // TODO this belongs in PhoneGap NFC
