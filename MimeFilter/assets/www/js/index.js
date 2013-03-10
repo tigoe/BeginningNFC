@@ -27,7 +27,7 @@ var app = {
      },
 
 /*
-    appends @message to the message div:
+    appends @message to the message div or another DOM element:
 */
     display: function(message, nodeName) {
         var display,                                    // the div you'll write to
@@ -47,6 +47,9 @@ var app = {
         display.appendChild(label);                      // add the message node
     },
 
+/*
+    Adds a new DOM element to the message div:
+*/
     addDisplayNode: function(nodeName, nodeType) {
         var display = document.getElementById("message");   // all new nodes in the message div
         var node = document.createElement(nodeType);        // make the node
