@@ -48,9 +48,9 @@ var app = {
         // KLUDGE - Smart Poster has embedded HTML
         if (message.indexOf("&nbsp;") > -1) {
             label = document.createElement("span");
-            label.innerHTML = message;            
+            label.innerHTML = message;
         } else {
-            label = document.createTextNode(message);           // create the label            
+            label = document.createTextNode(message);           // create the label
         }
         display.appendChild(lineBreak);                     // add a line break
         display.appendChild(label);                         // add the message node
@@ -127,7 +127,7 @@ var app = {
         var value,                  // value of a given record element
             displayString;          // the string to display onscreen
 
-        app.display(" ");           // show a blank line before the record        
+        app.display(" ");           // show a blank line before the record
         // iterate over the record's properties:
         for (var thisProperty in record) {
             value = record[thisProperty];   // get the array element value
@@ -137,25 +137,25 @@ var app = {
 
                 // the payload of a smartposter is an NDEF message
                 var ndefMessage = ndef.decodeMessage(record.payload);
-                
+
                 // show each record
-                for (var i = 0; i < ndefMessage.length; i++) { // need zepto or jquery $.each                     
+                for (var i = 0; i < ndefMessage.length; i++) { // need zepto or jquery $.each
                     var ndefRecord = ndefMessage[i];
-                    
+
                     // This would be SO much clearer with a template (handlebars | mustache | underscore)
                     value += "<br/>&nbsp;&nbsp;Record: <br/>" +
                         "&nbsp;&nbsp;&nbsp;&nbsp;TNF: " + ndefRecord.tnf + "<br/>" +
                         "&nbsp;&nbsp;&nbsp;&nbsp;Type: " + nfc.bytesToString(ndefRecord.type) + "<br/>" +
                         "&nbsp;&nbsp;&nbsp;&nbsp;Payload: " + nfc.bytesToString(ndefRecord.payload);
-                        
+
                     if (ndefRecord.id.length) {
-                        value += "<br/>&nbsp;&nbsp;&nbsp;&nbsp;Id: " + nfc.bytesToString(ndefRecord.id);                                               
-                    }                        
+                        value += "<br/>&nbsp;&nbsp;&nbsp;&nbsp;Id: " + nfc.bytesToString(ndefRecord.id);
+                    }
                 }
             } // END SMART POSTER
-            
+
             if (value instanceof Array) {  // type, payload and id are all byte arrays
-                displayString = thisProperty + ":" + nfc.bytesToString(value);                
+                displayString = thisProperty + ":" + nfc.bytesToString(value);
             } else { // TNF and decoded SmartPoster payloads are Strings
                 displayString = thisProperty + ":"  + value;
             }

@@ -17,9 +17,8 @@
        under the License.
  */
 
-package net.tigoe.mimeFilter;
+package net.tigoe.mimefilter;
 
-import android.app.Activity;
 import android.os.Bundle;
 import org.apache.cordova.*;
 
@@ -29,7 +28,9 @@ public class MimeFilter extends DroidGap
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        super.loadUrl("file:///android_asset/www/index.html");
+        // Set by <content src="index.html" /> in config.xml
+        super.loadUrl(Config.getStartUrl());
+        //super.loadUrl("file:///android_asset/www/index.html")
     }
 }
 
