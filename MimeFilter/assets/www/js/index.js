@@ -24,18 +24,7 @@ var app = {
                 app.display("NFC reader failed to initialize " + JSON.stringify(error));
             }
         );
-
-        // nfc.addMimeTypeListener(
-        //     "text/plain",
-        //     app.onNfc,                                  // tag successfully scanned
-        //     function (status) {                         // listener successfully initialized
-        //         app.display("Listening for MIME Types.");
-        //     },
-        //     function (error) {                          // listener fails to initialize
-        //         app.display("NFC reader failed to initialize " + JSON.stringify(error));
-        //     }
-        // );
-    },
+     },
 
 /*
     appends @message to the message div:
@@ -87,18 +76,15 @@ var app = {
             var records = tag.ndefMessage;
             app.display("Tag has NDEF message with " + records.length + " records.");
 
-            // TODO this is only a MIME TYPE when the tnf is TNF_MIME_MEDIA
-            // most of the time it's just a TYPE
-            var mimeType =  nfc.bytesToString(records[0].type);
-
-            switch (mimeType) {
-                case ndef.RTD_TEXT:
+            var type =  nfc.bytesToString(records[0].type);
+            switch (type) {
+                case nfc.bytesToString(ndef.RTD_TEXT):
                     app.display("Looks like text to me.");
                     break;
-                case ndef.RTD_URI:
+                case nfc.bytesToString(ndef.RTD_URI):
                     app.display("That's a URI right there");
                     break;
-                case ndef.RTD_SMART_POSTER:
+                case nfc.bytesToString(ndef.RTD_SMART_POSTER):
                     app.display("Golly!  That's a smart poster.");
                     break;
 
@@ -108,11 +94,11 @@ var app = {
                     break;
                 default:
                         app.display("I don't know what " +
-                            mimeType +
+                            type +
                             " is, must be a custom MIME type");
                     break;
             }
-            app.display("MIME type: " + mimeType);
+            app.display("type: " + type);
             // display the details of each NDEF record:
             for (var thisRecord in records)  {
                 app.showRecord(records[thisRecord]);
@@ -161,6 +147,11 @@ var app = {
             }
             app.display(displayString);
         }
+    },
+
+    rtdToString: function(rtd) {
+        return rtd.join("");
+
     },
 
     tnfToString: function(tnf) { // TODO this belongs in PhoneGap NFC
