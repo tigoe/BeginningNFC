@@ -53,7 +53,7 @@ onDeviceReady: function() {
             "text/plain",
             app.onNfc,                                  // tag successfully scanned
             function (status) {                         // listener successfully initialized
-                app.display("Listening for MIME Types.");
+                app.display("Listening for plain text MIME Types.");
             },
             function (error) {                          // listener fails to initialize
                 app.display("NFC reader failed to initialize " + JSON.stringify(error));
