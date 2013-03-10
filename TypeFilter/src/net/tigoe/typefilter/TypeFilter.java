@@ -17,12 +17,12 @@
        under the License.
  */
 
-package net.tigoe.mimefilter;
+package net.tigoe.typefilter;
 
 import android.os.Bundle;
 import org.apache.cordova.*;
 
-public class MimeFilter extends DroidGap
+public class TypeFilter extends DroidGap
 {
     @Override
     public void onCreate(Bundle savedInstanceState)

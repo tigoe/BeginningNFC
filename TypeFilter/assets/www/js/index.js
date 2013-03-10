@@ -86,10 +86,10 @@ var app = {
         // if there is an NDEF message on the tag, display it:
         if (tag.ndefMessage !== null) {
             // get and display the NDEF record count:
-            var records = tag.ndefMessage;
-            app.display("Tag has NDEF message with " + records.length + " records.");
+            var message = tag.ndefMessage;
+            app.display("Tag has NDEF message with " + message.length + " records.");
 
-            var type =  nfc.bytesToString(records[0].type);
+            var type =  nfc.bytesToString(message[0].type);
             switch (type) {
                 case nfc.bytesToString(ndef.RTD_TEXT):
                     app.display("Looks like a text record to me.");
@@ -110,8 +110,8 @@ var app = {
                         " is, must be a custom type");
                     break;
             }
-            app.showMessage("Message Contents: ");
-            app.showMessage(records);
+            app.display("Message Contents: ");
+            app.showMessage(message);
         }
     },
 
@@ -124,6 +124,7 @@ var app = {
 
         for (var thisRecord in message) {
             record = message[thisRecord];           // get the next record in the message array
+             console.log(record);
             app.showRecord(record, myName);         // show it
         }
     },
