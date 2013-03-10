@@ -2,7 +2,7 @@ var app = {
     // Application constructor
     initialize: function() {
         this.bindEvents();
-        console.log("Starting NDEF Events app");
+        console.log("Starting Multi MIME listener app");
     },
 
     // bind any events that are required on startup to listeners:
@@ -17,9 +17,9 @@ var app = {
 
         nfc.addMimeTypeListener(
             "text/plain",
-            app.onText,                                  // tag successfully scanned
-            function (status) {                         // listener successfully initialized
-                app.display("Listening for text MIME Types.");
+            function (tag) {                         // tag successfully scanned
+                app.display("Got a text MIME");
+                app.onText(tag);
             },
             function (error) {                          // listener fails to initialize
                 app.display("NFC reader failed to initialize " + JSON.stringify(error));
@@ -28,10 +28,21 @@ var app = {
 
 
         nfc.addMimeTypeListener(
+            "text/pg",
+              function (tag) {                         // tag successfully scanned
+                app.display("got a pg MIME");
+                app.onVcard(tag);
+            },
+            function (error) {                          // listener fails to initialize
+                app.display("NFC reader failed to initialize " + JSON.stringify(error));
+            }
+        );
+
+          nfc.addMimeTypeListener(
             "text/x-vCard",
-            app.onVcard,                                  // tag successfully scanned
-            function (status) {                         // listener successfully initialized
-                app.display("Listening for vCard MIME Types.");
+              function (tag) {                         // tag successfully scanned
+                app.display("got a vCard MIME");
+                app.onVcard(tag);
             },
             function (error) {                          // listener fails to initialize
                 app.display("NFC reader failed to initialize " + JSON.stringify(error));
@@ -40,18 +51,18 @@ var app = {
 
     },
 
-    onText: function(nfcEvent) {
+    onText: function(nfcTag) {
         app.clear();                                     // clear the message div
-        app.display(" Event Type: " + nfcEvent.type);    // display the event type
+        //app.display(" Event Type: " + nfcEvent.type);    // display the event type
         app.display("I got a plain text MIME");
-        app.showTag(nfcEvent.tag);                       // display the tag details
+        app.showTag(nfcTag);                       // display the tag details
     },
 
-    onVcard: function(nfcEvent) {
+    onVcard: function(nfcTag) {
         app.clear();                                     // clear the message div
-        app.display(" Event Type: " + nfcEvent.type);    // display the event type
+        //app.display(" Event Type: " + nfcEvent.type);    // display the event type
         app.display("I got a vCard MIME");
-        app.showTag(nfcEvent.tag);                       // display the tag details
+        app.showTag(nfcTag);                       // display the tag details
     },
 
 /*
