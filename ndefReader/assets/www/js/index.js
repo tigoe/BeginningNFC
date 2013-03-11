@@ -14,7 +14,7 @@ var app = {
 /*
     this runs when the device is ready for user interaction:
 */
-onDeviceReady: function() {
+    onDeviceReady: function() {
         var parentElement = document.getElementById("message");
         parentElement.innerHTML = "Tap a tag to read its id number.";
 
