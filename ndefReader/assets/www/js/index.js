@@ -104,71 +104,65 @@ onDeviceReady: function() {
         app.display("Can Make Read Only: " +  tag.canMakeReadOnly);
 
         // if there is an NDEF message on the tag, display it:
-        if (tag.ndefMessage != null) {
+        var thisMessage = tag.ndefMessage;
+        if (tag.ndefMessage !== null) {
             // get and display the NDEF record count:
-            var records = tag.ndefMessage;
-            app.display("Tag has NDEF message with " + records.length + " records.")
+            app.display("Tag has NDEF message with " + thisMessage.length + " records.");
 
-            // display the details of each NDEF record:
-            for (thisRecord in records)  {
-                app.showRecord(records[thisRecord]);
+            var type =  nfc.bytesToString(message[0].type);
+            switch (type) {
+                case nfc.bytesToString(ndef.RTD_TEXT):
+                    app.display("Looks like a text record to me.");
+                    break;
+                case nfc.bytesToString(ndef.RTD_URI):
+                    app.display("That's a URI right there");
+                    break;
+                case nfc.bytesToString(ndef.RTD_SMART_POSTER):
+                    app.display("Golly!  That's a smart poster.");
+                    break;
+                // add any custom types here, such as MIME types or external types:
+                case 'android.com:pkg':
+                    app.display("You've got yourself an AAR there.");
+                    break;
+                default:
+                    app.display("I don't know what " +
+                        type +
+                        " is, must be a custom type");
+                    break;
             }
+
+            app.display("Message Contents: ");
+            app.showMessage(thisMessage);
         }
     },
-
+/*
+    iterates over the records in an NDEF message to display them:
+*/
+    showMessage: function(message) {
+        for (var thisRecord in message) {
+            var record = message[thisRecord];   // get the next record in the message array
+            app.showRecord(record);             // show it
+        }
+    },
 /*
     writes @record to the message div:
 */
     showRecord: function(record) {
-        app.display(" ");           // show a blank line before the record
-        // iterate over the record's properties:
-        for (thisProperty in record) {
-            var value = record[thisProperty];   // get the array element value
+        // display the TNF, Type, and ID:
+        app.display(" ");
+        app.display("TNF: " + record.tnf);
+        app.display("Type: " +  nfc.bytesToString(record.type));
+        app.display("ID: " + nfc.bytesToString(record.id));
 
-            if (thisProperty === "id") {
-                // id is a single-byte array with numeric values, so use toString:
-                app.display(thisProperty + ":" + (value.toString()));
-            } else if (thisProperty === "tnf") {
-                // Convert TNF to a string:
-                var tnfString = app.tnfToString(value);
-                app.display(thisProperty + ":" + tnfString);
+        // if the payload is a Smart Poster, it's an NDEF message.
+        // read it and display it (recursion is your friend here):
+        if (nfc.bytesToString(record.type) === "Sp") {
+            var ndefMessage = ndef.decodeMessage(record.payload);
+            app.showMessage(ndefMessage);
 
-            } else {
-                // the other properties are multi-byte arrays so use nfc.bytesToString():
-                app.display(thisProperty + ":" + nfc.bytesToString(value));
-            }
+        // if the payload's not a Smart Poster, display it:
+        } else {
+            app.display("Payload: " + nfc.bytesToString(record.payload));
         }
-    },
-
-    tnfToString: function(tnf) {
-        var value = tnf;
-
-        switch (tnf) {
-        case ndef.TNF_EMPTY:
-            value = "Empty";
-            break;
-        case ndef.TNF_WELL_KNOWN:
-            value = "Well Known";
-            break;
-        case ndef.TNF_MIME_MEDIA:
-            value = "Mime Media";
-            break;
-        case ndef.TNF_ABSOLUTE_URI:
-            value = "Absolute URI";
-            break;
-        case ndef.TNF_EXTERNAL_TYPE:
-            value = "External";
-            break;
-        case ndef.TNF_UNKNOWN:
-            value = "Unknown";
-            break;
-        case ndef.TNF_UNCHANGED:
-            value = "Unchanged";
-            break;
-        case ndef.TNF_RESERVED:
-            value = "Reserved";
-            break;
-        }
-        return value;
     }
 };      // end of app

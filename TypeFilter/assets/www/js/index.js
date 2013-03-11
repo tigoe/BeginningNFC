@@ -1,19 +1,43 @@
 var app = {
-    // Application constructor
-    initialize: function() {
+        // Application constructor
+     initialize: function() {
         this.bindEvents();
-        console.log("Starting MIME filter app");
+        console.log("Starting Type Filter app");
     },
-
-    // bind any events that are required on startup to listeners:
+/*
+    bind any events that are required on startup to listeners:
+*/
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
     },
 
-    // this runs when the device is ready for user interaction:
-    onDeviceReady: function() {
+/*
+    this runs when the device is ready for user interaction:
+*/
+onDeviceReady: function() {
         var parentElement = document.getElementById("message");
         parentElement.innerHTML = "Tap a tag to read its id number.";
+
+        nfc.addTagDiscoveredListener(
+            app.onNfc,                                  // tag successfully scanned
+            function (status) {                         // listener successfully initialized
+                app.display("Listening for NFC tags.");
+            },
+            function (error) {                          // listener fails to initialize
+                app.display("NFC reader failed to initialize " + JSON.stringify(error));
+            }
+        );
+
+        nfc.addNdefFormatableListener(
+            app.onNfc,                                  // tag successfully scanned
+            function (status) {                         // listener successfully initialized
+                app.display("Listening for NDEF Formatable tags.");
+            },
+            function (error) {                          // listener fails to initialize
+                app.display("NFC reader failed to initialize " + JSON.stringify(error));
+            }
+        );
+
 
         nfc.addNdefListener(
             app.onNfc,                                  // tag successfully scanned
@@ -24,39 +48,31 @@ var app = {
                 app.display("NFC reader failed to initialize " + JSON.stringify(error));
             }
         );
-     },
 
-/*
-    appends @message to the message div or another DOM element:
-*/
-    display: function(message, nodeName) {
-        var display,                                    // the div you'll write to
-            label,                                      // what you'll write to the div
-            lineBreak = document.createElement("br");   // a line break
-
-        // if there's no nodeName, use the message div,
-        // otherwise write to the given node:
-        if (!nodeName) {
-            display = document.getElementById("message");
-        } else {
-            display = document.getElementById(nodeName);
-        }
-
-        label = document.createTextNode(message);        // create the label
-        display.appendChild(lineBreak);                  // add a line break
-        display.appendChild(label);                      // add the message node
+        nfc.addMimeTypeListener(
+            "text/plain",
+            app.onNfc,                                  // tag successfully scanned
+            function (status) {                         // listener successfully initialized
+                app.display("Listening for plain text MIME Types.");
+            },
+            function (error) {                          // listener fails to initialize
+                app.display("NFC reader failed to initialize " + JSON.stringify(error));
+            }
+        );
     },
 
 /*
-    Adds a new DOM element to the message div:
+    appends @message to the message div:
 */
-    addDisplayNode: function(nodeName, nodeType) {
-        var display = document.getElementById("message");   // all new nodes in the message div
-        var node = document.createElement(nodeType);        // make the node
-        node.setAttribute("id", nodeName);                  // give it an ID
-        display.appendChild(node);                          // add it to the message div
-    },
+    display: function(message) {
+        var display = document.getElementById("message"),   // the div you'll write to
+            label,                                          // what you'll write to the div
+            lineBreak = document.createElement("br");       // a line break
 
+        label = document.createTextNode(message);           // create the label
+        display.appendChild(lineBreak);                     // add a line break
+        display.appendChild(label);                         // add the message node
+    },
 /*
     clears the message div:
 */
@@ -64,6 +80,10 @@ var app = {
         var display = document.getElementById("message");
         display.innerHTML = "";
     },
+
+/*
+    displays tag ID from @nfcEvent in message div:
+*/
 
     onNfc: function(nfcEvent) {
         app.clear();                                     // clear the message div
@@ -84,12 +104,12 @@ var app = {
         app.display("Can Make Read Only: " +  tag.canMakeReadOnly);
 
         // if there is an NDEF message on the tag, display it:
+        var thisMessage = tag.ndefMessage;
         if (tag.ndefMessage !== null) {
             // get and display the NDEF record count:
-            var message = tag.ndefMessage;
-            app.display("Tag has NDEF message with " + message.length + " records.");
+            app.display("Tag has NDEF message with " + thisMessage.length + " records.");
 
-            var type =  nfc.bytesToString(message[0].type);
+            var type =  nfc.bytesToString(thisMessage[0].type);
             switch (type) {
                 case nfc.bytesToString(ndef.RTD_TEXT):
                     app.display("Looks like a text record to me.");
@@ -110,33 +130,29 @@ var app = {
                         " is, must be a custom type");
                     break;
             }
+
             app.display("Message Contents: ");
-            app.showMessage(message);
+            app.showMessage(thisMessage);
         }
     },
-
-    recordCount: 0,     // how many records have been displayed
-
-    showMessage : function(message) {
-        app.recordCount++;                          // increment the count of records to show
-        var myName = "record" + app.recordCount;    // create a unique name
-        app.addDisplayNode(myName, "span");         // add a display node for it
-
+/*
+    iterates over the records in an NDEF message to display them:
+*/
+    showMessage: function(message) {
         for (var thisRecord in message) {
-            record = message[thisRecord];           // get the next record in the message array
-             console.log(record);
-            app.showRecord(record, myName);         // show it
+            var record = message[thisRecord];   // get the next record in the message array
+            app.showRecord(record);             // show it
         }
     },
 /*
     writes @record to the message div:
 */
-    showRecord: function(record, nodeName) {
-        // display the TNF, Type, and ID in the record's <span> node:
-        app.display(" ", nodeName);
-        app.display("TNF: " + record.tnf, nodeName);
-        app.display("Type: " +  nfc.bytesToString(record.type), nodeName);
-        app.display("ID: " + nfc.bytesToString(record.id), nodeName);
+    showRecord: function(record) {
+        // display the TNF, Type, and ID:
+        app.display(" ");
+        app.display("TNF: " + record.tnf);
+        app.display("Type: " +  nfc.bytesToString(record.type));
+        app.display("ID: " + nfc.bytesToString(record.id));
 
         // if the payload is a Smart Poster, it's an NDEF message.
         // read it and display it (recursion is your friend here):
@@ -146,39 +162,7 @@ var app = {
 
         // if the payload's not a Smart Poster, display it:
         } else {
-            app.display("Payload: " + nfc.bytesToString(record.payload), nodeName);
+            app.display("Payload: " + nfc.bytesToString(record.payload));
         }
-    },
-
-    tnfToString: function(tnf) { // TODO this belongs in PhoneGap NFC
-        var value = tnf;
-
-        switch (tnf) {
-        case ndef.TNF_EMPTY:
-            value = "Empty";
-            break;
-        case ndef.TNF_WELL_KNOWN:
-            value = "Well Known";
-            break;
-        case ndef.TNF_MIME_MEDIA:
-            value = "Mime Media";
-            break;
-        case ndef.TNF_ABSOLUTE_URI:
-            value = "Absolute URI";
-            break;
-        case ndef.TNF_EXTERNAL_TYPE:
-            value = "External";
-            break;
-        case ndef.TNF_UNKNOWN:
-            value = "Unknown";
-            break;
-        case ndef.TNF_UNCHANGED:
-            value = "Unchanged";
-            break;
-        case ndef.TNF_RESERVED:
-            value = "Reserved";
-            break;
-        }
-        return value;
     }
-};          // end of app
+};      // end of app
