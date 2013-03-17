@@ -38,17 +38,21 @@ var app = {
 
         // if there's a significant difference on any channel, notify the user:
         if (Math.abs(diffX) > 9) {
-            app.display("Bump X " + diffX);
+            app.bump(diffX);
         }
         if (Math.abs(diffY) > 9) {
-            app.display("Bump Y " + diffY);
+            app.bump(diffY);
         }
         if (Math.abs(diffZ) > 9) {
-            app.display("Bump Z " + diffZ);
+            app.bump(diffZ);
         }
 
         // save the current reading as the last:
         app.lastReading = a;
+    },
+
+    bump: function(value) {
+        app.display("Bump " + value);
     },
 
     toggleAcceleration: function() {
