@@ -8,8 +8,13 @@
     </head>
     <body onload="app.initialize();">
         <div class="app">
-            <button id="accelerometer" onClick="app.toggleAccelerometer();">Start</button>
-            <div id="message">No location found</div>
+            <button id="accelerometer" onClick="app.toggleAccelerometer();">Start</button><br />
+            Thresholds:<br />
+            X: <input type="range" name="x" min="1" max="10" onMouseOut="app.updateThreshold(0);" value=9><br/>
+            Y: <input type="range" name="y" min="1" max="10" onMouseOut="app.updateThreshold(1);" value=5><br/>
+            Z: <input type="range" name="z" min="1" max="10" onMouseOut="app.updateThreshold(2);" value=2><br/>
+            <button id="clearMax" onClick="app.clearMax();">Clear</button>
+            <div id="message">No acceleration found</div>
         </div>
     </body>
 </html>
