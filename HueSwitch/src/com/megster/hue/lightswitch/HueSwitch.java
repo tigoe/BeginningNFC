@@ -17,7 +17,7 @@
        under the License.
  */
 
-package com.megster.hue.switch;
+package com.megster.hue.lightswitch;
 
 import android.os.Bundle;
 import org.apache.cordova.*;
