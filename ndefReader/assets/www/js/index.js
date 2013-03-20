@@ -109,7 +109,7 @@ var app = {
             // get and display the NDEF record count:
             app.display("Tag has NDEF message with " + thisMessage.length + " records.");
 
-            var type =  nfc.bytesToString(message[0].type);
+            var type =  nfc.bytesToString(thisMessage[0].type);
             switch (type) {
                 case nfc.bytesToString(ndef.RTD_TEXT):
                     app.display("Looks like a text record to me.");
