@@ -11,6 +11,7 @@ var app = {
 */
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
+        locatorButton.addEventListener('touchstart', app.toggleLocator, false);
     },
 
 /*
