@@ -20,12 +20,13 @@
         parentElement.innerHTML = "Tap a tag to read its id number.";
 
         nfc.addTagDiscoveredListener(
-            app.onNfc,                                  // tag successfully scanned
-            function (status) {                         // listener successfully initialized
+            app.onNfc,                   // tag successfully scanned
+            function (status) {          // listener successfully initialized
                 app.display("Listening for NFC tags.");
             },
-            function (error) {                          // listener fails to initialize
-                app.display("NFC reader failed to initialize " + JSON.stringify(error));
+            function (error) {          // listener fails to initialize
+                app.display("NFC reader failed to initialize "
+                    + JSON.stringify(error));
             }
         )
     },
@@ -42,14 +43,13 @@
 /*
     appends @message to the message div:
 */
-    display: function(message) {
-        var display = document.getElementById("message"),   // the div you'll write to
-            label,                                          // what you'll write to the div
-            lineBreak = document.createElement("br");       // a line break
+     display: function(message) {
+        var display = document.getElementById("message"), // the message div
+            lineBreak = document.createElement("br"),     // a line break
+            label = document.createTextNode(message);     // create the label
 
-        label = document.createTextNode(message);           // create the label
-        display.appendChild(lineBreak);                     // add a line break
-        display.appendChild(label);                         // add the message node
+        display.appendChild(lineBreak);          // add a line break
+        display.appendChild(label);              // add the message node
     },
 /*
     clears the message div:
@@ -156,14 +156,16 @@
     writeTag: function(message) {
         // write the record to the tag:
         nfc.write(
-            message,                        // write the record itself to the tag
-            function () {                   // when complete, run this callback function:
-                app.clear();                            // clear the message div
-                app.display("Wrote data to tag.");      // notify the user in message div
-                navigator.notification.vibrate(100);    // vibrate the device as well
+            message,            // write the record itself to the tag
+            function () {       // when complete, run this callback function:
+                app.clear();    // clear the message div
+                app.display("Wrote data to tag.");   // write to the message div
+                navigator.notification.vibrate(100); // vibrate the device
             },
-            function (reason) {             // this function runs if the write command fails
-                navigator.notification.alert(reason, function() {}, "There was a problem");
+            // this function runs if the write command fails:
+            function (reason) {
+                navigator.notification.alert(reason, function(){},
+                    "There was a problem");
             }
         );
     }
