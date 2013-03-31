@@ -9,6 +9,7 @@ var app = {
 */
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
+        writeButton.addEventListener('touchstart', app.makeMessage, false);
     },
 
 /*
@@ -60,11 +61,11 @@ var app = {
 
     makeMessage: function() {
         // Put together the pieces for the NDEF message:
-        var tnf = ndef.TNF_EXTERNAL_TYPE,               // NDEF Type Name Format
-            recordType = "android.com:pkg",             // NDEF Record Type
-            payload = "com.joelapenna.foursquared",     // content of the record
-            record,                                     // NDEF record object
-            message = [];                   // NDEF Message to pass to writeTag()
+        var tnf = ndef.TNF_EXTERNAL_TYPE,            // NDEF Type Name Format
+            recordType = "android.com:pkg",          // NDEF Record Type
+            payload = "com.joelapenna.foursquared",  // content of the record
+            record,                                  // NDEF record object
+            message = [];               // NDEF Message to pass to writeTag()
 
         // create the actual NDEF record:
         record = ndef.record(tnf, recordType, [], payload);
@@ -77,14 +78,16 @@ var app = {
     writeTag: function(message) {
         // write the record to the tag:
         nfc.write(
-            message,                        // write the record itself to the tag
-            function () {                   // when complete, run this callback function:
-                app.clear();                            // clear the message div
-                app.display("Wrote data to tag.");      // notify the user in message div
-                navigator.notification.vibrate(100);    // vibrate the device as well
+            message,            // write the record itself to the tag
+            function () {       // when complete, run this callback function:
+                app.clear();    // clear the message div
+                app.display("Wrote data to tag.");   // write to the message div
+                navigator.notification.vibrate(100); // vibrate the device
             },
-            function (reason) {             // this function runs if the write command fails
-                navigator.notification.alert(reason, function() {}, "There was a problem");
+            // this function runs if the write command fails:
+            function (reason) {
+                navigator.notification.alert(reason, function(){},
+                    "There was a problem");
             }
         );
     }
