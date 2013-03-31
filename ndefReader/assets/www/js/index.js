@@ -19,44 +19,48 @@ var app = {
         parentElement.innerHTML = "Tap a tag to read its id number.";
 
         nfc.addTagDiscoveredListener(
-            app.onNfc,                                  // tag successfully scanned
-            function (status) {                         // listener successfully initialized
+            app.onNfc,                   // tag successfully scanned
+            function (status) {          // listener successfully initialized
                 app.display("Listening for NFC tags.");
             },
-            function (error) {                          // listener fails to initialize
-                app.display("NFC reader failed to initialize " + JSON.stringify(error));
+            function (error) {           // listener fails to initialize
+                app.display("NFC reader failed to initialize "
+                    + JSON.stringify(error));
             }
         );
 
         nfc.addNdefFormatableListener(
-            app.onNfc,                                  // tag successfully scanned
-            function (status) {                         // listener successfully initialized
+            app.onNfc,                   // tag successfully scanned
+            function (status) {          // listener successfully initialized
                 app.display("Listening for NDEF Formatable tags.");
             },
-            function (error) {                          // listener fails to initialize
-                app.display("NFC reader failed to initialize " + JSON.stringify(error));
+            function (error) {           // listener fails to initialize
+                app.display("NFC reader failed to initialize "
+                    + JSON.stringify(error));
             }
         );
 
 
         nfc.addNdefListener(
-            app.onNfc,                                  // tag successfully scanned
-            function (status) {                         // listener successfully initialized
+            app.onNfc,                   // tag successfully scanned
+            function (status) {          // listener successfully initialized
                 app.display("Listening for NDEF messages.");
             },
-            function (error) {                          // listener fails to initialize
-                app.display("NFC reader failed to initialize " + JSON.stringify(error));
+            function (error) {           // listener fails to initialize
+                app.display("NFC reader failed to initialize "
+                    + JSON.stringify(error));
             }
         );
 
         nfc.addMimeTypeListener(
             "text/plain",
-            app.onNfc,                                  // tag successfully scanned
-            function (status) {                         // listener successfully initialized
+            app.onNfc,                   // tag successfully scanned
+            function (status) {          // listener successfully initialized
                 app.display("Listening for plain text MIME Types.");
             },
-            function (error) {                          // listener fails to initialize
-                app.display("NFC reader failed to initialize " + JSON.stringify(error));
+            function (error) {           // listener fails to initialize
+                app.display("NFC reader failed to initialize "
+                    + JSON.stringify(error));
             }
         );
     },
@@ -65,13 +69,12 @@ var app = {
     appends @message to the message div:
 */
     display: function(message) {
-        var display = document.getElementById("message"),   // the div you'll write to
-            label,                                          // what you'll write to the div
-            lineBreak = document.createElement("br");       // a line break
+        var display = document.getElementById("message"), // the message div
+            lineBreak = document.createElement("br"),     // a line break
+            label = document.createTextNode(message);     // create the label
 
-        label = document.createTextNode(message);           // create the label
-        display.appendChild(lineBreak);                     // add a line break
-        display.appendChild(label);                         // add the message node
+        display.appendChild(lineBreak);          // add a line break
+        display.appendChild(label);              // add the message node
     },
 /*
     clears the message div:
@@ -86,9 +89,10 @@ var app = {
 */
 
     onNfc: function(nfcEvent) {
-        app.clear();                                     // clear the message div
-        app.display(" Event Type: " + nfcEvent.type);    // display the event type
-        app.showTag(nfcEvent.tag);                       // display the tag details
+        app.clear();                  // clear the message div
+        // display the event type:
+        app.display(" Event Type: " + nfcEvent.type);
+        app.showTag(nfcEvent.tag);    // display the tag details
     },
 
 /*
@@ -107,7 +111,8 @@ var app = {
         var thisMessage = tag.ndefMessage;
         if (tag.ndefMessage !== null) {
             // get and display the NDEF record count:
-            app.display("Tag has NDEF message with " + thisMessage.length + " records.");
+            app.display("Tag has NDEF message with " + thisMessage.length
+                + " records.");
 
             var type =  nfc.bytesToString(thisMessage[0].type);
             switch (type) {
@@ -120,7 +125,8 @@ var app = {
                 case nfc.bytesToString(ndef.RTD_SMART_POSTER):
                     app.display("Golly!  That's a smart poster.");
                     break;
-                // add any custom types here, such as MIME types or external types:
+                // add any custom types here,
+                // such as MIME types or external types:
                 case 'android.com:pkg':
                     app.display("You've got yourself an AAR there.");
                     break;
@@ -140,7 +146,8 @@ var app = {
 */
     showMessage: function(message) {
         for (var thisRecord in message) {
-            var record = message[thisRecord];   // get the next record in the message array
+            // get the next record in the message array:
+            var record = message[thisRecord];
             app.showRecord(record);             // show it
         }
     },
