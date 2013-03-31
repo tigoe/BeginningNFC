@@ -9,6 +9,7 @@
 */
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
+        writeButton.addEventListener('touchstart', app.makeMessage, false);
     },
 
 /*
@@ -87,8 +88,10 @@
                 tnf = ndef.TNF_WELL_KNOWN;
                 recordType = ndef.RTD_URI;      // add the URI record type
                 // convert to an array of bytes:
-                payload = nfc.stringToBytes("m.foursquare.com/venue/4a917563f964a520401a20e3");
-                payload.unshift(0x03);          // add the URI identifier code for "http://"
+                payload = nfc.stringToBytes(
+                    "m.foursquare.com/venue/4a917563f964a520401a20e3");
+                // add the URI identifier code for "http://":
+                payload.unshift(0x03);
                 record = ndef.record(tnf, recordType, [], payload);
                 message.push(record);      // push the record onto the message
                 break;
@@ -97,19 +100,20 @@
                  // The payload of a Smart Poster record is an NDEF message
                  // so create an array of two records like so:
                  var smartPosterPayload = [
-                     ndef.uriRecord("http://m.foursquare.com/venue/4a917563f964a520401a20e3"),
-                     ndef.textRecord("foursquare checkin"),
-                     ndef.record( // Android Application Record
-                         ndef.TNF_EXTERNAL_TYPE,
-                         "android.com:pkg", [],
-                         "com.joelapenna.foursquared"
+                    ndef.uriRecord(
+                        "http://m.foursquare.com/venue/4a917563f964a520401a20e3"),
+                    ndef.textRecord("foursquare checkin"),
+                    ndef.record( // Android Application Record
+                        ndef.TNF_EXTERNAL_TYPE,
+                        "android.com:pkg", [],
+                        "com.joelapenna.foursquared"
                      )
                  ];
 
                  // Create the Smart Poster Record from the array:
                  record = ndef.smartPoster(smartPosterPayload);
-
-                 message.push(record); // push the smart poster record onto the message
+                 // push the smart poster record onto the message:
+                 message.push(record);
                  break;
 
           case 4:         // like TecTiles
@@ -117,12 +121,14 @@
                 tnf = ndef.TNF_WELL_KNOWN;
                 recordType = ndef.RTD_URI;      // add the URI record type
                 // this is a long URI, so for formatting's sake, it's broken
-                // into three lines. But it's just a string:
+                // into four lines. But it's just a string:
                 var uri = "tectile://www/samsung.com/us/microsite/error?"
                     + "action=foursquare_checkin&"
-                    + "payload=http://m.foursquare.com/venue/4a917563f964a520401a20e3";
+                    + "payload=http://m.foursquare.com/"
+                    + "venue/4a917563f964a520401a20e3";
                 payload = nfc.stringToBytes(uri);
-                payload.unshift(0x00);      // URI identifier 0x00 because there's no ID for "tectile://"
+                // URI identifier 0x00 because there's no ID for "tectile://":
+                payload.unshift(0x00);
                 record = ndef.record(tnf, recordType, [], payload);
                 message.push(record);      // push the record onto the message
 
