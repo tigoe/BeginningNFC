@@ -45,7 +45,7 @@ var app = {
         navigator.geolocation.getCurrentPosition(success, failure);
     },
 
-    locatorTimer: null,          // variable to hold a locator timer when it's running
+    locatorTimer: null,   // variable to hold a locator timer when it's running
 
 /*
     turns on or off the locator:
@@ -70,13 +70,12 @@ var app = {
     appends @message to the message div:
 */
     display: function(message) {
-        var display = document.getElementById("message"),   // the div you'll write to
-            label,                                          // what you'll write to the div
-            lineBreak = document.createElement("br");       // a line break
+        var display = document.getElementById("message"),   // the message div
+            lineBreak = document.createElement("br"),       // a line break
+            label = document.createTextNode(message);       // create the label
 
-        label = document.createTextNode(message);           // create the label
-        display.appendChild(lineBreak);                     // add a line break
-        display.appendChild(label);                         // add the message node
+        display.appendChild(lineBreak);                 // add a line break
+        display.appendChild(label);                     // add the message node
     },
 /*
     clears the message div:
