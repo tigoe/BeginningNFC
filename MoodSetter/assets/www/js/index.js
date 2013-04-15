@@ -2,32 +2,18 @@
     TODO:
         Add file picker to replace songPicker DOM element
         Add write/listen modes
-        Test Hue functions
         Test NFC Writing and reading
-        Deal with light names and the lightNumber select dropdown
-
-Hue JSON values:
-        lights[thisLight].name;
-        lights[thisLight].state.colormode;
-        lights[thisLight].state.bri;
-        lights[thisLight].state.on;
-        lights[thisLight].state.hue;
-        lights[thisLight].state.sat;
-        lights[thisLight].state.xy[0]*1000;
-        lights[thisLight].state.xy[1]*1000;
-        lights[thisLight].state.ct;
-
 */
 
 
 var app = {
     // parameters for hue:
     hueDeviceType: "NFC Switch",
-    hueUserName: "54658242a37981b1dd446c1656469853",
+    hueUserName: "thomaspatrickigoe",
     hueAddress: null,
     lightId: 1,
     mimeType: 'text/hue',
-    lights: [],
+    lights: {},
 
     // parameters for audio playback:
     currentSong: null,
@@ -40,7 +26,6 @@ var app = {
         this.bindEvents();
         console.log("Starting Mood Setter app");
         app.findControllerAddress();
-        app.getHueSettings();
     },
 
     // bind any events that are required on startup to listeners:
@@ -139,43 +124,47 @@ var app = {
 
     setControls: function() {
         // TO DO: set the controls using the state of the latest picked light:
-        app.lightId = parseInt(lightNumber.value);
-        bri.value = 24; //app.lights[app.lightId].state.bri;
-        hue.value = 2000; //app.lights[app.lightId].state.hue;
-        sat.value = 97; //app.lights[app.lightId].state.sat;
-        lightOn.value = true; //app.lights[app.lightId].state.on;
+        app.getHueSettings();
+        app.lightId = lightNumber.value;
+        bri.value = app.lights[app.lightId].state.bri;
+        hue.value = app.lights[app.lightId].state.hue;
+        sat.value = app.lights[app.lightId].state.sat;
+        lightOn.checked = app.lights[app.lightId].state.on;
     },
 
     setBrightness: function() {
         var brightnessValue = parseInt(bri.value);
-        //app.lights[app.lightId].state.bri = brightnessValue;
-        //app.hue( { "bri": brightnessValue } );
+        app.hue( { "bri": brightnessValue } );
     },
 
     setHue: function() {
         var hueValue = parseInt(hue.value);
-        //app.lights[app.lightId].state.hue = hueValue;
-        //app.hue( { "hue": hueValue } );
+        app.hue( { "hue": hueValue } );
     },
 
     setSaturation: function() {
         var saturationValue = parseInt(sat.value);
-        //app.lights[app.lightId].state.sat = saturationValue;
-        //app.hue( { "sat": saturationValue } );
+        app.hue( { "sat": saturationValue } );
     },
 
     lightState: function() {
-        var onValue = (lightOn.value === 'on' ? true : false);
-        //app.lights[app.lightId].state.on = onValue;
-        //app.hue( { "on": onValue } );
+        console.log(lightOn.checked);
+        var onValue = lightOn.checked;
+        app.hue( { "on": onValue } );
     },
 
     getHueSettings: function() {
         // query the hub and get its current settings:
-        var url = 'http://' + app.hueAddress + '/api/' + app.hueUserName + '/lights';
+        var url = 'http://' + app.hueAddress + '/api/' + app.hueUserName;
+        console.log(url);
 
         $.get(url, function(data) {
-            app.lights = data;
+            app.lights = data.lights;
+            // set the names of the lights in the dropdown menu:
+            // TODO: Generalize this for more than three lights:
+            lightNumber.options[0].innerHTML = app.lights["1"].name;
+            lightNumber.options[1].innerHTML = app.lights["2"].name;
+            lightNumber.options[2].innerHTML = app.lights["3"].name;
         });
     },
 
@@ -211,6 +200,7 @@ var app = {
                 if (data[0]) {
                     app.hueAddress = data[0].internalipaddress;
                     console.log(app.hueAddress);
+                    app.getHueSettings();
                 }
             },
             error: function(xhr, type){
@@ -340,8 +330,10 @@ var app = {
     makes an NDEF message and calls writeTag() to write it to a tag:
 */
     makeMessage: function() {
-        // Put together the pieces for the NDEF message:
-        // NDEF Type Name Format:
+
+        // get the current state of the lights:
+        app.getHueSettings();
+
         var lightRecord = ndef.mimeMediaRecord(app.mimeType, app.lights),
             songRecord = ndef.uriRecord(app.songTitle);
 
