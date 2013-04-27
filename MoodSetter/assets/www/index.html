@@ -10,25 +10,25 @@
     </head>
     <body onload="app.initialize();">
         <div class="app">
+             <button id="modeButton" onclick="app.setMode();">Change Mode</button>
+             <span id="modeValue"></span>
+
         <div id="lightControl">
-            <select id="lightNumber" onchange="app.setControls();">
+            <select id="lightNumber" onchange="app.getHueSettings();">
                 <option value="1" >Light 1</option>
                 <option value="2" >Light 2</option>
                 <option value="3" >Light 3</option>
             </select><br />
             On: <input type="checkbox" id="lightOn" onchange="app.lightState();" ><br />
-
-            Brightness: <input type="range" id="bri" min="0" max="254">
-            <span id="briValue"></span><br />
-            Hue: <input type="range" id="hue"  min="0" max="65535">
-            <span id="hueValue"></span><br />
+            Brightness: <input type="range" id="bri" min="0" max="254"><br />
+            Hue: <input type="range" id="hue"  min="0" max="65535"><br />
             Saturation: <input type="range" id="sat" min="0" max="254">
         </div>
 
         <div id="songPicker">
             Pick a song:<br/>
-                <textarea id="songName" rows="5" cols="30">file:///storage/emulated/0/amazonmp3/Barry_White/All-Time_Greatest_Hits/B000W0RDBW_(disc_1)_03_-_I've_Got_So_Much_To_Give.mp3</textarea><br/>
-                <button id="playButton" onclick="app.playAudio(app.songTitle);">Play</button>
+                <input type="file" id="songName" onchange="app.setSong();">
+                <button id="playButton" onclick="app.startAudio();">Play</button>
                 <button id="stopButton" onclick="app.stopAudio();">Stop</button>
         </div>
 

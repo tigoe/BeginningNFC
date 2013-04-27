@@ -1,12 +1,16 @@
 /*
+    CURRENT STATUS:
+        can pick songs
+        can set lights
     TODO:
-        Add file picker to replace songPicker DOM element
-        Add write/listen modes
-        Test NFC Writing and reading
+        Get NFC Writing and reading working right
 */
 
 
 var app = {
+    // parameters for tag reading/writing:
+    mode: "write",
+
     // parameters for hue:
     hueDeviceType: "NFC Switch",
     hueUserName: "thomaspatrickigoe",
@@ -16,8 +20,10 @@ var app = {
     lights: {},
 
     // parameters for audio playback:
+    musicPath: "file:///storage/emulated/0/Download/",
     currentSong: null,
     songTitle: null,
+    musicState: 0,
 
 /*
     Application constructor
@@ -25,7 +31,6 @@ var app = {
     initialize: function() {
         this.bindEvents();
         console.log("Starting Mood Setter app");
-        app.findControllerAddress();
     },
 
     // bind any events that are required on startup to listeners:
@@ -35,6 +40,7 @@ var app = {
         hue.addEventListener('touchend', app.setHue, false);
         sat.addEventListener('touchend', app.setSaturation, false);
         tagWriterButton.addEventListener('touchstart', app.makeMessage, false);
+        modeButton.addEventListener('touchStart', app.setMode, false);
         document.addEventListener('pause', this.onPause, false);
         document.addEventListener('resume', this.onResume, false);
     },
@@ -42,14 +48,18 @@ var app = {
     this runs when the device is ready for user interaction:
 */
     onDeviceReady: function() {
-        app.songTitle = songName.value;
+        app.setSong();
         app.clear();
+
+        app.findControllerAddress();
+        app.setMode();
+
         app.display("Tap a tag to play its song and set the lights.");
 
-        nfc.addNdefListener(
+        nfc.addNdefFormatableListener(
             app.onNfc,                                  // tag successfully scanned
             function (status) {                         // listener successfully initialized
-                app.display("Listening for NDEF tags.");
+                app.display("Listening for NDEF-formatable tags.");
             },
             function (error) {                          // listener fails to initialize
                 app.display("NFC reader failed to initialize " + JSON.stringify(error));
@@ -75,34 +85,63 @@ var app = {
     This is called when the app is resumed
 */
     onResume: function() {
-        app.playAudio();
+        app.startAudio();
     },
 
+
+    setMode: function() {
+        console.log("Switching modes");
+        if (app.mode === "write") {
+            // change to read
+            // hide the write button
+            tagWriterButton.style.visibility = "hidden";
+            app.mode = "read";
+        } else {
+            // Write
+            // show the write button
+            tagWriterButton.style.visibility = "visible";
+            app.mode = "write";
+        }
+        modeValue.innerHTML = app.mode;
+    },
 /*
     runs when an NDEF-formatted tag shows up.
 */
     onNfc: function(nfcEvent) {
-        var tag = nfcEvent.tag,
-            message = tag.ndefMessage,
+        var tag = nfcEvent.tag;
+
+        if (app.mode === "read") {
+            app.readTag(tag);
+        } else {
+            app.makeMessage();
+        }
+    },
+
+    readTag: function(thisTag) {
+        var message = thisTag.ndefMessage,
             record,
             recordType,
             content;
+
+        console.log("record count: " + message.length);
 
         for (var thisRecord in message) {
             // get the next record in the message array:
             record = message[thisRecord];
             // parse the record:
             recordType = nfc.bytesToString(record.type);
-
+            console.log("Record type: " + recordType);
             // if you've got a URI, use it to start a song:
             if (recordType === nfc.bytesToString(ndef.RTD_URI)) {
                 // for some reason I have to cut the first byte of the payload
                 // in order to get a playable URI:
                 var trash = record.payload.shift();
+                console.log("got a new song " + records[0].payload);
                 // convert the remainder of the payload to a string:
                 content = nfc.bytesToString(records[0].payload);
-                app.stopAudio();            // stop whatever is playing
-                app.playAudio(content);     // play the song
+                app.stopAudio();      // stop whatever is playing
+                app.setSong(content); // set the song name
+                app.startAudio();     // play the song
             }
 
             // if you've got a hue JSON object, set the lights:
@@ -115,21 +154,29 @@ var app = {
                 // { "on": false }
 
                 content = nfc.bytesToString(record.payload);
-                console.log(content);
+                console.log("got some new lights: " + content);
                 content = JSON.parse(content); // don't really need to parse
                 app.hue(content);
+                console.log(content);
+                console.log("Set the lights");
             }
         }
     },
 
+
     setControls: function() {
         // TO DO: set the controls using the state of the latest picked light:
-        app.getHueSettings();
         app.lightId = lightNumber.value;
-        bri.value = app.lights[app.lightId].state.bri;
         hue.value = app.lights[app.lightId].state.hue;
+        bri.value = app.lights[app.lightId].state.bri;
         sat.value = app.lights[app.lightId].state.sat;
         lightOn.checked = app.lights[app.lightId].state.on;
+
+        // set the names of the lights in the dropdown menu:
+        // TODO: Generalize this for more than three lights:
+        lightNumber.options[0].innerHTML = app.lights["1"].name;
+        lightNumber.options[1].innerHTML = app.lights["2"].name;
+        lightNumber.options[2].innerHTML = app.lights["3"].name;
     },
 
     setBrightness: function() {
@@ -156,15 +203,10 @@ var app = {
     getHueSettings: function() {
         // query the hub and get its current settings:
         var url = 'http://' + app.hueAddress + '/api/' + app.hueUserName;
-        console.log(url);
 
         $.get(url, function(data) {
             app.lights = data.lights;
-            // set the names of the lights in the dropdown menu:
-            // TODO: Generalize this for more than three lights:
-            lightNumber.options[0].innerHTML = app.lights["1"].name;
-            lightNumber.options[1].innerHTML = app.lights["2"].name;
-            lightNumber.options[2].innerHTML = app.lights["3"].name;
+            app.setControls();
         });
     },
 
@@ -259,24 +301,60 @@ var app = {
         });
     },
 
-    // Play audio
-    playAudio: function(src) {
-        if (playButton.innerHTML === "Pause") {
-            app.pauseAudio();
-        } else if (playButton.innerHTML === "Play") {
-            if (app.currentSong === null) {
-                // Create Media object from src
-                app.currentSong = new Media(src, app.onSuccess, app.onError);
-                app.songTitle = src;
-            }
-            // Play audio
-            app.currentSong.play();
+    setSong: function(content) {
+        app.audioStatus();
+        console.log("setting song");
+        if (app.currentSong) {
+            app.stopAudio();
+            app.currentSong = null;     // clear the media object
+        }
 
-            // show the name:
+        if (content) {
+            app.songTitle = content;
+        } else if (songName.files[0] !== undefined ) {
+            app.songTitle = songName.files[0].name;
+        }
+         console.log("Song Title: " + app.songTitle);
+    },
+
+    // song audio
+    startAudio: function() {
+        console.log("StartAudio: " + app.musicState);
+       // attempt to instantiate a song:
+        if (app.currentSong === null) {
+            // Create Media object from songTitle
             if (app.songTitle) {
-                app.clear();
-                app.display("Song: " + app.songTitle);
+                songPath = app.musicPath + app.songTitle;
+                console.log("Attempting to play " + app.songTitle);
+                app.currentSong = new Media(songPath, app.onSuccess, app.onError, app.audioStatus);
+            } else {
+                console.log("Pick a song!")
             }
+        }
+
+        switch(app.musicState) {
+            case undefined:
+            case Media.MEDIA_NONE:
+                app.playAudio();
+                break;
+            case Media.MEDIA_RUNNING:
+                app.pauseAudio();
+                break;
+            case Media.MEDIA_PAUSED:
+                app.playAudio();
+                console.log("music paused");
+                break;
+            case Media.MEDIA_STOPPED:
+                app.playAudio();
+                break;
+        }
+    },
+
+    playAudio: function() {
+        if (app.currentSong) {
+            app.currentSong.play();
+            app.clear();
+            app.display("Song: " + app.songTitle);
             playButton.innerHTML = "Pause";
         }
     },
@@ -295,8 +373,32 @@ var app = {
         }
     },
 
+    audioStatus: function(status) {
+       var state;
+       app.musicState = status;
+
+        switch(status) {
+            case Media.MEDIA_NONE:
+                state = "none";
+                break;
+            case Media.MEDIA_STARTING:
+                state = "music starting";
+                break;
+            case Media.MEDIA_RUNNING:
+                state = "music running";
+                break;
+            case Media.MEDIA_PAUSED:
+                state = "music paused";
+                break;
+            case Media.MEDIA_STOPPED:
+                state = "music stopped";
+                break;
+        }
+        console.log("Music state: " + state);
+    },
+
     onSuccess: function() {
-        //console.log("playing audio");
+        console.log("starting audio");
     },
 
     // onError Callback
@@ -330,11 +432,12 @@ var app = {
     makes an NDEF message and calls writeTag() to write it to a tag:
 */
     makeMessage: function() {
+        var message = [];
 
         // get the current state of the lights:
-        app.getHueSettings();
-
-        var lightRecord = ndef.mimeMediaRecord(app.mimeType, app.lights),
+        //app.getHueSettings();
+        console.log(JSON.stringify(app.lights));
+        var lightRecord = ndef.mimeMediaRecord(app.mimeType, JSON.stringify(app.lights)),
             songRecord = ndef.uriRecord(app.songTitle);
 
         // put the record in the message array:
