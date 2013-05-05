@@ -7,7 +7,6 @@
 
     TODO:
         clean up errors
-        Simplify or remove authorization methods (Don?)
 */
 
 
@@ -16,8 +15,8 @@ var app = {
     mode: "write",
 
     // parameters for hue:
-    hueDeviceType: "NFC Switch",        // The App name
-    hueUserName: "thomaspatrickigoe",   // fill in your Hue user name here
+    hueAppName: "NFC Mood Setter",      // The App name
+    hueUserName: "YourUserNameHere",    // fill in your Hue user name here
     hueAddress: null,                   // the IP address of your Hue
     lightId: 1,                         // which light you are changing
     mimeType: 'text/hue',               // the NFC record MIME Type
@@ -26,7 +25,7 @@ var app = {
     // parameters for audio playback:
     // The path to the folder where you keep all your music:
     musicPath: "file:///storage/emulated/0/Download/",
-    currentSong: null,      // media handle for the current song playing
+    songPlaying: null,      // media handle for the current song playing
     songTitle: null,        // title of the song
     musicState: 0,          // state of the song: playing stopped, etc.
 
@@ -59,7 +58,7 @@ var app = {
     this runs when the device is ready for user interaction:
 */
     onDeviceReady: function() {
-        app.setSong();      // initialize the music
+        app.startAudio();      // initialize the music
         app.clear();        // clear any messages onscreen
 
         // get the Hue's address
@@ -104,7 +103,6 @@ var app = {
         Set the tag read/write mode for the app:
     */
     setMode: function() {
-        console.log("Switching modes");
         if (app.mode === "write") {     // change to read
             // hide the write button
             tagWriterButton.style.visibility = "hidden";
@@ -135,20 +133,16 @@ var app = {
             recordType,
             content;
 
-        console.log("record count: " + message.length);
-
         for (var thisRecord in message) {
             // get the next record in the message array:
             record = message[thisRecord];
             // parse the record:
             recordType = nfc.bytesToString(record.type);
-            console.log("Record type: " + recordType);
             // if you've got a URI, use it to start a song:
             if (recordType === nfc.bytesToString(ndef.RTD_URI)) {
                 // for some reason I have to cut the first byte of the payload
                 // in order to get a playable URI:
                 var trash = record.payload.shift();
-                console.log("got a new song " + record.payload);
                 // convert the remainder of the payload to a string:
                 content = nfc.bytesToString(record.payload);
                 app.stopAudio();      // stop whatever is playing
@@ -166,12 +160,9 @@ var app = {
                 // { "on": false }
 
                 content = nfc.bytesToString(record.payload);
-                console.log("got some new lights: " + content);
                 content = JSON.parse(content); // don't really need to parse
                 app.setAllLights(content);
-                console.log(content);
-                console.log("Set the lights");
-            }
+              }
         }
     },
 
@@ -196,8 +187,7 @@ var app = {
             url: 'http://' + app.hueAddress + '/api/' + app.hueUserName + '/lights/' + app.lightId + '/' + property,
             data: JSON.stringify(settings),
             success: function(data){
-                console.log(JSON.stringify(data));
-                if (data[0].error) {
+                  if (data[0].error) {
                     navigator.notification.alert(JSON.stringify(data), null, "API Error");
                 }
             },
@@ -213,16 +203,18 @@ var app = {
     */
     setControls: function() {
         app.lightId = lightNumber.value;
+
+        // set the names of the lights in the dropdown menu:
+        // (in a more fully developed app, you might generalize this)
+        lightNumber.options[0].innerHTML = app.lights["1"].name;
+        lightNumber.options[1].innerHTML = app.lights["2"].name;
+        lightNumber.options[2].innerHTML = app.lights["3"].name;
+
+        // set the state of the controls with the current choice:
         hue.value = app.lights[app.lightId].state.hue;
         bri.value = app.lights[app.lightId].state.bri;
         sat.value = app.lights[app.lightId].state.sat;
         lightOn.checked = app.lights[app.lightId].state.on;
-
-        // set the names of the lights in the dropdown menu:
-        // TODO: Generalize this for more than three lights:
-        lightNumber.options[0].innerHTML = app.lights["1"].name;
-        lightNumber.options[1].innerHTML = app.lights["2"].name;
-        lightNumber.options[2].innerHTML = app.lights["3"].name;
     },
 
     /*
@@ -259,18 +251,23 @@ var app = {
         var url = 'http://' + app.hueAddress + '/api/' + app.hueUserName;
 
         $.get(url, function(data) {
-            // the full settings take more than you want to
-            // fit on a tag, so just get the settings you want:
-            for (thisLight in data.lights) {
-                app.lights[thisLight] = {};
-                app.lights[thisLight]["name"] = data.lights[thisLight].name;
-                app.lights[thisLight]["state"] = {};
-                app.lights[thisLight].state.on = data.lights[thisLight].state.on;
-                app.lights[thisLight].state.bri = data.lights[thisLight].state.bri;
-                app.lights[thisLight].state.hue = data.lights[thisLight].state.hue;
-                app.lights[thisLight].state.sat = data.lights[thisLight].state.sat;
+            if (!data.lights) {
+                // assume they need to authorize
+                app.ensureAuthorized();
+            } else {
+                // the full settings take more than you want to
+                // fit on a tag, so just get the settings you want:
+                for (thisLight in data.lights) {
+                    app.lights[thisLight] = {};
+                    app.lights[thisLight]["name"] = data.lights[thisLight].name;
+                    app.lights[thisLight]["state"] = {};
+                    app.lights[thisLight].state.on = data.lights[thisLight].state.on;
+                    app.lights[thisLight].state.bri = data.lights[thisLight].state.bri;
+                    app.lights[thisLight].state.hue = data.lights[thisLight].state.hue;
+                    app.lights[thisLight].state.sat = data.lights[thisLight].state.sat;
+                }
+                app.setControls();
             }
-            app.setControls();
         });
     },
 
@@ -283,14 +280,15 @@ var app = {
             url: 'http://www.meethue.com/api/nupnp',
             dataType: 'json',
             success: function(data) {
-                // expecting a list
+                // expecting a list with a property called internalipaddress
                 if (data[0]) {
                     app.hueAddress = data[0].internalipaddress;
                     app.getHueSettings();   // copy the Hue settings locally
+                } else {
+                    navigator.notification.alert("Couldn't find a Hue on your network");
                 }
             },
             error: function(xhr, type){
-                console.log("Find Controller Address error, couldn't get address");
                 navigator.notification.alert(xhr.responseText + " (" + xhr.status + ")", null, "Error");
             }
         });
@@ -321,7 +319,7 @@ var app = {
 
     authorize: function() { // could probably be combined with ensureAuthorized
 
-        var data = { "devicetype": app.hueDeviceType, "username": app.hueUserName },
+        var data = { "devicetype": app.hueAppName, "username": app.hueUserName },
             message;
 
         $.ajax({
@@ -332,11 +330,14 @@ var app = {
                 if (data[0].error) {
                     // if not authorized, users gets an alert box
                     if (data[0].error.type === 101) {
-                        message = "Press link button on the hub.";
+                        message = "Press link button on the hub, then tap OK.";
                     } else {
                         message = data[0].error.description;
                     }
                     navigator.notification.alert(message, app.authorize, "Not Authorized");
+                } else {
+                    navigator.notification.alert("Authorized user " + app.hueUserName)
+                    app.getHueSettings();
                 }
             },
             error: function(xhr, type){
@@ -345,60 +346,35 @@ var app = {
         });
     },
 
-    setSong: function(content) {
-        app.audioStatus();
-
-        console.log("setting song");
-
-        if (app.currentSong) {
-            app.stopAudio();            // stop whatever song is playing
-            app.currentSong = null;     // clear the media object
-        }
-
-        if (content) {
-            app.songTitle = content;
-        } else if (songName.files[0] !== undefined ) {
-            app.songTitle = songName.files[0].name;
-        }
-         console.log("Song Title: " + app.songTitle);
-    },
-
     // song audio
     startAudio: function() {
-        console.log("StartAudio: " + app.musicState);
-       // attempt to instantiate a song:
-        if (app.currentSong === null) {
+        // attempt to instantiate a song:
+        if (app.songPlaying === null) {
             // Create Media object from songTitle
             if (app.songTitle) {
                 songPath = app.musicPath + app.songTitle;
-                console.log("Attempting to play " + app.songTitle);
-                app.currentSong = new Media(songPath, app.onSuccess, app.onError, app.audioStatus);
+                app.songPlaying = new Media(
+                    songPath,                   // filepath of song to play
+                    console.log("starting audio"),       // success callback
+                    console.log("error starting audio"), // error callback
+                    app.audioStatus             // update the status when playing
+                );
             } else {
                 console.log("Pick a song!")
             }
         }
 
-        switch(app.musicState) {
-            case undefined:
-            case Media.MEDIA_NONE:
-                app.playAudio();
-                break;
-            case Media.MEDIA_RUNNING:
-                app.pauseAudio();
-                break;
-            case Media.MEDIA_PAUSED:
-                app.playAudio();
-                console.log("music paused");
-                break;
-            case Media.MEDIA_STOPPED:
-                app.playAudio();
-                break;
+        // depending on the media status, do something:
+        if (app.musicState === Media.MEDIA_RUNNING) {
+            app.pauseAudio();
+        } else {
+            app.playAudio();
         }
     },
 
     playAudio: function() {
-        if (app.currentSong) {
-            app.currentSong.play();
+        if (app.songPlaying) {
+            app.songPlaying.play();
             app.clear();
             app.display("Song: " + app.songTitle);
             playButton.innerHTML = "Pause";
@@ -406,16 +382,37 @@ var app = {
     },
 
     pauseAudio: function() {
-        if (app.currentSong) {
-            app.currentSong.pause();
+        if (app.songPlaying) {
+            app.songPlaying.pause();
             playButton.innerHTML = "Play";
         }
     },
 
     stopAudio: function() {
-        if (app.currentSong) {
-            app.currentSong.stop();
+        if (app.songPlaying) {
+            app.songPlaying.stop();
             playButton.innerHTML = "Play";
+        }
+    },
+
+    setSong: function(content) {
+        // if there's no song title given,
+        // check the songName file picker for a title:
+        if (!content) {
+            if (songName.files[0] !== undefined ) {
+                content = songName.files[0].name;
+            }
+        }
+
+        // if you have a song title now, and it's not the current one:
+        if (content && content !== app.songTitle) {
+            app.songTitle = content;        // change the song title
+
+            // if there's a song chosen, clear it so you can set a new one:
+            if (app.songPlaying) {          // if there's a song playing,
+                app.stopAudio();            // stop whatever song is playing
+                app.songPlaying = null;     // clear the media object
+            }
         }
     },
 
@@ -440,18 +437,6 @@ var app = {
                 state = "music stopped";
                 break;
         }
-        console.log("Music state: " + state);
-    },
-
-    onSuccess: function() {
-        console.log("starting audio");
-    },
-
-    // onError Callback
-    //
-    onError: function(error) {
-        alert('code: '    + error.code    + '\n' +
-              'message: ' + error.message + '\n');
     },
 
 /*
@@ -481,7 +466,6 @@ var app = {
         var message = [];
 
         // get the current state of the lights:
-        console.log(JSON.stringify(app.lights));
         var lightRecord = ndef.mimeMediaRecord(app.mimeType, JSON.stringify(app.lights)),
             songRecord = ndef.uriRecord(app.songTitle);
 
