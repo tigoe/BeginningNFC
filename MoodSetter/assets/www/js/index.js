@@ -2,8 +2,12 @@
     CURRENT STATUS:
         can pick songs
         can set lights
+        can write current settings to tag
+        can red current settings from tag
+
     TODO:
-        Get NFC Writing and reading working right
+        clean up errors
+        Simplify or remove authorization methods (Don?)
 */
 
 
@@ -12,18 +16,19 @@ var app = {
     mode: "write",
 
     // parameters for hue:
-    hueDeviceType: "NFC Switch",
-    hueUserName: "thomaspatrickigoe",
-    hueAddress: null,
-    lightId: 1,
-    mimeType: 'text/hue',
-    lights: {},
+    hueDeviceType: "NFC Switch",        // The App name
+    hueUserName: "thomaspatrickigoe",   // fill in your Hue user name here
+    hueAddress: null,                   // the IP address of your Hue
+    lightId: 1,                         // which light you are changing
+    mimeType: 'text/hue',               // the NFC record MIME Type
+    lights: {},                         // names and states of the lights
 
     // parameters for audio playback:
+    // The path to the folder where you keep all your music:
     musicPath: "file:///storage/emulated/0/Download/",
-    currentSong: null,
-    songTitle: null,
-    musicState: 0,
+    currentSong: null,      // media handle for the current song playing
+    songTitle: null,        // title of the song
+    musicState: 0,          // state of the song: playing stopped, etc.
 
 /*
     Application constructor
@@ -36,11 +41,17 @@ var app = {
     // bind any events that are required on startup to listeners:
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
+
+        // hue faders from the UI: brightness, hue, saturation:
         bri.addEventListener('touchend', app.setBrightness, false);
         hue.addEventListener('touchend', app.setHue, false);
         sat.addEventListener('touchend', app.setSaturation, false);
-        tagWriterButton.addEventListener('touchstart', app.makeMessage, false);
+
+        // buttons from the UI:
         modeButton.addEventListener('touchStart', app.setMode, false);
+        tagWriterButton.addEventListener('touchstart', app.makeMessage, false);
+
+        // pause and resume functionality for the whole app:
         document.addEventListener('pause', this.onPause, false);
         document.addEventListener('resume', this.onResume, false);
     },
@@ -48,11 +59,12 @@ var app = {
     this runs when the device is ready for user interaction:
 */
     onDeviceReady: function() {
-        app.setSong();
-        app.clear();
+        app.setSong();      // initialize the music
+        app.clear();        // clear any messages onscreen
 
-        app.findControllerAddress();
-        app.setMode();
+        // get the Hue's address
+        app.findControllerAddress();    // find address and get settings
+        app.setMode();              // set the read/write mode for tags
 
         app.display("Tap a tag to play its song and set the lights.");
 
@@ -88,21 +100,21 @@ var app = {
         app.startAudio();
     },
 
-
+    /*
+        Set the tag read/write mode for the app:
+    */
     setMode: function() {
         console.log("Switching modes");
-        if (app.mode === "write") {
-            // change to read
+        if (app.mode === "write") {     // change to read
             // hide the write button
             tagWriterButton.style.visibility = "hidden";
             app.mode = "read";
-        } else {
-            // Write
+        } else {                        // change to write
             // show the write button
             tagWriterButton.style.visibility = "visible";
             app.mode = "write";
         }
-        modeValue.innerHTML = app.mode;
+        modeValue.innerHTML = app.mode; // set text in the UI
     },
 /*
     runs when an NDEF-formatted tag shows up.
@@ -136,9 +148,9 @@ var app = {
                 // for some reason I have to cut the first byte of the payload
                 // in order to get a playable URI:
                 var trash = record.payload.shift();
-                console.log("got a new song " + records[0].payload);
+                console.log("got a new song " + record.payload);
                 // convert the remainder of the payload to a string:
-                content = nfc.bytesToString(records[0].payload);
+                content = nfc.bytesToString(record.payload);
                 app.stopAudio();      // stop whatever is playing
                 app.setSong(content); // set the song name
                 app.startAudio();     // play the song
@@ -156,16 +168,50 @@ var app = {
                 content = nfc.bytesToString(record.payload);
                 console.log("got some new lights: " + content);
                 content = JSON.parse(content); // don't really need to parse
-                app.hue(content);
+                app.setAllLights(content);
                 console.log(content);
                 console.log("Set the lights");
             }
         }
     },
 
+    setAllLights: function(settings) {
+        for (thisLight in settings) {
+            // set name
+            app.hue(settings[thisLight].name, "name");
+            // set state
+            app.hue(settings[thisLight].state, "state");
+        }
+    },
 
+    hue: function(settings, property) {
+        // if they just send settings, assume they are the light state:
+        if (!property) {
+            property = "state";
+        }
+
+        // set the property for the light:
+        $.ajax({
+            type: 'PUT',
+            url: 'http://' + app.hueAddress + '/api/' + app.hueUserName + '/lights/' + app.lightId + '/' + property,
+            data: JSON.stringify(settings),
+            success: function(data){
+                console.log(JSON.stringify(data));
+                if (data[0].error) {
+                    navigator.notification.alert(JSON.stringify(data), null, "API Error");
+                }
+            },
+            error: function(xhr, type){
+                navigator.notification.alert(xhr.responseText + " (" + xhr.status + ")", null, "Error");
+            }
+        });
+
+    },
+
+    /*
+        Set the value of the UI controls using the values from the Hue:
+    */
     setControls: function() {
-        // TO DO: set the controls using the state of the latest picked light:
         app.lightId = lightNumber.value;
         hue.value = app.lights[app.lightId].state.hue;
         bri.value = app.lights[app.lightId].state.bri;
@@ -179,6 +225,10 @@ var app = {
         lightNumber.options[2].innerHTML = app.lights["3"].name;
     },
 
+    /*
+        These functions set the properties for a Hue light:
+        Brightness, Hue, Saturation, and On State
+    */
     setBrightness: function() {
         var brightnessValue = parseInt(bri.value);
         app.hue( { "bri": brightnessValue } );
@@ -194,46 +244,41 @@ var app = {
         app.hue( { "sat": saturationValue } );
     },
 
-    lightState: function() {
-        console.log(lightOn.checked);
+    setLightOn: function() {
         var onValue = lightOn.checked;
         app.hue( { "on": onValue } );
     },
 
+    /*
+        Get the settings from the Hue and store a subset of them locally
+        in app.lights.  This is for both setting the controls, and so you
+        have an object to write to a tag:
+    */
     getHueSettings: function() {
         // query the hub and get its current settings:
         var url = 'http://' + app.hueAddress + '/api/' + app.hueUserName;
 
         $.get(url, function(data) {
-            app.lights = data.lights;
+            // the full settings take more than you want to
+            // fit on a tag, so just get the settings you want:
+            for (thisLight in data.lights) {
+                app.lights[thisLight] = {};
+                app.lights[thisLight]["name"] = data.lights[thisLight].name;
+                app.lights[thisLight]["state"] = {};
+                app.lights[thisLight].state.on = data.lights[thisLight].state.on;
+                app.lights[thisLight].state.bri = data.lights[thisLight].state.bri;
+                app.lights[thisLight].state.hue = data.lights[thisLight].state.hue;
+                app.lights[thisLight].state.sat = data.lights[thisLight].state.sat;
+            }
             app.setControls();
         });
     },
 
-    hue: function(settings) {
-
-        // TODO - consider if the light is on, turn off
-        // if the light is on, send the settings
-        // possibly add a custom "toggle" tag
-
-        $.ajax({
-            type: 'PUT',
-            url: 'http://' + app.hueAddress + '/api/' + app.hueUserName + '/lights/' + app.lightId + '/state',
-            data: JSON.stringify(settings),
-            success: function(data){
-                console.log(JSON.stringify(data));
-                if (data[0].error) {
-                    navigator.notification.alert(JSON.stringify(data), null, "API Error");
-                }
-            },
-            error: function(xhr, type){
-                navigator.notification.alert(xhr.responseText + " (" + xhr.status + ")", null, "Error");
-            }
-        });
-    },
+    /*
+        Find the Hue controller address and get its settings
+    */
 
     findControllerAddress: function() {
-
         $.ajax({
             url: 'http://www.meethue.com/api/nupnp',
             dataType: 'json',
@@ -241,18 +286,17 @@ var app = {
                 // expecting a list
                 if (data[0]) {
                     app.hueAddress = data[0].internalipaddress;
-                    console.log(app.hueAddress);
-                    app.getHueSettings();
+                    app.getHueSettings();   // copy the Hue settings locally
                 }
             },
             error: function(xhr, type){
+                console.log("Find Controller Address error, couldn't get address");
                 navigator.notification.alert(xhr.responseText + " (" + xhr.status + ")", null, "Error");
             }
         });
     },
 
     ensureAuthorized: function() {
-
         var message;
 
         $.ajax({
@@ -303,9 +347,11 @@ var app = {
 
     setSong: function(content) {
         app.audioStatus();
+
         console.log("setting song");
+
         if (app.currentSong) {
-            app.stopAudio();
+            app.stopAudio();            // stop whatever song is playing
             app.currentSong = null;     // clear the media object
         }
 
@@ -435,14 +481,13 @@ var app = {
         var message = [];
 
         // get the current state of the lights:
-        //app.getHueSettings();
         console.log(JSON.stringify(app.lights));
         var lightRecord = ndef.mimeMediaRecord(app.mimeType, JSON.stringify(app.lights)),
             songRecord = ndef.uriRecord(app.songTitle);
 
         // put the record in the message array:
-        message.push(songRecord);
         message.push(lightRecord);
+        message.push(songRecord);
 
         //write the message:
         app.writeTag(message);
