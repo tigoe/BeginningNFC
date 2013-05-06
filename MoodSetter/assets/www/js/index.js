@@ -16,7 +16,7 @@ var app = {
 
     // parameters for hue:
     hueAppName: "NFC Mood Setter",      // The App name
-    hueUserName: "YourUserNameHere",    // fill in your Hue user name here
+    hueUserName: "thomaspatrickigoe",    // fill in your Hue user name here
     hueAddress: null,                   // the IP address of your Hue
     lightId: 1,                         // which light you are changing
     mimeType: 'text/hue',               // the NFC record MIME Type
@@ -45,10 +45,14 @@ var app = {
         bri.addEventListener('touchend', app.setBrightness, false);
         hue.addEventListener('touchend', app.setHue, false);
         sat.addEventListener('touchend', app.setSaturation, false);
+        lightOn.addEventListener('change', app.setLightOn, false);
+        lightNumber.addEventListener('change', app.getHueSettings, false);
 
         // buttons from the UI:
-        modeButton.addEventListener('touchStart', app.setMode, false);
-        tagWriterButton.addEventListener('touchstart', app.makeMessage, false);
+        modeButton.addEventListener('touchend', app.setMode, false);
+        songName.addEventListener('change', app.setSong, false);
+        playButton.addEventListener('touchend', app.toggleAudio, false);
+        stopButton.addEventListener('touchend', app.stopAudio, false);
 
         // pause and resume functionality for the whole app:
         document.addEventListener('pause', this.onPause, false);
@@ -58,14 +62,11 @@ var app = {
     this runs when the device is ready for user interaction:
 */
     onDeviceReady: function() {
-        app.startAudio();      // initialize the music
         app.clear();        // clear any messages onscreen
 
         // get the Hue's address
         app.findControllerAddress();    // find address and get settings
         app.setMode();              // set the read/write mode for tags
-
-        app.display("Tap a tag to play its song and set the lights.");
 
         nfc.addNdefFormatableListener(
             app.onNfc,                                  // tag successfully scanned
@@ -89,14 +90,18 @@ var app = {
     This is called when the app is paused
 */
     onPause: function() {
-        app.pauseAudio();
+        if (app.musicState === Media.MEDIA_RUNNING) {
+            app.pauseAudio();
+        }
     },
 
 /*
     This is called when the app is resumed
 */
     onResume: function() {
-        app.startAudio();
+        if (app.musicState === Media.MEDIA_PAUSED) {
+            app.startAudio();
+        }
     },
 
     /*
@@ -104,13 +109,11 @@ var app = {
     */
     setMode: function() {
         if (app.mode === "write") {     // change to read
-            // hide the write button
-            tagWriterButton.style.visibility = "hidden";
             app.mode = "read";
+            tagModeMessage.innerHTML = "Tap a tag to read its settings."
         } else {                        // change to write
-            // show the write button
-            tagWriterButton.style.visibility = "visible";
             app.mode = "write";
+            tagModeMessage.innerHTML = "Tap a tag to write the current settings to it."
         }
         modeValue.innerHTML = app.mode; // set text in the UI
     },
@@ -127,6 +130,9 @@ var app = {
         }
     },
 
+/*
+    reads an NDEF-formatted tag.
+*/
     readTag: function(thisTag) {
         var message = thisTag.ndefMessage,
             record,
@@ -348,40 +354,68 @@ var app = {
 
     // song audio
     startAudio: function() {
+        var success = false;
         // attempt to instantiate a song:
         if (app.songPlaying === null) {
             // Create Media object from songTitle
             if (app.songTitle) {
                 songPath = app.musicPath + app.songTitle;
                 app.songPlaying = new Media(
-                    songPath,                   // filepath of song to play
-                    console.log("starting audio"),       // success callback
-                    console.log("error starting audio"), // error callback
-                    app.audioStatus             // update the status when playing
+                    songPath,           // filepath of song to play
+                    app.audioSuccess,   // success callback
+                    app.audioError,     // error callback
+                    app.audioStatus     // update the status  callback
                 );
             } else {
                 console.log("Pick a song!")
             }
         }
 
-        // depending on the media status, do something:
-        if (app.musicState === Media.MEDIA_RUNNING) {
-            app.pauseAudio();
-        } else {
-            app.playAudio();
+        // play the song:
+        app.playAudio();
+    },
+
+    audioSuccess: function() {
+        console.log("Success; starting audio");
+    },
+
+    audioError: function(error) {
+        console.log("error starting audio callback: " + JSON.stringify(error) );
+    },
+
+    toggleAudio: function(event) {
+        console.log("music state: " + app.musicState);
+        switch(app.musicState) {
+            case undefined:
+            case Media.MEDIA_NONE:
+                app.startAudio();
+                break;
+            case Media.MEDIA_STARTING:
+                state = "music starting";
+                break;
+            case Media.MEDIA_RUNNING:
+                app.pauseAudio();
+                break;
+            case Media.MEDIA_PAUSED:
+                app.playAudio();
+                break;
+            case Media.MEDIA_STOPPED:
+                app.playAudio();
+                break;
         }
+
     },
 
     playAudio: function() {
+        console.log("playing audio");
         if (app.songPlaying) {
             app.songPlaying.play();
-            app.clear();
-            app.display("Song: " + app.songTitle);
             playButton.innerHTML = "Pause";
         }
     },
 
     pauseAudio: function() {
+        console.log("pausing audio");
         if (app.songPlaying) {
             app.songPlaying.pause();
             playButton.innerHTML = "Play";
@@ -389,6 +423,7 @@ var app = {
     },
 
     stopAudio: function() {
+        console.log("Stopping audio");
         if (app.songPlaying) {
             app.songPlaying.stop();
             playButton.innerHTML = "Play";
@@ -398,21 +433,13 @@ var app = {
     setSong: function(content) {
         // if there's no song title given,
         // check the songName file picker for a title:
-        if (!content) {
-            if (songName.files[0] !== undefined ) {
-                content = songName.files[0].name;
-            }
+        if (typeof(content) !== 'string' ) {
+            content = songName.value.replace("C:\\fakepath\\", "");
         }
 
         // if you have a song title now, and it's not the current one:
-        if (content && content !== app.songTitle) {
+        if (typeof(content) === 'string' && content !== app.songTitle) {
             app.songTitle = content;        // change the song title
-
-            // if there's a song chosen, clear it so you can set a new one:
-            if (app.songPlaying) {          // if there's a song playing,
-                app.stopAudio();            // stop whatever song is playing
-                app.songPlaying = null;     // clear the media object
-            }
         }
     },
 
@@ -465,13 +492,15 @@ var app = {
     makeMessage: function() {
         var message = [];
 
-        // get the current state of the lights:
-        var lightRecord = ndef.mimeMediaRecord(app.mimeType, JSON.stringify(app.lights)),
-            songRecord = ndef.uriRecord(app.songTitle);
-
         // put the record in the message array:
-        message.push(lightRecord);
-        message.push(songRecord);
+        if (app.lights !== {}) {
+            var lightRecord = ndef.mimeMediaRecord(app.mimeType, JSON.stringify(app.lights));
+            message.push(lightRecord);
+        }
+        if (app.songTitle !== null) {
+            var songRecord = ndef.uriRecord(app.songTitle);
+            message.push(songRecord);
+        }
 
         //write the message:
         app.writeTag(message);

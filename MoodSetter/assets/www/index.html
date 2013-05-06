@@ -8,31 +8,34 @@
         <script type="text/javascript" src="js/index.js"></script>
         <script type="text/javascript" src="js/zepto.min.js"></script>
     </head>
+
     <body onload="app.initialize();">
         <div class="app">
-             <button id="modeButton" onclick="app.setMode();">Change Mode</button>
-             <span id="modeValue"></span>
+        	<div id="tagMode">
+            	<button id="modeButton">Change Mode</button>
+            	<span id="modeValue"></span><br />
+                <span id="tagModeMessage"></span>
+        	</div>
 
         <div id="lightControl">
-            <select id="lightNumber" onchange="app.getHueSettings();">
+            Light Location:
+            <select id="lightNumber">
                 <option value="1" >No Lights Found</option>
                 <option value="2" >No Lights Found</option>
                 <option value="3" >No Lights Found</option>
             </select><br />
-            On: <input type="checkbox" id="lightOn" onchange="app.setLightOn();" ><br />
-            Brightness: <input type="range" id="bri" min="0" max="254"><br />
-            Hue: <input type="range" id="hue"  min="0" max="65535"><br />
-            Saturation: <input type="range" id="sat" min="0" max="254">
+        	On: <input type="checkbox" id="lightOn"><br />
+        	Brightness: <input type="range" id="bri" min="0" max="254"><br />
+        	Hue: <input type="range" id="hue"  min="0" max="65535"><br />
+        	Saturation: <input type="range" id="sat" min="0" max="254">
         </div>
 
         <div id="songPicker">
             Pick a song:<br/>
-                <input type="file" id="songName" onchange="app.setSong();">
-                <button id="playButton" onclick="app.startAudio();">Play</button>
-                <button id="stopButton" onclick="app.stopAudio();">Stop</button>
+                <input type="file" id="songName">
+                <button id="playButton">Play</button>
+                <button id="stopButton">Stop</button>
         </div>
-
-        <button id="tagWriterButton">Write to tag</button>
 
         <div id="message">No tag found</div>
 
