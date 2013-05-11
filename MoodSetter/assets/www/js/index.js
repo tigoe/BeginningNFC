@@ -17,14 +17,14 @@ var app = {
     // parameters for hue:
     hueAppName: "NFC Mood Setter",      // The App name
     hueUserName: "thomaspatrickigoe",    // fill in your Hue user name here
-    hueAddress: null,                   // the IP address of your Hue
+    hueAddress: "128.122.151.76",                   // the IP address of your Hue
     lightId: 1,                         // which light you are changing
     mimeType: 'text/hue',               // the NFC record MIME Type
     lights: {},                         // names and states of the lights
 
     // parameters for audio playback:
     // The path to the folder where you keep all your music:
-    musicPath: "file:///storage/emulated/0/Download/",
+    musicPath: "file:///sdcard/Download/",
     songPlaying: null,      // media handle for the current song playing
     songTitle: null,        // title of the song
     musicState: 0,          // state of the song: playing stopped, etc.
@@ -254,25 +254,28 @@ var app = {
     */
     getHueSettings: function() {
         // query the hub and get its current settings:
-        var url = 'http://' + app.hueAddress + '/api/' + app.hueUserName;
 
-        $.get(url, function(data) {
-            if (!data.lights) {
-                // assume they need to authorize
-                app.ensureAuthorized();
-            } else {
-                // the full settings take more than you want to
-                // fit on a tag, so just get the settings you want:
-                for (thisLight in data.lights) {
-                    app.lights[thisLight] = {};
-                    app.lights[thisLight]["name"] = data.lights[thisLight].name;
-                    app.lights[thisLight]["state"] = {};
-                    app.lights[thisLight].state.on = data.lights[thisLight].state.on;
-                    app.lights[thisLight].state.bri = data.lights[thisLight].state.bri;
-                    app.lights[thisLight].state.hue = data.lights[thisLight].state.hue;
-                    app.lights[thisLight].state.sat = data.lights[thisLight].state.sat;
+        $.ajax({
+            type: 'GET',
+            url: 'http://' + app.hueAddress + '/api/' + app.hueUserName,
+            success: function(data) {
+                if (!data.lights) {
+                    // assume they need to authorize
+                    app.ensureAuthorized();
+                } else {
+                    // the full settings take more than you want to
+                    // fit on a tag, so just get the settings you want:
+                    for (thisLight in data.lights) {
+                        app.lights[thisLight] = {};
+                        app.lights[thisLight]["name"] = data.lights[thisLight].name;
+                        app.lights[thisLight]["state"] = {};
+                        app.lights[thisLight].state.on = data.lights[thisLight].state.on;
+                        app.lights[thisLight].state.bri = data.lights[thisLight].state.bri;
+                        app.lights[thisLight].state.hue = data.lights[thisLight].state.hue;
+                        app.lights[thisLight].state.sat = data.lights[thisLight].state.sat;
+                    }
+                    app.setControls();
                 }
-                app.setControls();
             }
         });
     },
@@ -288,7 +291,7 @@ var app = {
             success: function(data) {
                 // expecting a list with a property called internalipaddress
                 if (data[0]) {
-                    app.hueAddress = data[0].internalipaddress;
+                    //app.hueAddress = data[0].internalipaddress;
                     app.getHueSettings();   // copy the Hue settings locally
                 } else {
                     navigator.notification.alert("Couldn't find a Hue on your network");
