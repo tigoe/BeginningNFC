@@ -3,26 +3,26 @@
         can pick songs
         can set lights
         can write current settings to tag
-        can red current settings from tag
+        can read current settings from tag
 
     TODO:
-        clean up errors
+        Audio song display not working properly
+        Read from tag using background dispatch not reliable
 */
 
+var hub = {                         // a copy of the hue settings
+    lights: {},                     // states and names for the individual lights
+    ipaddress: null,                // ip address of the hue
+    appTitle: "NFC Mood Setter",    // The App name
+    username: "yourusername",       // fill in your Hue user name here
+    currentLight: 1                 // the light you're currently setting
+ };
 
-var app = {
-    // parameters for tag reading/writing:
-    mode: "write",
+var app = {}
+    mode: "write",                  // the tag read/write mode
+    mimeType: 'text/hue',           // the NFC record MIME Type
 
-    // parameters for hue:
-    hueAppName: "NFC Mood Setter",      // The App name
-    hueUserName: "thomaspatrickigoe",    // fill in your Hue user name here
-    hueAddress: "128.122.151.76",                   // the IP address of your Hue
-    lightId: 1,                         // which light you are changing
-    mimeType: 'text/hue',               // the NFC record MIME Type
-    lights: {},                         // names and states of the lights
-
-    // parameters for audio playback:
+   // parameters for audio playback:
     // The path to the folder where you keep all your music:
     musicPath: "file:///sdcard/Download/",
     songPlaying: null,      // media handle for the current song playing
@@ -152,6 +152,7 @@ var app = {
                 // convert the remainder of the payload to a string:
                 content = nfc.bytesToString(record.payload);
                 app.stopAudio();      // stop whatever is playing
+                app.songPlaying = null; // clear the media object
                 app.setSong(content); // set the song name
                 app.startAudio();     // play the song
             }
@@ -167,33 +168,36 @@ var app = {
 
                 content = nfc.bytesToString(record.payload);
                 content = JSON.parse(content); // don't really need to parse
-                app.setAllLights(content);
+                app.setAllLights(content.lights);
               }
         }
     },
 
     setAllLights: function(settings) {
         for (thisLight in settings) {
-            // set name
-            app.hue(settings[thisLight].name, "name");
             // set state
-            app.hue(settings[thisLight].state, "state");
+            app.putHueSettings(settings[thisLight].state, "state", thisLight);
         }
     },
 
-    hue: function(settings, property) {
+    putHueSettings: function(settings, property, lightId) {
         // if they just send settings, assume they are the light state:
         if (!property) {
             property = "state";
         }
 
+        // if no lightId is sent, assume the current light:
+        if (!lightId) {
+            lightId = hub.currentLight;
+        }
+
         // set the property for the light:
         $.ajax({
             type: 'PUT',
-            url: 'http://' + app.hueAddress + '/api/' + app.hueUserName + '/lights/' + app.lightId + '/' + property,
+            url: 'http://' + hub.ipaddress + '/api/' + hub.username + '/lights/' + lightId + '/' + property,
             data: JSON.stringify(settings),
             success: function(data){
-                  if (data[0].error) {
+                if (data[0].error) {
                     navigator.notification.alert(JSON.stringify(data), null, "API Error");
                 }
             },
@@ -208,48 +212,57 @@ var app = {
         Set the value of the UI controls using the values from the Hue:
     */
     setControls: function() {
-        app.lightId = lightNumber.value;
+        hub.currentLight = lightNumber.value;
 
         // set the names of the lights in the dropdown menu:
         // (in a more fully developed app, you might generalize this)
-        lightNumber.options[0].innerHTML = app.lights["1"].name;
-        lightNumber.options[1].innerHTML = app.lights["2"].name;
-        lightNumber.options[2].innerHTML = app.lights["3"].name;
+        lightNumber.options[0].innerHTML = hub.lights["1"].name;
+        lightNumber.options[1].innerHTML = hub.lights["2"].name;
+        lightNumber.options[2].innerHTML = hub.lights["3"].name;
 
         // set the state of the controls with the current choice:
-        hue.value = app.lights[app.lightId].state.hue;
-        bri.value = app.lights[app.lightId].state.bri;
-        sat.value = app.lights[app.lightId].state.sat;
-        lightOn.checked = app.lights[app.lightId].state.on;
-    },
+        var thisLight = hub.lights[hub.currentLight];
+        hue.value = thisLight.state.hue;
+        bri.value = thisLight.state.bri;
+        sat.value = thisLight.state.sat;
+        lightOn.checked = thisLight.state.on;
+      },
 
     /*
         These functions set the properties for a Hue light:
         Brightness, Hue, Saturation, and On State
     */
     setBrightness: function() {
-        var brightnessValue = parseInt(bri.value);
-        app.hue( { "bri": brightnessValue } );
+        var thisBrightness = parseInt(bri.value);
+        var thisLight = hub.lights[hub.currentLight];
+        thisLight.state.bri = thisBrightness;
+        app.putHueSettings( { "bri": thisBrightness } );
     },
 
     setHue: function() {
-        var hueValue = parseInt(hue.value);
-        app.hue( { "hue": hueValue } );
+        var thisHue = parseInt(hue.value);
+        var thisLight = hub.lights[hub.currentLight];
+        thisLight.state.hue = thisHue;
+        app.putHueSettings( { "hue": thisHue } );
     },
 
     setSaturation: function() {
-        var saturationValue = parseInt(sat.value);
-        app.hue( { "sat": saturationValue } );
+        var thisSaturation = parseInt(bri.value);
+        var thisLight = hub.lights[hub.currentLight];
+        thisLight.state.sat = thisSaturation;
+        app.putHueSettings( { "sat": thisSaturation } );
     },
 
     setLightOn: function() {
-        var onValue = lightOn.checked;
-        app.hue( { "on": onValue } );
+        var thisOn = lightOn.checked;
+        var thisLight = hub.lights[hub.currentLight];
+        thisLight.state.on = thisOn;
+        app.putHueSettings( { "on": thisOn } );
     },
 
     /*
         Get the settings from the Hue and store a subset of them locally
-        in app.lights.  This is for both setting the controls, and so you
+        in hub.lights.  This is for both setting the controls, and so you
         have an object to write to a tag:
     */
     getHueSettings: function() {
@@ -257,7 +270,7 @@ var app = {
 
         $.ajax({
             type: 'GET',
-            url: 'http://' + app.hueAddress + '/api/' + app.hueUserName,
+            url: 'http://' + hub.ipaddress + '/api/' + hub.username,
             success: function(data) {
                 if (!data.lights) {
                     // assume they need to authorize
@@ -266,13 +279,13 @@ var app = {
                     // the full settings take more than you want to
                     // fit on a tag, so just get the settings you want:
                     for (thisLight in data.lights) {
-                        app.lights[thisLight] = {};
-                        app.lights[thisLight]["name"] = data.lights[thisLight].name;
-                        app.lights[thisLight]["state"] = {};
-                        app.lights[thisLight].state.on = data.lights[thisLight].state.on;
-                        app.lights[thisLight].state.bri = data.lights[thisLight].state.bri;
-                        app.lights[thisLight].state.hue = data.lights[thisLight].state.hue;
-                        app.lights[thisLight].state.sat = data.lights[thisLight].state.sat;
+                        hub.lights[thisLight] = {};
+                        hub.lights[thisLight]["name"] = data.lights[thisLight].name;
+                        hub.lights[thisLight]["state"] = {};
+                        hub.lights[thisLight].state.on = data.lights[thisLight].state.on;
+                        hub.lights[thisLight].state.bri = data.lights[thisLight].state.bri;
+                        hub.lights[thisLight].state.hue = data.lights[thisLight].state.hue;
+                        hub.lights[thisLight].state.sat = data.lights[thisLight].state.sat;
                     }
                     app.setControls();
                 }
@@ -291,9 +304,9 @@ var app = {
             success: function(data) {
                 // expecting a list with a property called internalipaddress
                 if (data[0]) {
-                    //app.hueAddress = data[0].internalipaddress;
+                    hub.ipaddress = data[0].internalipaddress;
                     app.getHueSettings();   // copy the Hue settings locally
-                } else {
+               } else {
                     navigator.notification.alert("Couldn't find a Hue on your network");
                 }
             },
@@ -308,7 +321,7 @@ var app = {
 
         $.ajax({
             type: 'GET',
-            url: 'http://' + app.hueAddress + '/api/' + app.hueUserName,
+            url: 'http://' + hub.ipaddress + '/api/' + hub.username,
             success: function(data){
                 if (data[0].error) {
                     // if not authorized, users gets an alert box
@@ -328,12 +341,12 @@ var app = {
 
     authorize: function() { // could probably be combined with ensureAuthorized
 
-        var data = { "devicetype": app.hueAppName, "username": app.hueUserName },
+        var data = { "devicetype": hub.appTitle, "username": hub.username },
             message;
 
         $.ajax({
             type: 'POST',
-            url: 'http://' + app.hueAddress + '/api',
+            url: 'http://' + hub.ipaddress + '/api',
             data: JSON.stringify(data),
             success: function(data){
                 if (data[0].error) {
@@ -345,7 +358,7 @@ var app = {
                     }
                     navigator.notification.alert(message, app.authorize, "Not Authorized");
                 } else {
-                    navigator.notification.alert("Authorized user " + app.hueUserName)
+                    navigator.notification.alert("Authorized user " + hub.username)
                     app.getHueSettings();
                 }
             },
@@ -380,6 +393,8 @@ var app = {
 
     audioSuccess: function() {
         console.log("Success; starting audio");
+        app.clear();
+        app.display("Currently playing: " + app.songTitle)
     },
 
     audioError: function(error) {
@@ -387,7 +402,6 @@ var app = {
     },
 
     toggleAudio: function(event) {
-        console.log("music state: " + app.musicState);
         switch(app.musicState) {
             case undefined:
             case Media.MEDIA_NONE:
@@ -400,8 +414,6 @@ var app = {
                 app.pauseAudio();
                 break;
             case Media.MEDIA_PAUSED:
-                app.playAudio();
-                break;
             case Media.MEDIA_STOPPED:
                 app.playAudio();
                 break;
@@ -410,7 +422,6 @@ var app = {
     },
 
     playAudio: function() {
-        console.log("playing audio");
         if (app.songPlaying) {
             app.songPlaying.play();
             playButton.innerHTML = "Pause";
@@ -418,7 +429,6 @@ var app = {
     },
 
     pauseAudio: function() {
-        console.log("pausing audio");
         if (app.songPlaying) {
             app.songPlaying.pause();
             playButton.innerHTML = "Play";
@@ -426,8 +436,7 @@ var app = {
     },
 
     stopAudio: function() {
-        console.log("Stopping audio");
-        if (app.songPlaying) {
+         if (app.songPlaying) {
             app.songPlaying.stop();
             playButton.innerHTML = "Play";
         }
@@ -437,6 +446,8 @@ var app = {
         // if there's no song title given,
         // check the songName file picker for a title:
         if (typeof(content) !== 'string' ) {
+            // get rid of the standard c:\fakepath beginning
+            // that the HTML file input object adds:
             content = songName.value.replace("C:\\fakepath\\", "");
         }
 
@@ -496,8 +507,9 @@ var app = {
         var message = [];
 
         // put the record in the message array:
-        if (app.lights !== {}) {
-            var lightRecord = ndef.mimeMediaRecord(app.mimeType, JSON.stringify(app.lights));
+        if (hub.lights !== {}) {
+            var huePayload = JSON.stringify({"lights": hub.lights});
+            var lightRecord = ndef.mimeMediaRecord(app.mimeType, huePayload);
             message.push(lightRecord);
         }
         if (app.songTitle !== null) {

@@ -23,6 +23,11 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="text/hue" />
+            </intent-filter>
         </activity>
     </application>
     <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="17" />
