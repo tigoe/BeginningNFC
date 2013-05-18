@@ -1,43 +1,30 @@
-/*
-    CURRENT STATUS:
-        can pick songs
-        can set lights
-        can write current settings to tag
-        can read current settings from tag
-
-    TODO:
-        Audio song display not working properly
-        Read from tag using background dispatch not reliable
-*/
-
 var hub = {                         // a copy of the hue settings
-    lights: {},                     // states and names for the individual lights
+    lights: {},                     // states & names for the individual lights
     ipaddress: null,                // ip address of the hue
     appTitle: "NFC Mood Setter",    // The App name
     username: "yourusername",       // fill in your Hue user name here
     currentLight: 1                 // the light you're currently setting
  };
 
-var app = {}
-    mode: "write",                  // the tag read/write mode
+var app = {
+    mode: 'write',                  // the tag read/write mode
     mimeType: 'text/hue',           // the NFC record MIME Type
+    musicPath: 'file:///sdcard/myMusic/',   // path to your music
+    songPlaying: null,              // media handle for the current song playing
+    songTitle: null,                // title of the song
+    musicState: 0,                  // state of the song: playing stopped, etc.
 
-   // parameters for audio playback:
-    // The path to the folder where you keep all your music:
-    musicPath: "file:///sdcard/Download/",
-    songPlaying: null,      // media handle for the current song playing
-    songTitle: null,        // title of the song
-    musicState: 0,          // state of the song: playing stopped, etc.
-
-/*
-    Application constructor
-*/
+    /*
+        Application constructor
+    */
     initialize: function() {
         this.bindEvents();
         console.log("Starting Mood Setter app");
     },
 
-    // bind any events that are required on startup to listeners:
+    /*
+        binds events that are required on startup to listeners.
+    */
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
 
@@ -58,46 +45,52 @@ var app = {}
         document.addEventListener('pause', this.onPause, false);
         document.addEventListener('resume', this.onResume, false);
     },
-/*
-    this runs when the device is ready for user interaction:
-*/
+    /*
+         runs when the device is ready for user interaction.
+    */
     onDeviceReady: function() {
-        app.clear();        // clear any messages onscreen
-
-        // get the Hue's address
+        app.clear();                    // clear any messages onscreen
         app.findControllerAddress();    // find address and get settings
-        app.setMode();              // set the read/write mode for tags
+        app.setMode();                  // set the read/write mode for tags
 
+        // listen for NDEF Formatable tags (for write mode):
         nfc.addNdefFormatableListener(
-            app.onNfc,                                  // tag successfully scanned
-            function (status) {                         // listener successfully initialized
+            app.onNfc,                  // tag successfully scanned
+            function (status) {         // listener successfully initialized
                 app.display("Listening for NDEF-formatable tags.");
             },
-            function (error) {                          // listener fails to initialize
-                app.display("NFC reader failed to initialize " + JSON.stringify(error));
+            function (error) {          // listener fails to initialize
+                app.display("NFC reader failed to initialize "
+                    + JSON.stringify(error));
             }
         );
 
+        // listen for MIME media types of type 'text/hue'
+        // (for read mode):
         nfc.addMimeTypeListener(
-            app.mimeType,
-            app.onNfc,
-            function() { console.log("listening for mime media tags"); },
-            function(error) { console.log("ERROR: " + JSON.stringify(error)); }
+            app.mimeType,               // what type you're listening for
+            app.onNfc,                  // MIME type successfully found
+            function() {                // listener successfully initialized
+                console.log("listening for mime media tags");
+            },
+            function(error) {           // listener fails to initialize
+                console.log("ERROR: "
+                + JSON.stringify(error)); }
         );
     },
 
-/*
-    This is called when the app is paused
-*/
+    /*
+        This is called when the app is paused
+    */
     onPause: function() {
         if (app.musicState === Media.MEDIA_RUNNING) {
             app.pauseAudio();
         }
     },
 
-/*
-    This is called when the app is resumed
-*/
+    /*
+        This is called when the app is resumed
+    */
     onResume: function() {
         if (app.musicState === Media.MEDIA_PAUSED) {
             app.startAudio();
@@ -105,34 +98,35 @@ var app = {}
     },
 
     /*
-        Set the tag read/write mode for the app:
+        Sets the tag read/write mode for the app.
     */
     setMode: function() {
-        if (app.mode === "write") {     // change to read
+        if (app.mode === "write") {     // change to read mode
             app.mode = "read";
             tagModeMessage.innerHTML = "Tap a tag to read its settings."
-        } else {                        // change to write
+        } else {                        // change to write mode
             app.mode = "write";
-            tagModeMessage.innerHTML = "Tap a tag to write the current settings to it."
+            tagModeMessage.innerHTML = "Tap a tag to write current settings."
         }
         modeValue.innerHTML = app.mode; // set text in the UI
     },
-/*
-    runs when an NDEF-formatted tag shows up.
-*/
+
+    /*
+        runs when an NFC event occurs.
+    */
     onNfc: function(nfcEvent) {
         var tag = nfcEvent.tag;
 
         if (app.mode === "read") {
-            app.readTag(tag);
+            app.readTag(tag);   // in read mode, read the tag
         } else {
-            app.makeMessage();
+            app.makeMessage();  // in write mode, write to the tag
         }
     },
 
-/*
-    reads an NDEF-formatted tag.
-*/
+    /*
+        reads an NDEF-formatted tag.
+    */
     readTag: function(thisTag) {
         var message = thisTag.ndefMessage,
             record,
@@ -146,46 +140,41 @@ var app = {}
             recordType = nfc.bytesToString(record.type);
             // if you've got a URI, use it to start a song:
             if (recordType === nfc.bytesToString(ndef.RTD_URI)) {
-                // for some reason I have to cut the first byte of the payload
-                // in order to get a playable URI:
-                var trash = record.payload.shift();
+                // cut the first byte of the payload to get the URI:
+                record.payload.shift();
                 // convert the remainder of the payload to a string:
                 content = nfc.bytesToString(record.payload);
-                app.stopAudio();      // stop whatever is playing
-                app.songPlaying = null; // clear the media object
-                app.setSong(content); // set the song name
-                app.startAudio();     // play the song
+                app.setSong(content);   // set the song name
+                app.startAudio();       // play the song
             }
 
             // if you've got a hue JSON object, set the lights:
             if (recordType === 'text/hue') {
                 // tag should be TNF_MIME_MEDIA with a type 'text/hue'
-                // assume we get a JSON object as the payload
+                // assume you get a JSON object as the payload
                 // JSON object should have valid settings info for the hue
                 // http://developers.meethue.com/1_lightsapi.html
-                // { "on": true }
-                // { "on": false }
 
                 content = nfc.bytesToString(record.payload);
-                content = JSON.parse(content); // don't really need to parse
-                app.setAllLights(content.lights);
+                content = JSON.parse(content);    // convert to JSON object
+                app.setAllLights(content.lights); // use it to set lights
               }
         }
     },
 
+    /*
+        Sets the state for all the lights.
+    */
     setAllLights: function(settings) {
         for (thisLight in settings) {
-            // set state
-            app.putHueSettings(settings[thisLight].state, "state", thisLight);
+             app.putHueSettings(settings[thisLight].state, thisLight);
         }
     },
 
-    putHueSettings: function(settings, property, lightId) {
-        // if they just send settings, assume they are the light state:
-        if (!property) {
-            property = "state";
-        }
-
+    /*
+        sends settings to the Hue hub.
+    */
+    putHueSettings: function(settings, lightId) {
         // if no lightId is sent, assume the current light:
         if (!lightId) {
             lightId = hub.currentLight;
@@ -194,15 +183,18 @@ var app = {}
         // set the property for the light:
         $.ajax({
             type: 'PUT',
-            url: 'http://' + hub.ipaddress + '/api/' + hub.username + '/lights/' + lightId + '/' + property,
+            url: 'http://' + hub.ipaddress + '/api/' + hub.username
+            + '/lights/' + lightId + '/state',
             data: JSON.stringify(settings),
             success: function(data){
                 if (data[0].error) {
-                    navigator.notification.alert(JSON.stringify(data), null, "API Error");
+                    navigator.notification.alert(JSON.stringify(data),
+                        null, "API Error");
                 }
             },
             error: function(xhr, type){
-                navigator.notification.alert(xhr.responseText + " (" + xhr.status + ")", null, "Error");
+                navigator.notification.alert(xhr.responseText + " ("
+                    + xhr.status + ")", null, "Error");
             }
         });
 
@@ -262,8 +254,8 @@ var app = {}
 
     /*
         Get the settings from the Hue and store a subset of them locally
-        in hub.lights.  This is for both setting the controls, and so you
-        have an object to write to a tag:
+        in hub.lights.  This is for both setting the controls, and for
+        writing to tags:
     */
     getHueSettings: function() {
         // query the hub and get its current settings:
@@ -296,33 +288,37 @@ var app = {}
     /*
         Find the Hue controller address and get its settings
     */
-
     findControllerAddress: function() {
         $.ajax({
             url: 'http://www.meethue.com/api/nupnp',
             dataType: 'json',
             success: function(data) {
-                // expecting a list with a property called internalipaddress
+                // expecting a list with a property called internalipaddress:
                 if (data[0]) {
                     hub.ipaddress = data[0].internalipaddress;
                     app.getHueSettings();   // copy the Hue settings locally
                } else {
-                    navigator.notification.alert("Couldn't find a Hue on your network");
+                    navigator.notification.alert(
+                        "Couldn't find a Hue on your network");
                 }
             },
-            error: function(xhr, type){
-                navigator.notification.alert(xhr.responseText + " (" + xhr.status + ")", null, "Error");
+            error: function(xhr, type){     // alert box with the error
+                navigator.notification.alert(xhr.responseText
+                    + " (" + xhr.status + ")", null, "Error");
             }
         });
     },
-
+    /*
+        Checks that the username is authorized for this hub.
+    */
     ensureAuthorized: function() {
-        var message;
+        var message;        // response from the hub
 
+        // query the hub:
         $.ajax({
             type: 'GET',
             url: 'http://' + hub.ipaddress + '/api/' + hub.username,
-            success: function(data){
+            success: function(data){        // successful reply from the hub
                 if (data[0].error) {
                     // if not authorized, users gets an alert box
                     if (data[0].error.type === 1) {
@@ -330,25 +326,31 @@ var app = {}
                     } else {
                         message = data[0].error.description;
                     }
-                    navigator.notification.alert(message, app.authorize, "Not Authorized");
+                    navigator.notification.alert(message,
+                        app.authorize, "Not Authorized");
                 }
             },
-            error: function(xhr, type){
-                navigator.notification.alert(xhr.responseText + " (" + xhr.status + ")", null, "Error");
+            error: function(xhr, type){     // error message from the hub
+                navigator.notification.alert(xhr.responseText
+                    + " (" + xhr.status + ")", null, "Error");
             }
         });
     },
-
-    authorize: function() { // could probably be combined with ensureAuthorized
-
-        var data = { "devicetype": hub.appTitle, "username": hub.username },
-            message;
+    /*
+        Authorizes the username for this hub.
+    */
+    authorize: function() {
+        var data = {                        // what you'll send to the hub:
+            "devicetype": hub.appTitle,     // device type
+            "username": hub.username        // username
+        },
+        message;                            // reply from the hub
 
         $.ajax({
             type: 'POST',
             url: 'http://' + hub.ipaddress + '/api',
             data: JSON.stringify(data),
-            success: function(data){
+            success: function(data){      // successful reply from the hub
                 if (data[0].error) {
                     // if not authorized, users gets an alert box
                     if (data[0].error.type === 101) {
@@ -356,21 +358,27 @@ var app = {}
                     } else {
                         message = data[0].error.description;
                     }
-                    navigator.notification.alert(message, app.authorize, "Not Authorized");
-                } else {
-                    navigator.notification.alert("Authorized user " + hub.username)
-                    app.getHueSettings();
+                    navigator.notification.alert(message,
+                        app.authorize, "Not Authorized");
+                } else {                   // if authorized, give an alert box
+                    navigator.notification.alert("Authorized user "
+                        + hub.username)
+                    app.getHueSettings();  // if authorized, get the settings
                 }
             },
-            error: function(xhr, type){
-                navigator.notification.alert(xhr.responseText + " (" + xhr.status + ")", null, "Error");
+            error: function(xhr, type){     // error reply from the hub
+                navigator.notification.alert(xhr.responseText
+                    + " (" + xhr.status + ")", null, "Error");
             }
         });
     },
 
-    // song audio
+    /*
+        Start playing audio from your device
+    */
     startAudio: function() {
         var success = false;
+
         // attempt to instantiate a song:
         if (app.songPlaying === null) {
             // Create Media object from songTitle
@@ -383,7 +391,7 @@ var app = {}
                     app.audioStatus     // update the status  callback
                 );
             } else {
-                console.log("Pick a song!")
+                navigator.notification.alert("Pick a song!")
             }
         }
 
@@ -391,57 +399,81 @@ var app = {}
         app.playAudio();
     },
 
+    /*
+        called when playback successfully initiated.
+    */
     audioSuccess: function() {
-        console.log("Success; starting audio");
-        app.clear();
-        app.display("Currently playing: " + app.songTitle)
+        console.log("Audio success");
     },
 
+    /*
+        displays an error if there's a problem with playback.
+    */
     audioError: function(error) {
-        console.log("error starting audio callback: " + JSON.stringify(error) );
+        console.log("error starting audio callback: "
+            + JSON.stringify(error) );
     },
 
+    /*
+        toggles audio playback depending on current state of playback.
+    */
     toggleAudio: function(event) {
         switch(app.musicState) {
-            case undefined:
-            case Media.MEDIA_NONE:
-                app.startAudio();
+            case undefined:                 // if playback is undefined
+            case Media.MEDIA_NONE:          // or if no media playing
+                app.startAudio();           // start playback
                 break;
-            case Media.MEDIA_STARTING:
-                state = "music starting";
+            case Media.MEDIA_STARTING:      // if media is starting
+                state = "music starting";   // no real change
                 break;
-            case Media.MEDIA_RUNNING:
-                app.pauseAudio();
+            case Media.MEDIA_RUNNING:       // if playback is running
+                app.pauseAudio();           // pause it
                 break;
-            case Media.MEDIA_PAUSED:
-            case Media.MEDIA_STOPPED:
-                app.playAudio();
+            case Media.MEDIA_PAUSED:        // if playback is paused
+            case Media.MEDIA_STOPPED:       // or stopped
+                app.playAudio();            // resume playback
                 break;
         }
 
     },
-
+    /*
+        resumes audio playback and changes state if the play button.
+    */
     playAudio: function() {
         if (app.songPlaying) {
             app.songPlaying.play();
             playButton.innerHTML = "Pause";
+            app.clear();
+            app.display("Currently playing: " + app.songTitle)
         }
     },
 
+    /*
+        pauses audio playback and changes state if the play button.
+    */
     pauseAudio: function() {
         if (app.songPlaying) {
             app.songPlaying.pause();
             playButton.innerHTML = "Play";
+            app.clear();
+            app.display("Paused playing: " + app.songTitle)
         }
     },
-
+    /*
+        stops audio playback and changes state if the play button.
+    */
     stopAudio: function() {
          if (app.songPlaying) {
             app.songPlaying.stop();
             playButton.innerHTML = "Play";
+            app.clear();
+            app.display("Stopped playing: " + app.songTitle)
         }
     },
 
+    /*
+        sets the song name from the HTML file input field.
+    */
     setSong: function(content) {
         // if there's no song title given,
         // check the songName file picker for a title:
@@ -453,56 +485,43 @@ var app = {}
 
         // if you have a song title now, and it's not the current one:
         if (typeof(content) === 'string' && content !== app.songTitle) {
+            app.stopAudio();                // stop whatever is playing
+            app.songPlaying = null;         // clear the media object
+            app.musicState = 0;             // clear the music state
             app.songTitle = content;        // change the song title
         }
-    },
 
+    },
+    /*
+        updates the running audio status.
+    */
     audioStatus: function(status) {
-       var state;
        app.musicState = status;
-
-        switch(status) {
-            case Media.MEDIA_NONE:
-                state = "none";
-                break;
-            case Media.MEDIA_STARTING:
-                state = "music starting";
-                break;
-            case Media.MEDIA_RUNNING:
-                state = "music running";
-                break;
-            case Media.MEDIA_PAUSED:
-                state = "music paused";
-                break;
-            case Media.MEDIA_STOPPED:
-                state = "music stopped";
-                break;
-        }
     },
 
-/*
-    appends @message to the message div:
-*/
+    /*
+        appends @message to the message div:
+    */
     display: function(message) {
         var display = document.getElementById("message"),   // the div you'll write to
             label,                                          // what you'll write to the div
             lineBreak = document.createElement("br");       // a line break
 
-        label = document.createTextNode(message);           // create the label
-        display.appendChild(lineBreak);                     // add a line break
-        display.appendChild(label);                         // add the message node
+        label = document.createTextNode(message);       // create the label
+        display.appendChild(lineBreak);                 // add a line break
+        display.appendChild(label);                     // add the message node
     },
-/*
-    clears the message div:
-*/
+    /*
+        clears the message div:
+    */
     clear: function() {
         var display = document.getElementById("message");
         display.innerHTML = "";
     },
 
-/*
-    makes an NDEF message and calls writeTag() to write it to a tag:
-*/
+    /*
+        makes an NDEF message and calls writeTag() to write it to a tag:
+    */
     makeMessage: function() {
         var message = [];
 
@@ -521,9 +540,9 @@ var app = {}
         app.writeTag(message);
     },
 
-/*
-    writes NDEF message @message to a tag:
-*/
+    /*
+        writes NDEF message @message to a tag:
+    */
     writeTag: function(message) {
         // write the record to the tag:
         nfc.write(
@@ -533,8 +552,9 @@ var app = {}
                 app.display("Wrote data to tag.");		// notify the user in message div
                 navigator.notification.vibrate(100);	// vibrate the device as well
             },
-            function (reason) {				// this function runs if the write command fails
-                navigator.notification.alert(reason, function() {}, "There was a problem");
+            function (reason) {				// runs if the write command fails
+                navigator.notification.alert(reason,
+                    function() {}, "There was a problem");
             }
         );
     }
