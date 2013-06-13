@@ -1,4 +1,4 @@
-/*global cordova, console */
+cordova.define("com.chariotsolutions.nfc.plugin.NFC", function(require, exports, module) {/*global cordova, console */
 /*jslint sloppy: false, browser: true */
 "use strict";
 
@@ -497,3 +497,11 @@ function fireNfcTagEvent(eventType, tagAsJson) {
         document.dispatchEvent(e);
     }, 10);
 }
+
+// kludge some global variables for plugman js-module support
+// eventually these should be replaced and referenced via the module
+window.nfc = nfc;
+window.ndef = ndef;
+window.util = util;
+window.fireNfcTagEvent = fireNfcTagEvent;
+});
