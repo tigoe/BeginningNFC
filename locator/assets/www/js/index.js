@@ -1,4 +1,3 @@
-
 var app = {
 /*
     Application constructor
