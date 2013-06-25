@@ -1,0 +1,3 @@
+# view AndroidManifest.xml #generated:21
+-keep class net.tigoe.nfcreader.NfcReader { <init>(...); }
+

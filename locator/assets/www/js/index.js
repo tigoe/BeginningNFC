@@ -85,3 +85,15 @@ var app = {
         display.innerHTML = "";
     }
 };      // end of app
+
+
+
+
+
+
+
+
+
+
+
+
