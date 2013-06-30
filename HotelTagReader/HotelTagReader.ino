@@ -6,22 +6,23 @@
 /*
   Tag format: 1 JSON-formatted text record:
  {
-   name: username,
-   room: room number (long int),
-   checkin: checkin time (unix time, long int),
-   checkout: checkout time (unix time, long int),
+ name: username,
+ room: room number (long int),
+ checkin: checkin time (unix time, long int),
+ checkout: checkout time (unix time, long int),
  }
  */
 
 NfcAdapter nfc = NfcAdapter();
 RTC_Millis clock;                  // so we have unix-like time
-const int doorPin = 9;             // pin that the solenoid door lock is on
+const int doorPin = 11;            // pin that the solenoid door lock is on
 
 long roomNumber = 3327;            // the room number
 long checkin = 0;                  // checkin time
 long checkout = 0;                 // checkout time
 String cardName = "";              // name on the card
 long cardRoomNumber = 0;           // room number on the card
+long unlockTime = 0;                 // last time you opened the lock
 
 void setup() {
   Serial.begin(9600);
@@ -33,6 +34,8 @@ void setup() {
   nfc.begin();
   pinMode(doorPin, OUTPUT);      // make the door lock pin an output
   digitalWrite(doorPin, LOW);    // set it low to lock the door
+  pinMode(9, OUTPUT);            // make pin 9 an output
+  pinMode(10, OUTPUT);           // make pin 10 an output
 }
 
 void loop() {
@@ -64,14 +67,21 @@ void loop() {
       }
       boolean unlock = checkTime(checkin, checkout);  // check if you can let them in or not
       if (unlock == true) {
-        //open Door;
-        digitalWrite(doorPin, HIGH);
+        digitalWrite(doorPin, HIGH);    // open Door;
+        digitalWrite(9, HIGH);          // turn on the green LED
+      } 
+      else {
+        digitalWrite(10, HIGH);          // indicate a failure
       }
     }    
   }
-  delay(3000);
-  //lock Door;
-  digitalWrite(doorPin, LOW);
+  if (millis() - unlockTime > 3000 ) {    // check every three seconds
+    digitalWrite(9, LOW);       // turn off pin 9
+    digitalWrite(10, LOW);      // turn off pin 10
+    digitalWrite(doorPin, LOW); // lock Door;
+  }
+
+
 }
 
 void parsePayload(String data) {
@@ -159,3 +169,6 @@ boolean checkTime(long checkin, long checkout) {
   }
   return result;
 }
+
+
+
