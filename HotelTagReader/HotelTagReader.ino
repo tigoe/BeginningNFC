@@ -4,18 +4,19 @@
 #include "RTClib.h"
 
 /*
-  Tag format: 4 text records:
-    Name: username
-    Room: room number (long int)
-    checkin: checkin time (unix time, long int)
-    checkout: checkout time (unix time, long int)
-*/
+  Tag format: 1 JSON-formatted text record:
+ {
+   name: username,
+   room: room number (long int),
+   checkin: checkin time (unix time, long int),
+   checkout: checkout time (unix time, long int),
+ }
+ */
 
 NfcAdapter nfc = NfcAdapter();
 RTC_Millis clock;                  // so we have unix-like time
 const int doorPin = 9;             // pin that the solenoid door lock is on
 
-String name = "Tom Igoe";          // the guest
 long roomNumber = 3327;            // the room number
 long checkin = 0;                  // checkin time
 long checkout = 0;                 // checkout time
@@ -34,7 +35,7 @@ void setup() {
   digitalWrite(doorPin, LOW);    // set it low to lock the door
 }
 
-void loop(void) {
+void loop() {
   Serial.println("\nScan a NFC tag\n");
   if (nfc.tagPresent())             // if there's a tag present
   {
@@ -58,9 +59,7 @@ void loop(void) {
         String result = "";
         for (int c=0; c< payloadLength; c++) {
           result += (char)payload[c]; 
-        }
-        Serial.print("Payload: ");
-        Serial.println(result);           
+        }          
         parsePayload(result);      // assuming it's text, look for the hotel data fields
       }
       boolean unlock = checkTime(checkin, checkout);  // check if you can let them in or not
@@ -68,7 +67,6 @@ void loop(void) {
         //open Door;
         digitalWrite(doorPin, HIGH);
       }
-
     }    
   }
   delay(3000);
@@ -77,40 +75,72 @@ void loop(void) {
 }
 
 void parsePayload(String data) {
-  int colon = data.indexOf(':');          // find the colon in the string
-  String key = data.substring(3, colon);  // before it is "en" and the key
-  String value = data.substring(colon+1); // after it is the value
-  //Serial.println(key);
-  //Serial.println(value);
-  
-  if (key == "checkout"){ 
-    checkout = value.toInt();         // get the checkout time in unix time
+  // you only care about what's between the brackets, so:
+  int openingBracket = data.indexOf('{');      
+  int closingBracket = data.indexOf('}');
+  // your individual data is between two commas:
+  int lastComma = openingBracket;
+  int comma = 0;
+  // parse the data until the last comma:
+  while (comma != -1){
+    String value, key;      
+    int colon = data.indexOf(':', lastComma); // get the next colon
+    comma = data.indexOf(',', colon);         // get the next comma
+
+    // key is between the last comma and the colon:
+    key = data.substring(lastComma+1, colon); 
+    // if there are no more commas:
+    if (comma == -1) {    // value is between colon and closing:
+      value = data.substring(colon+1, closingBracket);
+    } 
+    else {                // value is between colon and next comma:
+      value = data.substring(colon+1, comma); 
+    }
+
+    // now to get rid of the quotation marks:
+    key.replace("\"", " ");      // replace any " around the key with spaces
+    key.trim();                  // trim away the spaces
+    value.replace("\"", " ");    // replace any " around the value with spaces
+    value.trim();                // trim away the spaces
+
+    // now, look for the possible data you care about:
+    checkItem(key, value);
+    lastComma = comma;
+  } 
+}
+
+/*
+  Check key/value string pairs to see if they are ones you care about:
+ */
+void checkItem(String thisKey, String thisValue) {
+  if (thisKey == "checkout"){ 
+    checkout = thisValue.toInt();  // get the checkout time in unix time
     Serial.print("Check out: ");
     Serial.println(checkout);
   }
 
-  if (key == "checkin"){              // get the checkin time in unix time
-    checkin = value.toInt();
+  if (thisKey == "checkin"){       // get the checkin time in unix time
+    checkin = thisValue.toInt();
     Serial.print("Check in: ");
     Serial.println(checkin);
   }
 
-  if (key == "Name"){
-    cardName = value;                 // get the guest name
+  if (thisKey == "name"){
+    cardName = thisValue;         // get the guest name
     Serial.print("Name: ");
-    Serial.println(name);
+    Serial.println(cardName);
   }
-  if (key == "Room"){                 // get the room number
-    cardRoomNumber = value.toInt();
+  if (thisKey == "room"){        // get the room number
+    cardRoomNumber = thisValue.toInt();
     Serial.print("Room: ");
     Serial.println(cardRoomNumber);
-  }
+  } 
 }
 
 /*
   Check to see if the current time is between the checkin time
-   and the checkout time. Return true if so
-*/
+ and the checkout time. Return true if so
+ */
 boolean checkTime(long checkin, long checkout) {
   boolean result = false;
   DateTime now = clock.now();
@@ -120,7 +150,7 @@ boolean checkTime(long checkin, long checkout) {
     }
 
     if((now.unixtime() >= checkin) && (now.unixtime() <= checkout))  {
-      Serial.println("welcome back to your room." + cardName);
+      Serial.println("welcome back to your room, " + cardName);
       result = true; 
     } 
     if(now.unixtime() >= checkout) {
@@ -129,15 +159,3 @@ boolean checkTime(long checkin, long checkout) {
   }
   return result;
 }
-
-
-
-
-
-
-
-
-
-
-
-
