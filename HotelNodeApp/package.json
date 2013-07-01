@@ -1,0 +1,17 @@
+{
+  "name": "HotelNodeApp",
+  "version": "0.1.0",
+  "description" : "A browser-to-serial application",
+  "keywords": "serial, node-serialport",
+  "author": {
+  	"name":"Tom Igoe"
+   },
+  "dependencies": {
+    "serialport": "1.1.x",
+    "express": "3.x"
+  },
+  "engines": {
+    "node": "0.10.x",
+    "npm": "1.2.x"
+  }
+}
