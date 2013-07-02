@@ -22,7 +22,8 @@ var serialport = require("serialport"),				// include the serialport library
 	express = require('express'),					// make an instance of express
 	app = express(),								// start Express framework
   	server = require('http').createServer(app),		// start an HTTP server
-  	record = {};									// NDEF record to send
+  	record = {},									// NDEF record to send
+  	deviceMessage = "";								// messages from the writer device
   	
 app.use(express.bodyParser());						// use the bodyParser middleware for express
 
@@ -45,7 +46,11 @@ var myPort = new SerialPort(portName, {
 // listen for new serial data:  
 myPort.on('data', function (data) {
 	// for debugging, you should see this in the terminal window:
-	console.log("Received: " +data);
+	if (data.search("Result:") != -1) {
+		deviceMessage = data;
+		console.log("I got something");
+	}
+	console.log("Received: " + data);
 });
 
 
@@ -61,11 +66,20 @@ app.post('/submit', function (request, response) {
   // send it out the serial port:
   myPort.write(JSON.stringify(record) + "\n");
   
-  // write the HTML head back to the browser:
-  response.writeHead(200, {'Content-Type': 'text/html'});	
-  // send the data:
-  response.write("Sent the following to the writer:<br>");
-  response.write(JSON.stringify(record) + "<p>");
-  // send the link back to the index and close the link:
-  response.end("<a href=\"/\">Return to form</a>");
+  // wait 750 ms before responding to browser, so that
+  // you can get a response from the writer:
+  setTimeout(function() { 
+	// write the HTML head back to the browser:
+	response.writeHead(200, {'Content-Type': 'text/html'});	
+	// send the data:
+	response.write("Sent the following to the writer device:<br>");
+	response.write(JSON.stringify(record) + "<p>");
+	// if you got a response from the writer, send it too:
+	if (deviceMessage != "") {
+		response.write("response from writer device: " + deviceMessage + "<p>");
+	 	deviceMessage = "";
+	}
+	// send the link back to the index and close the link:
+	response.end("<a href=\"/\">Return to form</a>");	
+  }, 750);
 });
