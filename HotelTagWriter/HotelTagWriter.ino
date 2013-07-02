@@ -33,13 +33,13 @@ void loop() {
     if (thisChar == '}' && inputString != "") {
       boolean success = lookForTag(inputString);
       if (success) {
-        Serial.println("Tag written.");      // let the desktop app know you succeeded
+        Serial.println("Result: tag written."); // let the desktop app know you succeeded
         inputString = "";                    // clear the string for another read
         digitalWrite(9, HIGH);               // turn on the success light
         lightOnTime = millis();
       } 
       else {
-        Serial.println("Write failed");      // let the desktop app know you failed
+        Serial.println("Result: failed to write to tag"); // let the desktop app know you failed
         digitalWrite(10, HIGH);              // turn on the failure light
         lightOnTime = millis();
       }
