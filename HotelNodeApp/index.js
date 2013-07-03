@@ -56,13 +56,15 @@ myPort.on('data', function (data) {
 
 // take anything that begins with /submit:
 app.post('/submit', function (request, response) {
-  record.name = request.body.name;				// get the name from the body
-  record.room = request.body.room;				// get the room number from the body
-  var days = request.body.days;					// get the number of days from the body
-  var today = new Date();						// get the time from Date
-  record.checkin = today.valueOf();				// convert to unix time
-  record.checkout = record.checkin + 86400;		// calculate the checkout time
-
+  record.name = request.body.name;		// get the name from the body
+  record.room = request.body.room;		// get the room number from the body
+  var days = request.body.days;			// get the number of days from the body
+  var today = new Date();				// get the time from Date
+  // calculate the checkout timeStamp:
+  var departure = new Date(today.valueOf() + (days * 86400000));
+  // convert to unix time in seconds:
+  record.checkin = Math.round(today.valueOf()/1000); 
+  record.checkout = Math.round(departure.valueOf()/1000);		
   // send it out the serial port:
   myPort.write(JSON.stringify(record) + "\n");
   
