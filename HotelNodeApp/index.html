@@ -1,11 +1,24 @@
 <!DOCTYPE html>
 <html>
     <head>
-		</head>
-	<body>
+    <script type="text/javascript">
+    		
+    	function tick() {
+    		var now = Date(),
+	    		clock = document.getElementById("clock"),
+				checkin= document.getElementById("checkin");
+	    	clock.innerHTML = now.toString();
+	    	checkin.value = now;
+    	}
+    	
+     </script>
+	</head>
+	<body onload="setInterval(tick, 1000);">
 	<form action="/submit" method="post">
 		Name: <input type="text" name="name"><br />
 		Room: <input type="text" name="room"><br />
+		Checkin time: <span id="clock"></span><br>
+		<input type="hidden" name="checkin" id="checkin" >
 		Number of days: <input type="text" name="days"><br />
 		<input type="submit" value="submit">
 	</form>

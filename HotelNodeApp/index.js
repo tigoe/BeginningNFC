@@ -22,27 +22,19 @@ var serialport = require("serialport"),				// include the serialport library
 	express = require('express'),					// make an instance of express
 	app = express(),								// start Express framework
   	server = require('http').createServer(app),		// start an HTTP server
+  	portName = process.argv[2],						// third token of the command line
   	record = {},									// NDEF record to send
   	deviceMessage = "";								// messages from the writer device
   	
 app.use(express.bodyParser());						// use the bodyParser middleware for express
-
-var portName = process.argv[2];						// third word of the command line should be serial port name
-console.log("opening serial port: " + portName);	// print out the port you're listening on
 server.listen(8080);								// listen for incoming requests on the server
 console.log("Listening for new clients on port 8080");
 
-// respond to web GET requests with the index.html page:
-app.get('/', function (request, response) {
-  response.sendfile(__dirname + '/index.html');
+var myPort = new SerialPort(portName, { 			// open the serial port
+	parser: serialport.parsers.readline("\n")		// look for newline at the end of each data packet
 });
+console.log("opening serial port: " + portName);	// print out the port you're listening on
 
-// open the serial port:
-var myPort = new SerialPort(portName, { 
-	// look for newline at the end of each data packet:
-	parser: serialport.parsers.readline("\n") 
-});
-  
 // listen for new serial data:  
 myPort.on('data', function (data) {
 	// for debugging, you should see this in the terminal window:
@@ -54,12 +46,18 @@ myPort.on('data', function (data) {
 });
 
 
+
+// respond to web GET requests with the index.html page:
+app.get('/', function (request, response) {
+  response.sendfile(__dirname + '/index.html');
+});
+
 // take anything that begins with /submit:
 app.post('/submit', function (request, response) {
   record.name = request.body.name;		// get the name from the body
   record.room = request.body.room;		// get the room number from the body
   var days = request.body.days;			// get the number of days from the body
-  var today = new Date();				// get the time from Date
+  var today = new Date(request.body.checkin);	    // get the time from the body
   // calculate the checkout timeStamp:
   var departure = new Date(today.valueOf() + (days * 86400000));
   // convert to unix time in seconds:
