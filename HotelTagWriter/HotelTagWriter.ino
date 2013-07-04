@@ -12,15 +12,18 @@
 #include <Adafruit_NFCShield_I2C.h>
 #include <NfcAdapter.h>
 
-NfcAdapter nfc = NfcAdapter();
-String inputString = "";
-long lightOnTime = 0;
+const int greenLed = 9;         // pin for the green LED
+const int redLed = 10;          // pin for the red LED
+
+NfcAdapter nfc = NfcAdapter();  // instance of the NFC adapter library
+String inputString = "";        // string for input from serial port
+long lightOnTime = 0;           // last time the LEDs were turned on, in ms
 
 void setup() {
-  Serial.begin(9600);       // initialize serial communications
-  nfc.begin();              // initialize NfcAdapter
-  pinMode(9, OUTPUT);       // make pin 9 an output
-  pinMode(10, OUTPUT);      // make pin 10 an output
+  Serial.begin(9600);           // initialize serial communications
+  nfc.begin();                  // initialize NfcAdapter
+  pinMode(greenLed, OUTPUT);    // make pin 9 an output
+  pinMode(redLed, OUTPUT);      // make pin 10 an output
 }
 
 void loop() {
@@ -34,20 +37,22 @@ void loop() {
       boolean success = lookForTag(inputString);
       if (success) {
         Serial.println("Result: tag written."); // let the desktop app know you succeeded
-        inputString = "";                    // clear the string for another read
-        digitalWrite(9, HIGH);               // turn on the success light
+        inputString = "";                       // clear the string for another read
+        digitalWrite(greenLed, HIGH);           // turn on the success light
         lightOnTime = millis();
       } 
       else {
-        Serial.println("Result: failed to write to tag"); // let the desktop app know you failed
-        digitalWrite(10, HIGH);              // turn on the failure light
+        // let the desktop app know you failed:
+        Serial.println("Result: failed to write to tag"); 
+        digitalWrite(redLed, HIGH);              // turn on the failure light
         lightOnTime = millis();
       }
     }
   }
+  
   if (millis() - lightOnTime > 3000 ) {    // check every three seconds
-    digitalWrite(9, LOW);       // turn off pin 9
-    digitalWrite(10, LOW);      // turn off pin 10
+    digitalWrite(greenLed, LOW);           // turn off pin 9
+    digitalWrite(redLed, LOW);             // turn off pin 10
   }
 }
 

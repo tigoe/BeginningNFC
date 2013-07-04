@@ -1,8 +1,3 @@
-#include <Wire.h>
-#include <Adafruit_NFCShield_I2C.h>
-#include <NfcAdapter.h>
-#include <Time.h>  
-
 /*
   Tag format: 1 JSON-formatted text record:
  {
@@ -13,20 +8,22 @@
  }
  */
 
-NfcAdapter nfc = NfcAdapter();
+#include <Wire.h>
+#include <Adafruit_NFCShield_I2C.h>
+#include <NfcAdapter.h>
+#include <Time.h>  
+
+NfcAdapter nfc = NfcAdapter();     // instance of the nfcAdapter
 const int doorPin = 11;            // pin that the solenoid door lock is on
 const int greenLed = 9;            // pin for the green LED
 const int redLed = 10;             // pin for the red LED
 const long roomNumber = 3327;      // the room number
 
-time_t checkin = 0;                  // checkin time
-time_t checkout = 0;                 // checkout time
+time_t checkin = 0;                // checkin time
+time_t checkout = 0;               // checkout time
 String cardName = "";              // name on the card
 long cardRoomNumber = 0;           // room number on the card
 long unlockTime = 0;               // last time you opened the lock
-
-//DateTime checkin;
-//DateTime checkout;
 
 void setup() {
   Serial.begin(9600);
@@ -35,7 +32,7 @@ void setup() {
   setTime(19, 33, 00, 4, 7, 2013);
 
   Serial.println("Hotel NDEF Reader");
-  nfc.begin();
+  nfc.begin();                   // initialize the NFC reader
   pinMode(doorPin, OUTPUT);      // make the door lock pin an output
   digitalWrite(doorPin, LOW);    // set it low to lock the door
   pinMode(greenLed, OUTPUT);     // make pin 9 an output
@@ -48,13 +45,13 @@ void loop() {
     NfcTag tag = nfc.read();
     if (tag.hasNdefMessage()) {   // every tag won't have a message        
       NdefMessage message = tag.getNdefMessage();
-      // cycle through the records, printing some info from each
+      // cycle through the records, printing some info from each:
       int recordCount = message.getRecordCount();
       for (int i = 0; i < recordCount; i++) {
-        NdefRecord record = message[i]; // alternate syntax
+        NdefRecord record = message[i];
 
-        // we can't generically get the payload, since the tnf and type 
-        // determine how the payload is decoded
+        // you can't generically get the payload, since the tnf and type 
+        // determine how the payload is decoded. so find that out:
         int payloadLength = record.getPayloadLength();
         byte payload[payloadLength];
         record.getPayload(payload);
@@ -64,26 +61,27 @@ void loop() {
         for (int c=0; c< payloadLength; c++) {
           result += (char)payload[c]; 
         }          
-        parsePayload(result);      // assuming it's text, look for the hotel data fields
+        // assuming it's text, look for the hotel data fields:
+        parsePayload(result);      
       }
-      
-      boolean unlock = checkTime(checkin, checkout);  // check if you can let them in or not
+
+      // check if you can let them in or not:
+      boolean unlock = checkTime(checkin, checkout);  
       if (unlock == true) {
         digitalWrite(doorPin, HIGH);    // open Door;
-        digitalWrite(greenLed, HIGH);          // turn on the green LED
+        digitalWrite(greenLed, HIGH);   // turn on the green LED
+        unlockTime = millis();          // timestamp the moment the lock was opened
       } 
       else {
-        digitalWrite(redLed, HIGH);          // indicate a failure
+        digitalWrite(redLed, HIGH);     // indicate a failure
       }
     }    
   }
-  if (millis() - unlockTime > 3000 ) {    // check every three seconds
-    digitalWrite(greenLed, LOW);       // turn off pin 9
-    digitalWrite(redLed, LOW);      // turn off pin 10
-    digitalWrite(doorPin, LOW); // lock Door;
+  if (millis() - unlockTime > 3000 ) {  // check every three seconds
+    digitalWrite(greenLed, LOW);        // turn off pin 9
+    digitalWrite(redLed, LOW);          // turn off pin 10
+    digitalWrite(doorPin, LOW);         // lock Door;
   }
-
-
 }
 
 void parsePayload(String data) {
@@ -95,7 +93,7 @@ void parsePayload(String data) {
   int comma = 0;
   // parse the data until the last comma:
   while (comma != -1){
-    String value, key;      
+    String key, value;      
     int colon = data.indexOf(':', lastComma); // get the next colon
     comma = data.indexOf(',', colon);         // get the next comma
 
@@ -127,31 +125,23 @@ void parsePayload(String data) {
 void checkItem(String thisKey, String thisValue) {
   if (thisKey == "checkout"){ 
     checkout = thisValue.toInt();
-    Serial.print("Check out: ");
-    Serial.println(checkout);
   }
 
   if (thisKey == "checkin"){       
     checkin = thisValue.toInt();
-    Serial.print("Check in: ");
-    Serial.println(checkin);
   }
 
   if (thisKey == "name"){
-    cardName = thisValue;         // get the guest name
-    Serial.print("Name: ");
-    Serial.println(cardName);
+    cardName = thisValue; 
   }
-  if (thisKey == "room"){        // get the room number
+  if (thisKey == "room"){
     cardRoomNumber = thisValue.toInt();
-    Serial.print("Room: ");
-    Serial.println(cardRoomNumber);
   } 
 }
 
 /*
   Check to see if the current time is between the checkin time
- and the checkout time. Return true if so
+ and the checkout time. Return true if so:
  */
 boolean checkTime(time_t arrival, time_t departure) {
   boolean result = false;
@@ -170,3 +160,4 @@ boolean checkTime(time_t arrival, time_t departure) {
   }
   return result;
 }
+
