@@ -42,16 +42,18 @@ void setup() {
 }
 
 void loop() {
-  if (millis() - readTime < 3000) {      // less than three seconds since last tag
+  long now = millis();
+
+  if (now - readTime < 3000) {
     digitalWrite(greenLed, goodRead);    // green LED lights if you get a good read
     digitalWrite(lockPin, goodRead);     // lock opens if you get a good read
     digitalWrite(redLed, !goodRead);     // red LED lights if you don't
   } 
-  else {                                // after three seconds, lock no matter what
+  else {
     digitalWrite(greenLed, LOW);        // turn off green LED
     digitalWrite(redLed, LOW);          // turn off red LED
     digitalWrite(lockPin, LOW);         // lock door
-    goodRead = listenForTag();          // listen for tags
+    goodRead = listenForTag();
   }
 }
 
