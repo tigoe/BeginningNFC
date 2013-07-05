@@ -13,7 +13,7 @@
 #include <NfcAdapter.h>
 
 const int greenLed = 9;         // pin for the green LED
-const int redLed = 10;          // pin for the red LED
+const int redLed = 8;          // pin for the red LED
 
 NfcAdapter nfc = NfcAdapter();  // instance of the NFC adapter library
 String inputString = "";        // string for input from serial port
@@ -23,7 +23,7 @@ void setup() {
   Serial.begin(9600);           // initialize serial communications
   nfc.begin();                  // initialize NfcAdapter
   pinMode(greenLed, OUTPUT);    // make pin 9 an output
-  pinMode(redLed, OUTPUT);      // make pin 10 an output
+  pinMode(redLed, OUTPUT);      // make pin 8 an output
 }
 
 void loop() {
@@ -52,7 +52,7 @@ void loop() {
   
   if (millis() - lightOnTime > 3000 ) {    // check every three seconds
     digitalWrite(greenLed, LOW);           // turn off pin 9
-    digitalWrite(redLed, LOW);             // turn off pin 10
+    digitalWrite(redLed, LOW);             // turn off pin 8
   }
 }
 
