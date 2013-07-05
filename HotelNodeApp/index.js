@@ -40,15 +40,12 @@ myPort.on('data', function (data) {
 	// for debugging, you should see this in the terminal window:
 	if (data.search("Result:") != -1) {
 		deviceMessage = data;
-		console.log("I got something");
 	}
 	console.log("Received: " + data);
 });
 
-
-
 // respond to web GET requests with the index.html page:
-app.get('/', function (request, response) {
+app.get('/*', function (request, response) {
   response.sendfile(__dirname + '/index.html');
 });
 
@@ -81,5 +78,5 @@ app.post('/submit', function (request, response) {
 	}
 	// send the link back to the index and close the link:
 	response.end("<a href=\"/\">Return to form</a>");	
-  }, 750);
-});
+  }, 750);		// end of setTimeout()
+});				// end of app.post()
