@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>NFC tag ID reader</title>
+       <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+    </head>
+    <body onload="app.initialize();">
+               <h1>PhoneGap NFC P2P</h1>
+        <div class="app">
+            <div id="message">No tag found</div>
+            
+
+    <form>
+      Mime Type:<br/>
+      <input type="text" name="mimeType" value="text/pg" size="30" /><br/>
+      Payload:<br/>      
+      <textarea name="payload" rows="10" cols="30">hello, world</textarea>
+        <br/>
+        <input type="checkbox" name="share" id="checkbox" value="Share"/><label for="checkbox">Share Tag</label>        
+    </form>
+    <p>
+        <a href="#" id="sample">Sample Data</a>
+    </p>
+
+
+
+        </div>
+    </body>
+</html>
