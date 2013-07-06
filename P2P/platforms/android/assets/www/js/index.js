@@ -51,13 +51,12 @@ var app = {
 		// listen for change on the checkbox and sample box:
 		document.getElementById('checkbox').addEventListener("change", app.onChange, false);
 		document.getElementById('sample').addEventListener("click", app.showSampleData, false);
-    
-	    },
+	},
     
    
 	unshareTag: function () {
 	    // enable user interface:
-	    enableUI();
+	    app.enableUI();
 		// stop sharing this tag:
 	    nfc.unshare(
 	        function () {
@@ -76,13 +75,14 @@ var app = {
 	        payload = document.forms[0].elements.payload.value,
 	        record = ndef.mimeMediaRecord(mimeType, nfc.stringToBytes(payload));
 		// disable typing and clicking:
-	    disableUI();
+	    app.disableUI();
 	    
 		// share the record:
 	    nfc.share(
 	        [record],
 	        function () {
 	            navigator.notification.vibrate(100);
+	            app.clear();
 	            app.display("Sharing Tag");
 	        }, function (reason) {
 	        	app.clear()
@@ -103,9 +103,9 @@ var app = {
 	
 	onChange: function (e) {
 	    if (e.target.checked) {
-	        shareTag();
+	        app.shareTag();
 	    } else {
-	        unshareTag();
+	        app.unshareTag();
 	    }
 	},
 	
