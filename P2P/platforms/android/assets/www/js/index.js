@@ -108,7 +108,16 @@ var app = {
 	        payload = document.forms[0].elements.payload.value,
 	        record;
 	        if (mimeType === 'text/html') {
-		        record = ndef.uriRecord(mimeType, nfc.stringToBytes(payload));
+	        	console.log("html alright");
+		      // format the URI record as a Well-Known Type:
+                var tnf = ndef.TNF_WELL_KNOWN;
+                var recordType = ndef.RTD_URI;      // add the URI record type
+                // convert to an array of bytes:
+                payload = nfc.stringToBytes(
+                    "m.foursquare.com/venue/4a917563f964a520401a20e3");
+                // add the URI identifier code for "http://":
+                payload.unshift(0x03);
+                record = ndef.record(tnf, recordType, [], payload);
 	        } else {
 	        	record = ndef.mimeMediaRecord(mimeType, nfc.stringToBytes(payload));
 	        }
