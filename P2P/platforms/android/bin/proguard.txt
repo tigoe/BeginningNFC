@@ -1,0 +1,3 @@
+# view AndroidManifest.xml #generated:22
+-keep class net.tigoe.p2p.P2P { <init>(...); }
+

@@ -7,25 +7,25 @@
         <script type="text/javascript" src="js/index.js"></script>
     </head>
     <body onload="app.initialize();">
-               <h1>PhoneGap NFC P2P</h1>
+    	<h1>PhoneGap NFC P2P</h1>
         <div class="app">
-            <div id="message">No tag found</div>
-            
-
-    <form>
-      Mime Type:<br/>
-      <input type="text" name="mimeType" value="text/pg" size="30" /><br/>
-      Payload:<br/>      
-      <textarea name="payload" rows="10" cols="30">hello, world</textarea>
-        <br/>
-        <input type="checkbox" name="share" id="checkbox" value="Share"/><label for="checkbox">Share Tag</label>        
-    </form>
-    <p>
-        <a href="#" id="sample">Sample Data</a>
-    </p>
-
-
-
-        </div>
+            <div id="message"></div>
+		    <form>
+		      Mime Type:<br/>
+		      <input type="text" name="mimeType" value="text/pg" size="30" /><br/>
+		      Payload:<br/>      
+		      <textarea name="payload" rows="10" cols="30">hello, world</textarea>
+		 	  <br/>
+		        <select id="sample">
+                   <option value="0" >Foursquare URL</option>
+                    <option value="1" >Hue Settings</option>
+                    <option value="2" >Address</option>
+                    <option value="3" >Make your own</option>
+                </select>
+                <br />
+		        <input type="checkbox" name="share" id="checkbox" value="Share"/>
+		        <label for="checkbox">Share message</label>        
+		    </form>
+          </div>
     </body>
 </html>
