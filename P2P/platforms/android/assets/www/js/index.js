@@ -1,9 +1,9 @@
 var data = [
-	{
-        mimeType: 'text/html',
-        payload: 'http://m.foursquare.com/venue/4a917563f964a520401a20e3'
+	{	// a text/plain MIME type payload
+	     mimeType: 'text/plain',
+		 payload: 'Hello world!'
     },
-    {
+    {	// a text/hue MIME type payload
         mimeType: 'text/hue',
         payload: JSON.stringify({"1":
 					{"state":
@@ -19,7 +19,7 @@ var data = [
 					}
 				})
     },
-    {
+    {	// a vCard payload
         mimeType: 'text/x-vCard',
         payload: 'BEGIN:VCARD\n' +
             'VERSION:2.1\n' +
@@ -27,135 +27,104 @@ var data = [
             'FN:Don Coleman\n' +
             'ORG:Chariot Solutions;\n' +
             'URL:http://chariotsolutions.com\n' +
-            'TEL;WORK:215-358-1780\n' +
-            'EMAIL;WORK:dcoleman@chariotsolutions.com\n' +
+            'TEL;WORK:617-320-0000\n' +
+            'EMAIL;WORK:don@example.com\n' +
             'END:VCARD'
     },
-    {
+    {	// an Android application record
+        mimeType: 'text/aar',			
+        payload: 'com.joelapenna.foursquared'
+    },
+                              
+    {	// an empty payload
 	     mimeType: '',
 		 payload: ''
     }
 ];
 
 var app = {
-/*
-    Application constructor
- */
+	/*
+	    Application constructor
+	 */
     initialize: function() {
         this.bindEvents();
         console.log("Starting P2P app");
     },
-/*
-    bind any events that are required on startup to listeners:
-*/
+	/*
+	    bind any events that are required on startup to listeners:
+	*/
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
-         sample.addEventListener('change', app.showSampleData, false);
+        sample.addEventListener('change', app.showSampleData, false);
+        checkbox.addEventListener("change", app.onChange, false);
     },
-
-/*
-    this runs when the device is ready for user interaction:
-*/
+	
+	/*
+	    this runs when the device is ready for user interaction:
+	*/
     onDeviceReady: function() {
         app.clear();
         app.display("Starting P2P App.");
-		// listen for change on the checkbox and sample box:
-		document.getElementById('checkbox').addEventListener("change", app.onChange, false);
-		
-		 nfc.addMimeTypeListener(
-            "text/plain",                   // listen for plain text messages
-            app.onNfc,                      // tag successfully scanned
-            function (status) {             // listener successfully initialized
-                app.display("Listening for plan text MIME messages.");
-            },
-            function (error) {              // listener fails to initialize
-                app.display("NFC reader failed to initialize " + JSON.stringify(error));
-            }
-        )
-
 	},
     
-      onNfc: function(nfcEvent) {
-        var tag = nfcEvent.tag;
-        app.clear();
-        app.display("Read tag: " + nfc.bytesToHexString(tag.id));
-
-         var thisMessage = tag.ndefMessage;
-         if (thisMessage !== null) {
-            app.display("Message: " + nfc.bytesToString(thisMessage[0].payload));
-        }
-    },
-
-
-	unshareTag: function () {
-	    // enable user interface:
-	    app.enableUI();
-		// stop sharing this tag:
-	    nfc.unshare(
-	        function () {
-	            navigator.notification.vibrate(100);
-	            app.clear();
-	            app.display("Tag is no longer shared");
-	        }, function (reason) {
-	            app.clear();
-	            app.display("Failed to unshare tag " + reason);
-	        });
-	},
-
-	shareTag: function () {
+	shareMessage: function () {
 		// get the mimeType, and payload from the form and create a new record:
 	    var mimeType = document.forms[0].elements.mimeType.value,
 	        payload = document.forms[0].elements.payload.value,
 	        record;
-	        if (mimeType === 'text/html') {
-	        	console.log("html alright");
-		      // format the URI record as a Well-Known Type:
-                var tnf = ndef.TNF_WELL_KNOWN;
-                var recordType = ndef.RTD_URI;      // add the URI record type
-                // convert to an array of bytes:
-                payload = nfc.stringToBytes(
-                    "m.foursquare.com/venue/4a917563f964a520401a20e3");
-                // add the URI identifier code for "http://":
-                payload.unshift(0x03);
+	        
+			if (mimeType === 'text/aar') {		// format an Android Application Record
+                var tnf = ndef.TNF_EXTERNAL_TYPE,
+                 	recordType = "android.com:pkg";
                 record = ndef.record(tnf, recordType, [], payload);
-	        } else {
+	        }  else {							// format a MIME media record
 	        	record = ndef.mimeMediaRecord(mimeType, nfc.stringToBytes(payload));
 	        }
-		// disable typing and clicking:
-	    app.disableUI();
+	    app.setUI(false);			// disable typing and clicking
 	    
-		// share the record:
+		// share the message:
 	    nfc.share(
-	        [record],
-	        function () {
+	        [record],					// NDEF message to share
+	        function () {				// success callback
 	            navigator.notification.vibrate(100);
 	            app.clear();
-	            app.display("Sharing Tag");
-	        }, function (reason) {
-	        	app.clear()
+	            app.display("Success!  Tag shared");
+	            
+	        }, function (reason) {		// failure callback
+	        	app.clear();
 	            app.display("Failed to share tag " + reason);
-	            // when NDEF_PUSH_DISABLED, open setting and enable Android Beam
 	        });
 	},
 	
-	disableUI: function() {
-	    document.forms[0].elements.mimeType.disabled = true;    
-	    document.forms[0].elements.payload.disabled = true;    
+	unshareMessage: function () {
+	    // enable user interface:
+	    app.setUI(true);
+		// stop sharing this tag:
+	    nfc.unshare(
+	        function () {							// success callback
+	            navigator.notification.vibrate(100);
+	            app.clear();
+	            app.display("Tag is no longer shared");
+	        }, function (reason) {					// failure callback
+	            app.clear();
+	            app.display("Failed to unshare tag " + reason);
+	        });
 	},
 	
-	enableUI: function () {
-	    document.forms[0].elements.mimeType.disabled = false;    
-	    document.forms[0].elements.payload.disabled = false;    
-	},
-	
+	/*
+		enables or disables sharing, with the checkbox
+	*/
 	onChange: function (e) {
-	    if (e.target.checked) {
-	        app.shareTag();
+	    if (e.target.checked) {			// if the checkbox is checked
+	        app.shareMessage();			// share the record
 	    } else {
-	        app.unshareTag();
+	        app.unshareMessage();		// don't share
 	    }
 	},
-	
+
+	/*
+		Get data from the data array and put it in the form fields:
+	*/
 	showSampleData: function() {
 		// get the mimeType and payload from the fields
 	    var mimeTypeField = document.forms[0].elements.mimeType,
@@ -163,7 +132,7 @@ var app = {
 	      index = sample.value,
 	      record = data[index];
 	
-		  //if the user wants to edit, she has to uncheck "share tag":
+		//if the user wants to edit, she has to uncheck "share message":
 	    if (mimeTypeField.disabled) {
 	        app.display("Unshare Tag to edit data");
 	        return false;
@@ -174,12 +143,17 @@ var app = {
 	    payloadField.value = record.payload;
 	    return false;    
 	},
+	/*
+		enable or disable user input:
+	*/
+	setUI: function(setting) {
+	    document.forms[0].elements.mimeType.disabled = setting;    
+	    document.forms[0].elements.payload.disabled = setting;    
+	},
 
-
-
-/*
-    appends @message to the message div:
-*/
+	/*
+	    appends @message to the message div:
+	*/
     display: function(message) {
         var display = document.getElementById("message"),   // the div you'll write to
             label,                                          // what you'll write to the div
@@ -189,9 +163,9 @@ var app = {
         display.appendChild(lineBreak);                     // add a line break
         display.appendChild(label);                         // add the message node
     },
-/*
-    clears the message div:
-*/
+	/*
+	    clears the message div:
+	*/
     clear: function() {
         var display = document.getElementById("message");
         display.innerHTML = "";
