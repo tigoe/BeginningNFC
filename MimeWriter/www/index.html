@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>MIME Message Writer</title>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>    
+    </head>
+    <body onload="app.initialize();">
+        <div class="app">
+            <div id="message">No tag found</div>
+            <form>
+                 Mime Type:<br/>
+                <input type="text" name="mimeType" value="text/plain" size="30" /><br/>
+                Payload:<br/>
+                <textarea name="payload" rows="10" cols="30">Put your message here</textarea>
+            </form>
+            <button onClick="app.makeMessage();">Write to tag</button>
+
+        </div>
+    </body>
+</html>
