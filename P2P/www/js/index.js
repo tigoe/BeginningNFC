@@ -88,26 +88,26 @@ var app = {
 	        function () {				// success callback
 	            navigator.notification.vibrate(100);
 	            app.clear();
-	            app.display("Success!  Tag shared");
+	            app.display("Success!  message shared");
 	            
 	        }, function (reason) {		// failure callback
 	        	app.clear();
-	            app.display("Failed to share tag " + reason);
+	            app.display("Failed to share message " + reason);
 	        });
 	},
 	
 	unshareMessage: function () {
 	    // enable user interface:
 	    app.setUI(true);
-		// stop sharing this tag:
+		// stop sharing this message:
 	    nfc.unshare(
 	        function () {							// success callback
 	            navigator.notification.vibrate(100);
 	            app.clear();
-	            app.display("Tag is no longer shared");
+	            app.display("message is no longer shared");
 	        }, function (reason) {					// failure callback
 	            app.clear();
-	            app.display("Failed to unshare tag " + reason);
+	            app.display("Failed to unshare message " + reason);
 	        });
 	},
 	
@@ -134,7 +134,7 @@ var app = {
 	
 		//if the user wants to edit, she has to uncheck "share message":
 	    if (mimeTypeField.disabled) {
-	        app.display("Unshare Tag to edit data");
+		        app.display("Unshare message to edit data");
 	        return false;
 	    }
 	    
