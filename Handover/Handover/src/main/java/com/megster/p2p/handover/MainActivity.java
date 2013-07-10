@@ -11,6 +11,7 @@ import android.nfc.NfcEvent;
 import android.os.Bundle;
 import android.app.Activity;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
@@ -43,6 +44,7 @@ public class MainActivity extends Activity implements NfcAdapter.OnNdefPushCompl
         if (requestCode == PICK_FILE_REQUEST) {
             if (resultCode == RESULT_OK) {
                 Uri uri = data.getData();
+                Log.w("Handover", uri.toString());
 
                 nfcAdapter.setOnNdefPushCompleteCallback(this, this);
                 nfcAdapter.setBeamPushUris(new Uri[] {uri}, this);
