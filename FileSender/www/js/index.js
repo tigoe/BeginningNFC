@@ -24,14 +24,14 @@ var app = {
          runs when the device is ready for user interaction.
     */
     onDeviceReady: function() {
-		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, app.onFileSystemSuccess, app.fail);	
-		window.resolveLocalFileSystemURI("file:///sdcard/myMusic/02 Paranoid.mp3", app.onResolveSuccess, app.fail);
+        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, app.onFileSystemSuccess, app.fail); 
+        window.resolveLocalFileSystemURI("file:///sdcard/myMusic/02 Paranoid.mp3", app.onResolveSuccess, app.fail);
     },
     
     onFileSystemSuccess: function (fileSystem) {
         console.log(fileSystem.name);
         console.log(fileSystem.root.name);
-		
+        
     },
     
      onResolveSuccess: function (fileEntry) {
@@ -47,46 +47,46 @@ var app = {
     },
     
       
-	shareMessage: function () {
-	        record = ndef.uriRecord(app.filePath);
-	       
-		// share the message:
-	    nfc.share(
-	        [record],					// NDEF message to share
-	        function () {				// success callback
-	            navigator.notification.vibrate(100);
-	            app.clear();
-	            app.display("Success!  File shared");
-	            
-	        }, function (reason) {		// failure callback
-	        	app.clear();
-	            app.display("Failed to share file " + reason);
-	        });
-	},
-	
-	unshareMessage: function () {
-		// stop sharing this tag:
-	    nfc.unshare(
-	        function () {							// success callback
-	            navigator.notification.vibrate(100);
-	            app.clear();
-	            app.display("File is no longer shared");
-	        }, function (reason) {					// failure callback
-	            app.clear();
-	            app.display("Failed to unshare file " + reason);
-	        });
-	},
-	
-	/*
-		enables or disables sharing, with the checkbox
-	*/
-	onChange: function (e) {
-	    if (e.target.checked) {			// if the checkbox is checked
-	        app.shareMessage();			// share the record
-	    } else {
-	        app.unshareMessage();		// don't share
-	    }
-	},
+    shareMessage: function () {
+            record = ndef.uriRecord(app.filePath);
+           
+        // share the message:
+        nfc.share(
+            [record],                   // NDEF message to share
+            function () {               // success callback
+                navigator.notification.vibrate(100);
+                app.clear();
+                app.display("Success!  File shared");
+                
+            }, function (reason) {      // failure callback
+                app.clear();
+                app.display("Failed to share file " + reason);
+            });
+    },
+    
+    unshareMessage: function () {
+        // stop sharing this tag:
+        nfc.unshare(
+            function () {                           // success callback
+                navigator.notification.vibrate(100);
+                app.clear();
+                app.display("File is no longer shared");
+            }, function (reason) {                  // failure callback
+                app.clear();
+                app.display("Failed to unshare file " + reason);
+            });
+    },
+    
+    /*
+        enables or disables sharing, with the checkbox
+    */
+    onChange: function (e) {
+        if (e.target.checked) {         // if the checkbox is checked
+            app.shareMessage();         // share the record
+        } else {
+            app.unshareMessage();       // don't share
+        }
+    },
 
     /*
         appends @message to the message div:
