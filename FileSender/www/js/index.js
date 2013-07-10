@@ -1,10 +1,10 @@
 
 var app = {
-    mode: 'write',                  // the tag read/write mode
+    mode: 'write',  // the tag read/write mode
     filePath: '',   // path to your music
     content: '',
-    
-    
+
+
     /*
         Application constructor
     */
@@ -24,16 +24,16 @@ var app = {
          runs when the device is ready for user interaction.
     */
     onDeviceReady: function() {
-        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, app.onFileSystemSuccess, app.fail); 
+        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, app.onFileSystemSuccess, app.fail);
         window.resolveLocalFileSystemURI("file:///sdcard/myMusic/02 Paranoid.mp3", app.onResolveSuccess, app.fail);
     },
-    
+
     onFileSystemSuccess: function (fileSystem) {
         console.log(fileSystem.name);
         console.log(fileSystem.root.name);
-        
+
     },
-    
+
      onResolveSuccess: function (fileEntry) {
         console.log(fileEntry.name);
         filePath = fileEntry.file;
@@ -45,11 +45,11 @@ var app = {
     fail: function (evt) {
         console.log(evt.target.error.code);
     },
-    
-      
+
+
     shareMessage: function () {
             record = ndef.uriRecord(app.filePath);
-           
+
         // share the message:
         nfc.share(
             [record],                   // NDEF message to share
@@ -57,13 +57,13 @@ var app = {
                 navigator.notification.vibrate(100);
                 app.clear();
                 app.display("Success!  File shared");
-                
+
             }, function (reason) {      // failure callback
                 app.clear();
                 app.display("Failed to share file " + reason);
             });
     },
-    
+
     unshareMessage: function () {
         // stop sharing this tag:
         nfc.unshare(
@@ -76,7 +76,7 @@ var app = {
                 app.display("Failed to unshare file " + reason);
             });
     },
-    
+
     /*
         enables or disables sharing, with the checkbox
     */
@@ -107,5 +107,6 @@ var app = {
     clear: function() {
         var display = document.getElementById("message");
         display.innerHTML = "";
-    },
+    }
+    
 };          // end of app
