@@ -83,42 +83,33 @@ var app = {
         app.getSongs();
     },
 
+    // get a list of files in our music directory
     getSongs: function() {
-        var fail = function(error) {
+
+        var failure = function(error) {
             alert("Error: " + JSON.stringify(error));
-        }
+        };
 
-        window.resolveLocalFileSystemURI(app.musicPath, app.onResolveMusicDir, fail);
+        var foundFiles = function(files) {
+            // clear existing songs
+            songs.innerHTML = "";
 
-    },
-
-    onResolveMusicDir: function(directoryEntry) {
-
-        var option;
-        songs.innerHTML = "";
-
-        // Get a directory reader
-        var directoryReader = directoryEntry.createReader();
-
-        var success = function(files) {
-            console.log('*************************');
-            // TODO forEach or map?
             for (var i = 0; i < files.length; i++) {
                 if (files[i].isFile) {
-                    console.log(files[i].fullPath);
                     option = document.createElement("option");
-                    option.innerHTML = files[i].fullPath;
+                    option.value = files[i].fullPath;
+                    option.innerHTML = files[i].name;
                     songs.appendChild(option);
                 }
             }
         };
 
-        var fail = function(error) {
-            alert("Error: " + JSON.stringify(error));
-        }
+        var foundDirectory = function(directoryEntry) {
+            var directoryReader = directoryEntry.createReader();
+            directoryReader.readEntries(foundFiles, failure);
+        };
 
-        // Get a list of all the entries in the directory
-        directoryReader.readEntries(success,fail);
+        window.resolveLocalFileSystemURI(app.musicPath, foundDirectory, failure);
     },
 
     /*
@@ -467,13 +458,7 @@ var app = {
         if (app.songPlaying === null) {
             // Create Media object from songTitle
             if (app.songTitle) {
-
-                // TODO TEMP - REMOVE THIS 
-                if (app.songTitle.indexOf("file://") === 0) {
-                    songPath = app.songTitle;
-                } else {
-                    songPath = app.musicPath + app.songTitle;
-                }
+                songPath = app.musicPath + app.songTitle;
 
                 app.songPlaying = new Media(
                     songPath,           // filepath of song to play
