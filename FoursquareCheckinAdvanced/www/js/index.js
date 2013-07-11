@@ -4,20 +4,20 @@
         this.bindEvents();
         console.log("Starting Foursquare Checkin Advanced app");
     },
-/*
-    bind any events that are required on startup to listeners:
-*/
+    /*
+        bind any events that are required on startup to listeners:
+    */
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
         writeButton.addEventListener('touchstart', app.makeMessage, false);
     },
 
-/*
-    this runs when the device is ready for user interaction:
-*/
+    /*
+        this runs when the device is ready for user interaction:
+    */
     onDeviceReady: function() {
-        var parentElement = document.getElementById("message");
-        parentElement.innerHTML = "Tap a tag to read its id number.";
+        app.clear();
+        app.display("Tap a tag to read its id number.");
 
         nfc.addTagDiscoveredListener(
             app.onNfc,                   // tag successfully scanned
@@ -31,18 +31,18 @@
         )
     },
 
-/*
-    displays tag ID from @nfcEvent in message div:
-*/
+    /*
+        displays tag ID from @nfcEvent in message div:
+    */
 
     onNfc: function(nfcEvent) {
         var tag = nfcEvent.tag;
         app.display("Read tag: " + nfc.bytesToHexString(tag.id));
     },
 
-/*
-    appends @message to the message div:
-*/
+    /*
+        appends @message to the message div:
+    */
      display: function(message) {
         var display = document.getElementById("message"), // the message div
             lineBreak = document.createElement("br"),     // a line break
@@ -51,9 +51,10 @@
         display.appendChild(lineBreak);          // add a line break
         display.appendChild(label);              // add the message node
     },
-/*
-    clears the message div:
-*/
+    
+    /*
+        clears the message div:
+    */
     clear: function() {
         var display = document.getElementById("message");
         display.innerHTML = "";
@@ -61,7 +62,7 @@
 
     makeMessage: function() {
         // get the app type that the user wants to emulate from the HTML form:
-        var appType = parseInt(document.forms[0].elements.appType.value, 10),
+        var appType = parseInt(appPicker.value, 10),
             tnf,                // NDEF Type Name Format
             recordType,         // NDEF Record Type
             payload,            // content of the record
@@ -95,7 +96,6 @@
                 record = ndef.record(tnf, recordType, [], payload);
                 message.push(record);      // push the record onto the message
                 break;
-
              case 3:         // like NXP TagWriter
                  // The payload of a Smart Poster record is an NDEF message
                  // so create an array of two records like so:
@@ -115,7 +115,6 @@
                  // push the smart poster record onto the message:
                  message.push(record);
                  break;
-
           case 4:         // like TecTiles
                 // format the record as a Well-Known Type
                 tnf = ndef.TNF_WELL_KNOWN;
@@ -148,8 +147,7 @@
                 record = ndef.record(tnf, recordType, [], payload);
                 message.push(record);      // push the record onto the message
                 break;
-        }
-        console.log("App Type: " + appType);
+        }    // end of switch-case statement
         app.writeTag(message);
     },
 

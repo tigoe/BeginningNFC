@@ -3,8 +3,6 @@
 <html>
     <head>
         <title>Foursquare Checkin Tag Writer - Advanced</title>
-        <script type="text/javascript" src="cordova.js"></script>
-        <script type="text/javascript" src="js/index.js"></script>
     </head>
     <body onload="app.initialize();">
         <div class="app">
@@ -12,7 +10,7 @@
 
             <form>
                Format tag like: <br />
-               <select name="appType">
+               <select id="appPicker">
                     <option value="1" >NFC Task Launcher</option>
                     <option value="2" >TagStand Writer</option>
                     <option value="3" >NXP TagWriter</option>
@@ -22,4 +20,7 @@
             </form>
             <button id="writeButton">Write to tag</button>
         </div>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+    </body>
 </html>

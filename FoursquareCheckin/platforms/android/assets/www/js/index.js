@@ -1,23 +1,23 @@
 var app = {
-        // Application constructor
+    // Application constructor
     initialize: function() {
         this.bindEvents();
         console.log("Starting Foursquare Checkin app");
     },
-/*
-    bind any events that are required on startup to listeners:
-*/
+    /*
+        bind any events that are required on startup to listeners:
+    */
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
         writeButton.addEventListener('touchstart', app.makeMessage, false);
     },
 
-/*
-    this runs when the device is ready for user interaction:
-*/
+    /*
+        this runs when the device is ready for user interaction:
+    */
     onDeviceReady: function() {
-        var parentElement = document.getElementById("message");
-        parentElement.innerHTML = "Tap a tag to read its id number.";
+        app.clear();
+        app.display("Tap a tag to read its id number.");
 
         nfc.addTagDiscoveredListener(
             app.onNfc,                 // tag successfully scanned
@@ -31,18 +31,17 @@ var app = {
         )
     },
 
-/*
-    displays tag ID from @nfcEvent in message div:
-*/
-
+    /*
+        displays tag ID from @nfcEvent in message div:
+    */
     onNfc: function(nfcEvent) {
         var tag = nfcEvent.tag;
         app.display("Read tag: " + nfc.bytesToHexString(tag.id));
     },
 
-/*
-    appends @message to the message div:
-*/
+    /*
+        appends @message to the message div:
+    */
      display: function(message) {
         var display = document.getElementById("message"), // the message div
             lineBreak = document.createElement("br"),     // a line break
@@ -51,9 +50,9 @@ var app = {
         display.appendChild(lineBreak);          // add a line break
         display.appendChild(label);              // add the message node
     },
-/*
-    clears the message div:
-*/
+    /*
+        clears the message div:
+    */
     clear: function() {
         var display = document.getElementById("message");
         display.innerHTML = "";
