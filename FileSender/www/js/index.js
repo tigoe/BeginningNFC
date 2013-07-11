@@ -25,48 +25,58 @@ var app = {
     */
     onDeviceReady: function() {
         window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, app.onFileSystemSuccess, app.fail);
-        window.resolveLocalFileSystemURI("file:///sdcard/myMusic/02 Paranoid.mp3", app.onResolveSuccess, app.fail);
+        // beam API is failing with URLs that contain spaces
+        window.resolveLocalFileSystemURI("file:///sdcard/myMusic/test.mp3", app.onResolveSuccess, app.fail);
     },
 
     onFileSystemSuccess: function (fileSystem) {
+        console.log("================");
         console.log(fileSystem.name);
         console.log(fileSystem.root.name);
-
     },
 
      onResolveSuccess: function (fileEntry) {
-        console.log(fileEntry.name);
-        filePath = fileEntry.file;
-          console.log(fileEntry.getMetadata);
-          app.display(fileEntry.getMetadata);
-    },
+        console.log("-----------------");
+        console.log(fileEntry.fullPath);
+        app.display(fileEntry.fullPath);
+        app.filePath = fileEntry.fullPath;
 
+        fileEntry.getMetadata(function(meta) { // more callbacks
+            var info = JSON.stringify(meta);
+            console.log(info);
+            app.display(info);
+        });
+    },
 
     fail: function (evt) {
         console.log(evt.target.error.code);
     },
 
-
     shareMessage: function () {
-            record = ndef.uriRecord(app.filePath);
 
-        // share the message:
-        nfc.share(
-            [record],                   // NDEF message to share
+        app.clear();
+        app.display("Ready to beam " + app.filePath);
+
+        // beam the file:
+        nfc.handover(
+            app.filePath,              
             function () {               // success callback
                 navigator.notification.vibrate(100);
-                app.clear();
-                app.display("Success!  File shared");
+                // we know when the beam is sent and the other device received 
+                // the request but we don't know if the beam completes or fails
+                app.display("Success! Beam sent.");
 
             }, function (reason) {      // failure callback
                 app.clear();
                 app.display("Failed to share file " + reason);
-            });
+            }
+        );
     },
 
     unshareMessage: function () {
-        // stop sharing this tag:
-        nfc.unshare(
+
+        // stop beaming:
+        nfc.stopHandover(
             function () {                           // success callback
                 navigator.notification.vibrate(100);
                 app.clear();
@@ -108,5 +118,5 @@ var app = {
         var display = document.getElementById("message");
         display.innerHTML = "";
     }
-    
+
 };          // end of app
