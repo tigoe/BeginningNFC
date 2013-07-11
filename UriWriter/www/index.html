@@ -9,14 +9,14 @@
             <div id="message">No tag found</div>
             <form>
                 TNF:<br/>
-                <select name="tnf">
+                <select id="tnf">
                     <option value="2" >MIME media</option>
                     <option value="1" >URI</option>
                 </select>
                  Mime Type:<br/>
-                <input type="text" name="mimeType" value="text/plain" size="30" /><br/>
+                <input type="text" id="mimeType" value="text/plain" size="30" /><br/>
                 Payload:<br/>
-                <textarea name="payload" rows="10" cols="30">file:///storage/emulated/0/amazonmp3/Barry_White/All-Time_Greatest_Hits/B000W0RDBW_(disc_1)_03_-_I've_Got_So_Much_To_Give.mp3</textarea>
+                <textarea id="payload" rows="10" cols="30">file:///storage/emulated/0/amazonmp3/Barry_White/All-Time_Greatest_Hits/B000W0RDBW_(disc_1)_03_-_I've_Got_So_Much_To_Give.mp3</textarea>
             </form>
             <button onClick="app.makeMessage();">Write to tag</button>
         </div>
