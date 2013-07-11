@@ -3,8 +3,6 @@
 <html>
     <head>
         <title>File Sender</title>
-       <script type="text/javascript" src="cordova.js"></script>
-        <script type="text/javascript" src="js/index.js"></script>
     </head>
 
     <body onload="app.initialize();">
@@ -14,11 +12,18 @@
             <div id="filePicker">
            
             </div>
-              <input type="checkbox" name="share" id="checkbox" value="Share"/>
-		        <label for="checkbox">Share File</label>        
+
+            <h1 id="cameraButton">Take Picture</h1>
+            <h1 id="photoPicker">Choose Photo</h1>
+
+            <input type="checkbox" name="share" id="checkbox" value="Share"/>
+	           <label for="checkbox">Share File</label>        
 
             <div id="message"></div>
 
         </div>
+
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
     </body>
 </html>

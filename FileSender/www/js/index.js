@@ -19,7 +19,10 @@ var app = {
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
         checkbox.addEventListener('change', app.onChange, false);
+        photoPicker.addEventListener('touchstart', app.choosePhoto, false);
+        cameraButton.addEventListener('touchstart', app.takePicture, false);
     },
+
     /*
          runs when the device is ready for user interaction.
     */
@@ -27,6 +30,37 @@ var app = {
         window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, app.onFileSystemSuccess, app.fail);
         // beam API is failing with URLs that contain spaces
         window.resolveLocalFileSystemURI("file:///sdcard/myMusic/test.mp3", app.onResolveSuccess, app.fail);
+    },
+
+    choosePhoto: function () {
+        navigator.camera.getPicture(app.onCameraSuccess, app.fail,
+            {
+                destinationType : Camera.DestinationType.FILE_URL,
+                sourceType : Camera.PictureSourceType.SAVEDPHOTOALBUM
+            }
+        );
+    },
+
+    takePicture: function () {
+        navigator.camera.getPicture(app.onCameraSuccess, app.fail,
+            {
+                quality : 75,
+                destinationType : Camera.DestinationType.FILE_URL,
+                sourceType : Camera.PictureSourceType.CAMERA,
+                allowEdit : true,
+                encodingType: Camera.EncodingType.JPEG,
+                targetWidth: 100,
+                targetHeight: 100,
+                popoverOptions: CameraPopoverOptions,
+                saveToPhotoAlbum: false
+            }
+        );
+    },
+
+    onCameraSuccess: function (imageURI) {
+        app.filePath = imageURI;
+        app.display(app.filePath);
+        app.shareMessage();
     },
 
     onFileSystemSuccess: function (fileSystem) {
