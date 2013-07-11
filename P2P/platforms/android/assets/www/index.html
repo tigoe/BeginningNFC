@@ -3,8 +3,6 @@
 <html>
     <head>
         <title>PhoneGap NFC P2P</title>
-       <script type="text/javascript" src="cordova.js"></script>
-        <script type="text/javascript" src="js/index.js"></script>
     </head>
     <body onload="app.initialize();">
     	<h2>PhoneGap NFC P2P</h2>
@@ -12,21 +10,23 @@
             <div id="message"></div>
 		    <form>
 		      Mime Type:<br/>
-		      <input type="text" name="mimeType" value="text/plain" size="30" /><br/>
+		      <input type="text" id="mimeTypeField" value="text/plain" size="30" /><br/>
 		      Payload:<br/>      
-		      <textarea name="payload" rows="10" cols="30">Hello, World!</textarea>
+		      <textarea id="payloadField" rows="10" cols="30">Hello, World!</textarea>
 		 	  <br/>
-		        <select id="sample">
+		        <select id="sampleField">
                    <option value="0" >Plain text</option>
                     <option value="1" >Hue Settings</option>
                     <option value="2" >Address</option>
                     <option value="3" >Android Application Record</option>
-                    <option value="5" selected="selected">Make your own</option>
+                    <option value="4" selected="selected">Make your own</option>
                 </select>
                 <br />
 		        <input type="checkbox" name="share" id="checkbox" value="Share"/>
 		        <label for="checkbox">Share message</label>        
 		    </form>
           </div>
+		<script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
     </body>
 </html>

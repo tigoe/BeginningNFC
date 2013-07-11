@@ -50,13 +50,14 @@ var app = {
         this.bindEvents();
         console.log("Starting P2P app");
     },
+    
     /*
         bind any events that are required on startup to listeners:
     */
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
-        sample.addEventListener('change', app.showSampleData, false);
-        checkbox.addEventListener("change", app.onChange, false);
+        sampleField.addEventListener('change', app.showSampleData, false);
+        checkbox.addEventListener('change', app.onChange, false);
     },
     
     /*
@@ -76,13 +77,11 @@ var app = {
                     + JSON.stringify(error));
             }
         );
-
     },
     
     /*
     displays tag from @nfcEvent in message div:
-	*/
-
+    */
     onNfc: function(nfcEvent) {
         app.clear();                  // clear the message div
         // display the event type:
@@ -90,10 +89,9 @@ var app = {
         app.showTag(nfcEvent.tag);    // display the tag details
     },
 
-	/*
-	    writes @tag to the message div:
-	*/
-
+    /*
+        writes @tag to the message div:
+    */
     showTag: function(tag) {
         // display the tag properties:
         app.display("Tag ID: " + nfc.bytesToHexString(tag.id));
@@ -143,9 +141,10 @@ var app = {
             app.showMessage(thisMessage);
         }
     },
-	/*
-	    iterates over the records in an NDEF message to display them:
-	*/
+    
+    /*
+        iterates over the records in an NDEF message to display them:
+    */
     showMessage: function(message) {
         for (var thisRecord in message) {
             // get the next record in the message array:
@@ -153,9 +152,10 @@ var app = {
             app.showRecord(record);             // show it
         }
     },
-	/*
-	    writes @record to the message div:
-	*/
+    
+    /*
+        writes @record to the message div:
+    */
     showRecord: function(record) {
         // display the TNF, Type, and ID:
         app.display(" ");
@@ -178,19 +178,23 @@ var app = {
         
     shareMessage: function () {
         // get the mimeType, and payload from the form and create a new record:
-        var mimeType = document.forms[0].elements.mimeType.value,
-            payload = document.forms[0].elements.payload.value,
+        var mimeType = mimeTypeField.value,
+            payload = payloadField.value,
             record;
-            
-            if (mimeType === 'application/aar') {        // format an Android Application Record
-                var tnf = ndef.TNF_EXTERNAL_TYPE,
-                     recordType = "android.com:pkg";
-                record = ndef.record(tnf, recordType, [], payload);
-            }  else {                            // format a MIME media record
-                record = ndef.mimeMediaRecord(mimeType, nfc.stringToBytes(payload));
-            }
-        app.setUI(false);            // disable typing and clicking
-        
+
+        app.clear();                    // clear the last message
+        app.display("Attempting to share message");
+                    
+        // format an Android Application Record:  
+        if (mimeType === 'application/aar') {        
+            var tnf = ndef.TNF_EXTERNAL_TYPE,
+                 recordType = "android.com:pkg";
+            record = ndef.record(tnf, recordType, [], payload);
+        // format a MIME media record:    
+        }  else {                          
+            record = ndef.mimeMediaRecord(mimeType, nfc.stringToBytes(payload));
+        }
+       
         // share the message:
         nfc.share(
             [record],                    // NDEF message to share
@@ -198,6 +202,8 @@ var app = {
                 navigator.notification.vibrate(100);
                 app.clear();
                 app.display("Success!  message shared");
+                app.unshareMessage();
+                checkbox.checked = false;
                 
             }, function (reason) {        // failure callback
                 app.clear();
@@ -206,8 +212,6 @@ var app = {
     },
     
     unshareMessage: function () {
-        // enable user interface:
-        app.setUI(true);
         // stop sharing this message:
         nfc.unshare(
             function () {                            // success callback
@@ -236,9 +240,7 @@ var app = {
     */
     showSampleData: function() {
         // get the mimeType and payload from the fields
-        var mimeTypeField = document.forms[0].elements.mimeType,
-          payloadField = document.forms[0].elements.payload,
-          index = sample.value,
+        var index = sampleField.value,
           record = data[index];
     
         //if the user wants to edit, she has to uncheck "share message":
@@ -251,13 +253,6 @@ var app = {
         mimeTypeField.value = record.mimeType;
         payloadField.value = record.payload;
         return false;    
-    },
-    /*
-        enable or disable user input:
-    */
-    setUI: function(setting) {
-        document.forms[0].elements.mimeType.disabled = setting;    
-        document.forms[0].elements.payload.disabled = setting;    
     },
 
     /*
