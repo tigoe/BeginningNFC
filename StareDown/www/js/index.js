@@ -1,8 +1,7 @@
 
 var app = {
 	shareCount: 0,
-	sharing: false,
-	
+		
     /*
         Application constructor
      */
@@ -45,18 +44,27 @@ var app = {
     onNfc: function(nfcEvent) {
     	var tag = nfcEvent.tag,
     		message = tag.ndefMessage, 
-    		record;
-        
+    		record, 
+    		content;
+        console.log("Got a message");
         if (message !== null) {    
         	record = message[0];
-			app.display("Payload: " + nfc.bytesToString(record.payload));
-			console.log("Payload: " + nfc.bytesToString(record.payload));
+        	console.log("message isn't empty");
+        	content = nfc.bytesToString(record.payload);
+        	console.log("Payload: " + content);
+        	if (isNaN(parseFloat(content))) {
+	        	app.clear();
+	        	app.display(content);
+        	} else {
+				remoteScore = content;
+			}
+			
+			app.unshareMessage();
         }    
     },
         
     shareMessage: function () {
-    	app.clear();
-		app.display("Attempting to share");
+    	sharingStatus.innerHTML = "Attempting to share";
         // get the mimeType, and payload from the form and create a new record:
         var mimeType = "text/plain",
             payload = app.shareCount.toString(),
@@ -67,11 +75,10 @@ var app = {
             [record],                    // NDEF message to share
             function () {                // success callback
                 navigator.notification.vibrate(100);
-                app.clear();
-                app.display("Success!  message shared");
-                app.shareCount++;
+                 app.shareCount++;
+                 console.log("Success! Shared message");
+                localScore.innerHTML = app.shareCount.toString();
                 app.unshareMessage();
-                
                 
             }, function (reason) {        // failure callback
                 app.clear();
@@ -81,6 +88,7 @@ var app = {
     
     unshareMessage: function () {
         // stop sharing this message:
+        sharingStatus.innerHTML = "Not sharing";
         nfc.unshare(
             function () {                            // success callback
                 navigator.notification.vibrate(100);
@@ -91,20 +99,7 @@ var app = {
                 app.display("Failed to unshare message " + reason);
             });
     },
-    
-    /*
-        enables or disables sharing, with the checkbox
-    */
-    onChange: function (state) {
-        if (state) {            // if the checkbox is checked
-            app.shareMessage();            // share the record
-            start.innerHTML = "Click to unshare";
-        } else {
-            app.unshareMessage();        // don't share
-            start.innerHTML = "Click to share";
-        }
-    },
-
+   
     /*
         appends @message to the message div:
     */
