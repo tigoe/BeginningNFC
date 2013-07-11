@@ -39,6 +39,7 @@ var app = {
         // buttons from the UI:
         modeButton.addEventListener('touchend', app.setMode, false);
         songName.addEventListener('change', app.setSong, false);
+        songs.addEventListener('change', app.setSong2, false);
         playButton.addEventListener('touchend', app.toggleAudio, false);
         stopButton.addEventListener('touchend', app.stopAudio, false);
 
@@ -78,6 +79,37 @@ var app = {
                 console.log("ERROR: "
                 + JSON.stringify(error)); }
         );
+
+        app.getSongs();
+    },
+
+    // get a list of files in our music directory
+    getSongs: function() {
+
+        var failure = function(error) {
+            alert("Error: " + JSON.stringify(error));
+        };
+
+        var foundFiles = function(files) {
+            // clear existing songs
+            songs.innerHTML = "";
+
+            for (var i = 0; i < files.length; i++) {
+                if (files[i].isFile) {
+                    option = document.createElement("option");
+                    option.value = files[i].fullPath;
+                    option.innerHTML = files[i].name;
+                    songs.appendChild(option);
+                }
+            }
+        };
+
+        var foundDirectory = function(directoryEntry) {
+            var directoryReader = directoryEntry.createReader();
+            directoryReader.readEntries(foundFiles, failure);
+        };
+
+        window.resolveLocalFileSystemURI(app.musicPath, foundDirectory, failure);
     },
 
     /*
@@ -138,10 +170,10 @@ var app = {
     setMode: function() {
         if (app.mode === "write") {     // change to read mode
             app.mode = "read";
-            tagModeMessage.innerHTML = "Tap a tag to read its settings."
+            tagModeMessage.innerHTML = "Tap a tag to read its settings.";
         } else {                        // change to write mode
             app.mode = "write";
-            tagModeMessage.innerHTML = "Tap a tag to write current settings."
+            tagModeMessage.innerHTML = "Tap a tag to write current settings.";
         }
         modeValue.innerHTML = app.mode; // set text in the UI
     },
@@ -385,6 +417,16 @@ var app = {
     },
 
     /*
+        sets the song name from the HTML select box.
+    */
+    setSong2: function(content) {
+        app.stopAudio();                // stop whatever is playing
+        app.songPlaying = null;         // clear the media object
+        app.musicState = 0;             // clear the music state
+        app.songTitle = songs[songs.selectedIndex].innerHTML;
+    },
+
+    /*
         toggles audio playback depending on current state of playback.
     */
     toggleAudio: function(event) {
@@ -417,6 +459,7 @@ var app = {
             // Create Media object from songTitle
             if (app.songTitle) {
                 songPath = app.musicPath + app.songTitle;
+
                 app.songPlaying = new Media(
                     songPath,           // filepath of song to play
                     app.audioSuccess,   // success callback
@@ -443,8 +486,8 @@ var app = {
         displays an error if there's a problem with playback.
     */
     audioError: function(error) {
-        console.log("error starting audio callback: "
-            + JSON.stringify(error) );
+        console.log("error starting audio callback: " +
+            JSON.stringify(error) );
     },
 
     /*
