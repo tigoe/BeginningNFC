@@ -29,13 +29,20 @@
             <div id="songPicker">
                 Pick a song:<br/>
                     <input type="file" id="songName">
-                    <button id="playButton">Play</button>
-                    <button id="stopButton">Stop</button>
+
+                    <select id="songs">
+                        <option>Loading Songs</option>
+                    </select>
+                    <div>
+                        <button id="playButton">Play</button>
+                        <button id="stopButton">Stop</button>
+                    </div>
             </div>
 
             <div id="message">No message</div>
         </div>
-       <script type="text/javascript" src="cordova.js"></script>
-       <script type="text/javascript" src="js/index.js"></script>
+        <script type="text/javascript" src="js/zepto.min.js"></script>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
     </body>
 </html>
