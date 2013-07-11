@@ -21,6 +21,7 @@ var app = {
         checkbox.addEventListener('change', app.onChange, false);
         photoPicker.addEventListener('touchstart', app.choosePhoto, false);
         cameraButton.addEventListener('touchstart', app.takePicture, false);
+        filePicker.addEventListener('touchstart', app.chooseFile, false);
     },
 
     /*
@@ -32,8 +33,27 @@ var app = {
         window.resolveLocalFileSystemURI("file:///sdcard/myMusic/test.mp3", app.onResolveSuccess, app.fail);
     },
 
+    chooseFile: function () {
+
+        // HACK WARNING!!!!!
+        // Completely abusing Camera API to show ALL files
+        // May fail since we haven't set local only and streamable
+
+        navigator.camera.getPicture(
+            app.onCameraSuccess, 
+            app.fail,
+            {
+                destinationType : Camera.DestinationType.FILE_URL,
+                sourceType : Camera.PictureSourceType.SAVEDPHOTOALBUM,
+                mediaType : Camera.MediaType.ALLMEDIA
+            }
+        );
+    },
+
     choosePhoto: function () {
-        navigator.camera.getPicture(app.onCameraSuccess, app.fail,
+        navigator.camera.getPicture(
+            app.onCameraSuccess,
+            app.fail,
             {
                 destinationType : Camera.DestinationType.FILE_URL,
                 sourceType : Camera.PictureSourceType.SAVEDPHOTOALBUM
@@ -42,7 +62,9 @@ var app = {
     },
 
     takePicture: function () {
-        navigator.camera.getPicture(app.onCameraSuccess, app.fail,
+        navigator.camera.getPicture(
+            app.onCameraSuccess, 
+            app.fail,
             {
                 quality : 75,
                 destinationType : Camera.DestinationType.FILE_URL,
