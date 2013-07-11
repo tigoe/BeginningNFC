@@ -3,8 +3,6 @@
 <html>
     <head>
         <title>NDEF Message Writer</title>
-        <script type="text/javascript" src="cordova.js"></script>
-        <script type="text/javascript" src="js/index.js"></script>
      </head>
     <body onload="app.initialize();">
         <div class="app">
@@ -21,7 +19,8 @@
                 <textarea name="payload" rows="10" cols="30">file:///storage/emulated/0/amazonmp3/Barry_White/All-Time_Greatest_Hits/B000W0RDBW_(disc_1)_03_-_I've_Got_So_Much_To_Give.mp3</textarea>
             </form>
             <button onClick="app.makeMessage();">Write to tag</button>
-
         </div>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
     </body>
 </html>
