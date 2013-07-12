@@ -14,15 +14,14 @@ var app = {
       // bind events to the UI elements:
       document.addEventListener('deviceready', this.onDeviceReady, false);
       checkbox.addEventListener('change', app.onChange, false);
-      cameraButton.addEventListener('touchstart', app.takePicture, false);
-      filePicker.addEventListener('touchstart', app.chooseFile, false);
    },
    
    /*
    runs when the device is ready for user interaction.
    */
    onDeviceReady: function() {
-   
+      cameraButton.addEventListener('click', app.takePicture, false);
+      filePicker.addEventListener('click', app.chooseFile, false);   
    },
    /*
    brings up the file chooser UI:
@@ -41,15 +40,13 @@ var app = {
       navigator.camera.getPicture(
          app.onCameraSuccess,     // camera capture success handler
          app.failure,             // failure handler
-         {                        // set the image settings:
-            quality : 75,
-            destinationType : Camera.DestinationType.FILE_URL,
-            sourceType : Camera.PictureSourceType.CAMERA,
-            allowEdit : true,
-            encodingType: Camera.EncodingType.JPEG,
-            targetWidth: 100,
-            targetHeight: 100,
-            popoverOptions: CameraPopoverOptions,
+         {                        // image capture options
+            quality: 75,
+            destinationType: Camera.DestinationType.FILE_URL,
+            sourceType: Camera.PictureSourceType.CAMERA,
+            targetWidth: 300,
+            targetHeight: 300,
+            correctOrientation: true,
             saveToPhotoAlbum: false
          }
       );
@@ -59,9 +56,10 @@ var app = {
    When you get a good picture, share it:
    */
    onCameraSuccess: function (imageURI) {
-      var img = document.createElement("img");   // make a new image
-      img.src = imageURI;                        // add the URI
-      photoDiv.appendChild(img);                 // add to the photoDiv
+      var img = document.createElement("img");
+      img.src = imageURI; 
+      photoDiv.innerHTML = ""; // clear old image
+      photoDiv.appendChild(img);
       app.display(imageURI);
       app.shareMessage(imageURI);
    },
@@ -70,8 +68,9 @@ var app = {
    When you get a good file, share it:
    */
    onFileSystemSuccess: function (fileURI) {
+      photoDiv.innerHTML = "";
       app.display(fileURI);
-      app.shareMessage(fileURI); 
+      app.shareMessage(fileURI);
    },
    
    /*

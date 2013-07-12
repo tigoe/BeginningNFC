@@ -447,7 +447,7 @@ var app = {
          // uses the filename for a title 
          app.songTitle = uri.substring(uri.lastIndexOf('/')+1);
          $(songs).val(uri);          // ensure the UI matches selection
-      
+      }     
    },
 
    onSongChange: function(event) {
