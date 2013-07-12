@@ -67,25 +67,20 @@ var app = {
       app.display("WARNING: you'll over-write the content on it already.");
     },
 
-
-/*
-   appends @message to the message div:
-*/
+   /*
+      appends @message to the message div:
+   */
    display: function(message) {
-      var display = document.getElementById("message"), // the div you'll write to
-         label,                                         // what you'll write to the div
-         lineBreak = document.createElement("br");      // a line break
-
-      label = document.createTextNode(message);         // create the label
-      display.appendChild(lineBreak);                   // add a line break
-      display.appendChild(label);                       // add the message node
+      var label = document.createTextNode(message),
+         lineBreak = document.createElement("br");
+      messageDiv.appendChild(lineBreak);         // add a line break
+      messageDiv.appendChild(label);             // add the text
    },
-/*
-   clears the message div:
-*/
+   /*
+      clears the message div:
+   */
    clear: function() {
-      var display = document.getElementById("message");
-      display.innerHTML = "";
+       messageDiv.innerHTML = "";
    },
 
 /*

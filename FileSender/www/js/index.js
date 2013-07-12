@@ -145,7 +145,7 @@ var app = {
       var label = document.createTextNode(message),
          lineBreak = document.createElement("br");
       messageDiv.appendChild(lineBreak);         // add a line break
-      messageDiv.appendChild(label);            // add the text
+      messageDiv.appendChild(label);             // add the text
    },
    /*
       clears the message div:

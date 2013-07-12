@@ -17,8 +17,7 @@ var app = {
    this runs when the device is ready for user interaction:
 */
    onDeviceReady: function() {
-      var parentElement = document.getElementById("message");
-      parentElement.innerHTML = "Tap a tag to read its id number.";
+      app.display("Tap a tag to read its id number.");
 
       nfc.addTagDiscoveredListener(
          app.onNfc,             // tag successfully scanned
@@ -41,22 +40,19 @@ var app = {
       app.display("Read tag: " + nfc.bytesToHexString(tag.id));
    },
 
-/*
-   appends @message to the message div:
-*/
+   /*
+      appends @message to the message div:
+   */
    display: function(message) {
-      var display = document.getElementById("message"), // the message div
-         lineBreak = document.createElement("br"),    // a line break
-         label = document.createTextNode(message);    // create the label
-
-      display.appendChild(lineBreak);        // add a line break
-      display.appendChild(label);           // add the message node
+      var label = document.createTextNode(message),
+         lineBreak = document.createElement("br");
+      messageDiv.appendChild(lineBreak);         // add a line break
+      messageDiv.appendChild(label);             // add the text
    },
-/*
-   clears the message div:
-*/
+   /*
+      clears the message div:
+   */
    clear: function() {
-      var display = document.getElementById("message");
-      display.innerHTML = "";
+       messageDiv.innerHTML = "";
    }
 };     // end of app
