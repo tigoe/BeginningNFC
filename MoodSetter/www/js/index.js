@@ -2,7 +2,7 @@ var hub = {                         // a copy of the hue settings
     lights: {},                     // states & names for the individual lights
     ipaddress: null,                // ip address of the hue
     appTitle: "NFC Mood Setter",    // The App name    
-    username: "490F687CF7AC4EE78BBDBBABC7C0EF18",       // fill in your Hue user name here
+    username: "MoodSetterApp",      // the App's username
     currentLight: 1                 // the light you're currently setting
  };
 
@@ -54,12 +54,9 @@ var app = {
         app.findControllerAddress();    // find address and get settings
         app.setMode();                  // set the read/write mode for tags
 
-        // TODO need another listener
-        // Formatable and NDEF tags should not be read, just written
-
         // listen for NDEF Formatable tags (for write mode):
         nfc.addNdefFormatableListener(
-            app.onNfc,                  // tag successfully scanned
+            app.onWritableNfc,          // tag successfully scanned
             function (status) {         // listener successfully initialized
                 app.display("Listening for NDEF-formatable tags.");
             },
@@ -71,7 +68,7 @@ var app = {
 
         // listen for NDEF tags so we can overwrite MIME message onto them
         nfc.addNdefListener(
-            app.onNfc,                  // MIME type successfully found
+            app.onWritableNfc,          // NDEF type successfully found
             function() {                // listener successfully initialized
                 console.log("listening for Ndef tags");
             },
@@ -80,12 +77,11 @@ var app = {
                 + JSON.stringify(error)); }
         );
 
-
-        // listen for MIME media types of type 'text/hue'
-        // (for read mode):
+        // listen for MIME media types of type 'text/hue' (for read or write)
+        // Android calls the most specific listener, so text/hue tags end up here
         nfc.addMimeTypeListener(
             app.mimeType,               // what type you're listening for
-            app.onNfc,                  // MIME type successfully found
+            app.onMimeMediaNfc,         // MIME type successfully found
             function() {                // listener successfully initialized
                 console.log("listening for mime media tags");
             },
@@ -168,7 +164,18 @@ var app = {
     /*
         runs when an NFC event occurs.
     */
-    onNfc: function(nfcEvent) {
+    onWritableNfc: function(nfcEvent) {
+
+        if (app.mode === "write") {
+            app.makeMessage();  // in write mode, write to the tag
+        }
+    },
+
+
+    /*
+        runs when an NFC event occurs.
+    */
+    onMimeMediaNfc: function(nfcEvent) {
         var tag = nfcEvent.tag;
 
         if (app.mode === "read") {
@@ -528,7 +535,7 @@ var app = {
 
             // clear the message DIV and display song name and status:
             app.clear();
-            app.display("Currently playing: " + app.songTitle)
+            app.display("Currently playing: " + app.songTitle);
         }
     },
 
@@ -542,7 +549,7 @@ var app = {
 
             // clear the message DIV and display song name and status:
             app.clear();
-            app.display("Paused playing: " + app.songTitle)
+            app.display("Paused playing: " + app.songTitle);
         }
     },
 
@@ -556,7 +563,7 @@ var app = {
 
             // clear the message DIV and display song name and status:
             app.clear();
-            app.display("Stopped playing: " + app.songTitle)
+            app.display("Stopped playing: " + app.songTitle);
         }
     },
 
@@ -577,11 +584,7 @@ var app = {
             // if you've got a URI, use it to start a song:
             if (recordType === nfc.bytesToString(ndef.RTD_URI)) {
 
-                // TODO use ndef.uriHelper.decodePayload()
-                // cut the first byte of the payload to get the URI:
-                record.payload.shift();
-                // convert the remainder of the payload to a string:
-                content = nfc.bytesToString(record.payload);
+                content = ndef.uriHelper.decodePayload(record.payload);
                 app.setSong(content);   // set the song name
                 app.startAudio();       // play the song
             }
