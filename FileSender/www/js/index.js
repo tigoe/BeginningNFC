@@ -12,7 +12,7 @@ var app = {
         binds events that are required on startup to listeners.
     */
     bindEvents: function() {
-    	// bind events to the UI elements:
+        // bind events to the UI elements:
         document.addEventListener('deviceready', this.onDeviceReady, false);
         checkbox.addEventListener('change', app.onChange, false);
         cameraButton.addEventListener('touchstart', app.takePicture, false);
@@ -28,21 +28,21 @@ var app = {
     /*
          brings up the file chooser UI:
     */   
-	chooseFile: function() {
-		fileChooser.open(
-			app.onFileSystemSuccess,	// success handler
-			app.failure					// failure handler
-		);
-	},
+    chooseFile: function() {
+        fileChooser.open(
+            app.onFileSystemSuccess,    // success handler
+            app.failure                    // failure handler
+        );
+    },
  
     /*
          Brings up the camera app:
     */
     takePicture: function () {
         navigator.camera.getPicture(
-            app.onCameraSuccess, 		// camera capture success handler
-            app.failure,				// failure handler
-            {	// set the image settings:
+            app.onCameraSuccess,         // camera capture success handler
+            app.failure,                // failure handler
+            {    // set the image settings:
                 quality : 75,
                 destinationType : Camera.DestinationType.FILE_URL,
                 sourceType : Camera.PictureSourceType.CAMERA,
@@ -56,18 +56,18 @@ var app = {
         );
     },
 
-	/*
+    /*
          When you get a good picture, share it:
     */
     onCameraSuccess: function (imageURI) {
-    	var img = document.createElement("img");	// make a new image
-    	img.src = imageURI;							// add the URI
-    	photoDiv.appendChild(img);					// add to the photoDiv
+        var img = document.createElement("img");    // make a new image
+        img.src = imageURI;                            // add the URI
+        photoDiv.appendChild(img);                    // add to the photoDiv
         app.display(imageURI);
         app.shareMessage(imageURI);
     },
 
-	/*
+    /*
          When you get a good file, share it:
     */
     onFileSystemSuccess: function (fileURI) {
@@ -81,13 +81,13 @@ var app = {
     },
 
     shareMessage: function (uri) {
-     	// Android Beam API has a bug that prevents sending files
-    	// with spaces in the URI:
-		if (uri.search("%20") > 0) {
-			app.clear();
-			app.display("Sorry. Can't beam a URI with spaces. Android Beam Bug");
-			return;	
-		}
+         // Android Beam API has a bug that prevents sending files
+        // with spaces in the URI:
+        if (uri.search("%20") > 0) {
+            app.clear();
+            app.display("Sorry. Can't beam a URI with spaces. Android Beam Bug");
+            return;    
+        }
 
         app.clear();
         app.display("Ready to beam " + uri);
@@ -99,8 +99,8 @@ var app = {
                 // we know when the beam is sent and the other device received 
                 // the request but we don't know if the beam completes or fails
                 app.display("Success! Beam sent.");
-                app.unshareMessage();		// unshare the file when complete
-                checkbox.checked = false;	// turn off the checkbox
+                app.unshareMessage();        // unshare the file when complete
+                checkbox.checked = false;    // turn off the checkbox
 
             }, function (reason) {      // failure callback
                 app.clear();
