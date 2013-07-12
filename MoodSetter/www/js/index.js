@@ -346,7 +346,6 @@ var app = {
       sends settings to the Hue hub.
    */
    putHueSettings: function(settings, lightId) {
-      console.log(JSON.stringify(settings));
       // if no lightId is sent, assume the current light:
       if (!lightId) {
          lightId = hub.currentLight;
