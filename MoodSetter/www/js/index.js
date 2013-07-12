@@ -295,7 +295,7 @@ var app = {
                         app.authorize, "Not Authorized");
                 } else {                   // if authorized, give an alert box
                     navigator.notification.alert("Authorized user " +
-                        hub.username)
+                        hub.username);
                     app.getHueSettings();  // if authorized, get the settings
                 }
             },
@@ -324,10 +324,10 @@ var app = {
                 } else {
                     // the full settings take more than you want to
                     // fit on a tag, so just get the settings you want:
-                    for (thisLight in data.lights) {
+                    for (var thisLight in data.lights) {
                         hub.lights[thisLight] = {};
-                        hub.lights[thisLight]["name"] = data.lights[thisLight].name;
-                        hub.lights[thisLight]["state"] = {};
+                        hub.lights[thisLight].name = data.lights[thisLight].name;
+                        hub.lights[thisLight].state = {};
                         hub.lights[thisLight].state.on = data.lights[thisLight].state.on;
                         hub.lights[thisLight].state.bri = data.lights[thisLight].state.bri;
                         hub.lights[thisLight].state.hue = data.lights[thisLight].state.hue;
@@ -351,8 +351,8 @@ var app = {
         // set the property for the light:
         $.ajax({
             type: 'PUT',
-            url: 'http://' + hub.ipaddress + '/api/' + hub.username
-            + '/lights/' + lightId + '/state',
+            url: 'http://' + hub.ipaddress + '/api/' + hub.username +
+                '/lights/' + lightId + '/state',
             data: JSON.stringify(settings),
             success: function(data){
                 if (data[0].error) {
@@ -361,8 +361,8 @@ var app = {
                 }
             },
             error: function(xhr, type){
-                navigator.notification.alert(xhr.responseText + " ("
-                    + xhr.status + ")", null, "Error");
+                navigator.notification.alert(xhr.responseText + " (" +
+                    xhr.status + ")", null, "Error");
             }
         });
     },
@@ -392,21 +392,21 @@ var app = {
         Brightness, Hue, Saturation, and On State
     */
     setBrightness: function() {
-        var thisBrightness = parseInt(bri.value);       // get the value from the UI control
+        var thisBrightness = parseInt(bri.value, 10);   // get the value from the UI control
         var thisLight = hub.lights[hub.currentLight];   // get the property from hub object
         thisLight.state.bri = thisBrightness;           // change the property in the hub object
         app.putHueSettings( { "bri": thisBrightness } );// update Hue hub with the new value
     },
 
     setHue: function() {
-        var thisHue = parseInt(hue.value);              // get the value from the UI control
+        var thisHue = parseInt(hue.value, 10);          // get the value from the UI control
         var thisLight = hub.lights[hub.currentLight];   // get the property from hub object
         thisLight.state.hue = thisHue;                  // change the property in the hub object
         app.putHueSettings( { "hue": thisHue } );       // update Hue hub with the new value
     },
 
     setSaturation: function() {
-        var thisSaturation = parseInt(bri.value);       // get the value from the UI control
+        var thisSaturation = parseInt(bri.value, 10);   // get the value from the UI control
         var thisLight = hub.lights[hub.currentLight];   // get the property from hub object
         thisLight.state.sat = thisSaturation;           // change the property in the hub object
         app.putHueSettings( { "sat": thisSaturation } );// update Hue hub with the new value
@@ -429,7 +429,7 @@ var app = {
         }
     */
     setAllLights: function(settings) {
-        for (thisLight in settings) {
+        for (var thisLight in settings) {
              app.putHueSettings(settings[thisLight].state, thisLight);
         }
     },
