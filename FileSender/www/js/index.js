@@ -99,8 +99,8 @@ var app = {
                 // we know when the beam is sent and the other device received 
                 // the request but we don't know if the beam completes or fails
                 app.display("Success! Beam sent.");
-                app.unshareMessage();
-                checkbox.checked = false;
+                app.unshareMessage();		// unshare the file when complete
+                checkbox.checked = false;	// turn off the checkbox
 
             }, function (reason) {      // failure callback
                 app.clear();
