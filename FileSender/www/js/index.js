@@ -19,8 +19,8 @@ var app = {
    runs when the device is ready for user interaction.
    */
    onDeviceReady: function() {
-      cameraButton.addEventListener('click', app.takePicture, false);
-      filePicker.addEventListener('click', app.chooseFile, false);   
+      cameraButton.addEventListener('touchstart', app.takePicture, false);
+      filePicker.addEventListener('touchstart', app.chooseFile, false); 
    },
    /*
    brings up the file chooser UI:
@@ -120,8 +120,8 @@ var app = {
          function () {                  // success callback
             navigator.notification.vibrate(100);
             app.display("File is no longer shared");
-            setTimeout(app.clearAll, 5000);          
-         }, 
+            setTimeout(app.clearAll, 5000);
+         },
          function (reason) {         // failure callback
             app.display("Failed to unshare file " + reason);
          }
@@ -146,7 +146,7 @@ var app = {
    },
 
    clearAll: function() {
-      app.clear()
+      app.clear();
       photoDiv.innerHTML = "";
    }
 };     // end of app
