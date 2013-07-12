@@ -126,21 +126,18 @@ var app = {
         appends @message to the message div:
     */
     display: function(message) {
-        var display = document.getElementById("message"),   // the div you'll write to
-            label,                                          // what you'll write to the div
+        var textNode = document.createTextNode(message),
             lineBreak = document.createElement("br");       // a line break
 
-        label = document.createTextNode(message);       // create the label
-        display.appendChild(lineBreak);                 // add a line break
-        display.appendChild(label);                     // add the message node
+        messageDiv.appendChild(lineBreak);                  // add a line break        
+        messageDiv.appendChild(textNode);                   // add the message node
     },
 
     /*
         clears the message div:
     */
     clear: function() {
-        var display = document.getElementById("message");
-        display.innerHTML = "";
+        messageDiv.innerHTML = "";
     },
 
     /*
