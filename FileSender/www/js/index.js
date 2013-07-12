@@ -1,10 +1,5 @@
 
 var app = {
-    mode: 'write',  // the tag read/write mode
-    filePath: '',   // path to your music
-    content: '',
-
-
     /*
         Application constructor
     */
@@ -17,9 +12,9 @@ var app = {
         binds events that are required on startup to listeners.
     */
     bindEvents: function() {
+    	// bind events to the UI elements:
         document.addEventListener('deviceready', this.onDeviceReady, false);
         checkbox.addEventListener('change', app.onChange, false);
-        photoPicker.addEventListener('touchstart', app.choosePhoto, false);
         cameraButton.addEventListener('touchstart', app.takePicture, false);
         filePicker.addEventListener('touchstart', app.chooseFile, false);
     },
@@ -28,44 +23,26 @@ var app = {
          runs when the device is ready for user interaction.
     */
     onDeviceReady: function() {
-        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, app.onFileSystemSuccess, app.fail);
-        // beam API is failing with URLs that contain spaces
-        window.resolveLocalFileSystemURI("file:///sdcard/myMusic/test.mp3", app.onResolveSuccess, app.fail);
+
     },
-
-    chooseFile: function () {
-
-        // HACK WARNING!!!!!
-        // Completely abusing Camera API to show ALL files
-        // May fail since we haven't set local only and streamable
-
-        navigator.camera.getPicture(
-            app.onCameraSuccess, 
-            app.fail,
-            {
-                destinationType : Camera.DestinationType.FILE_URL,
-                sourceType : Camera.PictureSourceType.SAVEDPHOTOALBUM,
-                mediaType : Camera.MediaType.ALLMEDIA
-            }
-        );
-    },
-
-    choosePhoto: function () {
-        navigator.camera.getPicture(
-            app.onCameraSuccess,
-            app.fail,
-            {
-                destinationType : Camera.DestinationType.FILE_URL,
-                sourceType : Camera.PictureSourceType.SAVEDPHOTOALBUM
-            }
-        );
-    },
-
+    /*
+         brings up the file chooser UI:
+    */   
+	chooseFile: function() {
+		fileChooser.open(
+			app.onFileSystemSuccess,	// success handler
+			app.failure					// failure handler
+		);
+	},
+ 
+    /*
+         Brings up the camera app:
+    */
     takePicture: function () {
         navigator.camera.getPicture(
-            app.onCameraSuccess, 
-            app.fail,
-            {
+            app.onCameraSuccess, 		// camera capture success handler
+            app.failure,				// failure handler
+            {	// set the image settings:
                 quality : 75,
                 destinationType : Camera.DestinationType.FILE_URL,
                 sourceType : Camera.PictureSourceType.CAMERA,
@@ -79,48 +56,51 @@ var app = {
         );
     },
 
+	/*
+         When you get a good picture, share it:
+    */
     onCameraSuccess: function (imageURI) {
-        app.filePath = imageURI;
-        app.display(app.filePath);
-        app.shareMessage();
+    	var img = document.createElement("img");	// make a new image
+    	img.src = imageURI;							// add the URI
+    	photoDiv.appendChild(img);					// add to the photoDiv
+        app.display(imageURI);
+        app.shareMessage(imageURI);
     },
 
-    onFileSystemSuccess: function (fileSystem) {
-        console.log("================");
-        console.log(fileSystem.name);
-        console.log(fileSystem.root.name);
+	/*
+         When you get a good file, share it:
+    */
+    onFileSystemSuccess: function (fileURI) {
+        app.display(fileURI);
+        app.shareMessage(fileURI);
+
     },
 
-     onResolveSuccess: function (fileEntry) {
-        console.log("-----------------");
-        console.log(fileEntry.fullPath);
-        app.display(fileEntry.fullPath);
-        app.filePath = fileEntry.fullPath;
-
-        fileEntry.getMetadata(function(meta) { // more callbacks
-            var info = JSON.stringify(meta);
-            console.log(info);
-            app.display(info);
-        });
-    },
-
-    fail: function (evt) {
+    failure: function (evt) {
         console.log(evt.target.error.code);
     },
 
-    shareMessage: function () {
+    shareMessage: function (uri) {
+     	// Android Beam API has a bug that prevents sending files
+    	// with spaces in the URI:
+		if (uri.search("%20") > 0) {
+			app.clear();
+			app.display("Sorry. Can't beam a URI with spaces. Android Beam Bug");
+			return;	
+		}
 
         app.clear();
-        app.display("Ready to beam " + app.filePath);
-
+        app.display("Ready to beam " + uri);
         // beam the file:
         nfc.handover(
-            app.filePath,              
+            uri,              
             function () {               // success callback
                 navigator.notification.vibrate(100);
                 // we know when the beam is sent and the other device received 
                 // the request but we don't know if the beam completes or fails
                 app.display("Success! Beam sent.");
+                app.unshareMessage();
+                checkbox.checked = false;
 
             }, function (reason) {      // failure callback
                 app.clear();
@@ -130,7 +110,6 @@ var app = {
     },
 
     unshareMessage: function () {
-
         // stop beaming:
         nfc.stopHandover(
             function () {                           // success callback
@@ -158,21 +137,15 @@ var app = {
         appends @message to the message div:
     */
     display: function(message) {
-        var display = document.getElementById("message"),   // the div you'll write to
-            label,                                          // what you'll write to the div
-            lineBreak = document.createElement("br");       // a line break
-
-        label = document.createTextNode(message);       // create the label
-        display.appendChild(lineBreak);                 // add a line break
-        display.appendChild(label);                     // add the message node
+        var label = document.createTextNode(message),
+            lineBreak = document.createElement("br");
+        messageDiv.appendChild(lineBreak);            // add a line break
+        messageDiv.appendChild(label);                // add the text
     },
-
     /*
         clears the message div:
     */
     clear: function() {
-        var display = document.getElementById("message");
-        display.innerHTML = "";
+         messageDiv.innerHTML = "";
     }
-
 };          // end of app
