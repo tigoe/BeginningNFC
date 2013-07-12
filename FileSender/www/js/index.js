@@ -1,4 +1,3 @@
-
 var app = {
     /*
         Application constructor
@@ -76,10 +75,16 @@ var app = {
 
     },
 
+    /*
+         When you fail to get a file or photo, cry:
+    */
     failure: function (evt) {
         console.log(evt.target.error.code);
     },
 
+    /*
+         Share the URI from the file or photo via P2P:
+    */
     shareMessage: function (uri) {
          // Android Beam API has a bug that prevents sending files
         // with spaces in the URI:
@@ -96,8 +101,8 @@ var app = {
             uri,              
             function () {               // success callback
                 navigator.notification.vibrate(100);
-                // we know when the beam is sent and the other device received 
-                // the request but we don't know if the beam completes or fails
+                // you know when the beam is sent and the other device received 
+                // the request but you don't know if the beam completes or fails
                 app.display("Success! Beam sent.");
                 app.unshareMessage();        // unshare the file when complete
                 checkbox.checked = false;    // turn off the checkbox
