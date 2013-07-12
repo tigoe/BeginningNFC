@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
-    <head>
-    <script type="text/javascript">
-    		
-    	function tick() {
-    		var now = Date(),
-	    		clock = document.getElementById("clock"),
+   <head>
+   <script type="text/javascript">
+   		
+   	function tick() {
+   		var now = Date(),
+	   		clock = document.getElementById("clock"),
 				checkin= document.getElementById("checkin");
-	    	clock.innerHTML = now.toString();
-	    	checkin.value = now;
-    	}
-    	
-     </script>
+	   	clock.innerHTML = now.toString();
+	   	checkin.value = now;
+   	}
+   	
+   </script>
 	</head>
 	<body onload="setInterval(tick, 1000);">
 	<form action="/submit" method="post">
