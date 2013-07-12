@@ -1,49 +1,49 @@
 <!DOCTYPE html>
 
 <html>
-    <head>
-        <title>Mood Setter</title>
-    </head>
-    <body>
-        <div class="app">
-        	<div id="tagMode">
-            	<button id="modeButton">Change Mode</button>
-            	<span id="modeValue"></span><br />
-                <span id="tagModeMessage"></span>
-        	</div>
+   <head>
+      <title>Mood Setter</title>
+   </head>
+   <body>
+      <div class="app">
+      	<div id="tagMode">
+         	<button id="modeButton">Change Mode</button>
+         	<span id="modeValue"></span><br />
+            <span id="tagModeMessage"></span>
+      	</div>
 
-            <div id="lightControl">
-                Light Location:
-                <select id="lightNumber">
-                    <option value="1" >No Lights Found</option>
-                    <option value="2" >No Lights Found</option>
-                    <option value="3" >No Lights Found</option>
-                </select><br />
-            	On: <input type="checkbox" id="lightOn"><br />
-            	Brightness: <input type="range" id="bri" min="0" max="254"><br />
-            	Hue: <input type="range" id="hue"  min="0" max="65535"><br />
-            	Saturation: <input type="range" id="sat" min="0" max="254">
-            </div>
+         <div id="lightControl">
+            Light Location:
+            <select id="lightNumber">
+               <option value="1" >No Lights Found</option>
+               <option value="2" >No Lights Found</option>
+               <option value="3" >No Lights Found</option>
+            </select><br />
+         	On: <input type="checkbox" id="lightOn"><br />
+         	Brightness: <input type="range" id="bri" min="0" max="254"><br />
+         	Hue: <input type="range" id="hue"  min="0" max="65535"><br />
+         	Saturation: <input type="range" id="sat" min="0" max="254">
+         </div>
 
-            <div id="songPicker">
-                Song:<br/>
+         <div id="songPicker">
+            Song:<br/>
 
-                    <select id="songs">
-                        <option>Loading Songs</option>
-                    </select>
-                    <div>
-                        <button id="playButton">Play</button>
-                        <button id="stopButton">Stop</button>
-                    </div>
-            </div>
+               <select id="songs">
+                  <option>Loading Songs</option>
+               </select>
+               <div>
+                  <button id="playButton">Play</button>
+                  <button id="stopButton">Stop</button>
+               </div>
+         </div>
 
-            <div id="messageDiv">No message</div>
-        </div>
-        <script type="text/javascript" src="js/zepto.min.js"></script>
-        <script type="text/javascript" src="cordova.js"></script>
-        <script type="text/javascript" src="js/index.js"></script>
-        <script>
-            app.initialize();
-        </script>
-    </body>
+         <div id="messageDiv">No message</div>
+      </div>
+      <script type="text/javascript" src="js/zepto.min.js"></script>
+      <script type="text/javascript" src="cordova.js"></script>
+      <script type="text/javascript" src="js/index.js"></script>
+      <script>
+         app.initialize();
+      </script>
+   </body>
 </html>
