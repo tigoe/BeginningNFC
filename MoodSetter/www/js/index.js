@@ -1,9 +1,8 @@
 var hub = {                         // a copy of the hue settings
     lights: {},                     // states & names for the individual lights
     ipaddress: null,                // ip address of the hue
-    appTitle: "NFC Mood Setter",    // The App name
-//    username: "yourusername",       // fill in your Hue user name here
-    username: "thomaspatrickigoe",       // fill in your Hue user name here
+    appTitle: "NFC Mood Setter",    // The App name    
+    username: "490F687CF7AC4EE78BBDBBABC7C0EF18",       // fill in your Hue user name here
     currentLight: 1                 // the light you're currently setting
  };
 
@@ -14,6 +13,7 @@ var app = {
     songPlaying: null,              // media handle for the current song playing
     songTitle: null,                // title of the song
     musicState: 0,                  // state of the song: playing stopped, etc.
+    songUri: null,
 
     /*
         Application constructor
@@ -38,8 +38,7 @@ var app = {
 
         // buttons from the UI:
         modeButton.addEventListener('touchend', app.setMode, false);
-        songName.addEventListener('change', app.setSong, false);
-        songs.addEventListener('change', app.setSong2, false);
+        songs.addEventListener('change', app.selectSong, false);
         playButton.addEventListener('touchend', app.toggleAudio, false);
         stopButton.addEventListener('touchend', app.stopAudio, false);
 
@@ -55,6 +54,9 @@ var app = {
         app.findControllerAddress();    // find address and get settings
         app.setMode();                  // set the read/write mode for tags
 
+        // TODO need another listener
+        // Formatable and NDEF tags should not be read, just written
+
         // listen for NDEF Formatable tags (for write mode):
         nfc.addNdefFormatableListener(
             app.onNfc,                  // tag successfully scanned
@@ -66,6 +68,18 @@ var app = {
                     + JSON.stringify(error));
             }
         );
+
+        // listen for NDEF tags so we can overwrite MIME message onto them
+        nfc.addNdefListener(
+            app.onNfc,                  // MIME type successfully found
+            function() {                // listener successfully initialized
+                console.log("listening for Ndef tags");
+            },
+            function(error) {           // listener fails to initialize
+                console.log("ERROR: "
+                + JSON.stringify(error)); }
+        );
+
 
         // listen for MIME media types of type 'text/hue'
         // (for read mode):
@@ -401,28 +415,36 @@ var app = {
     setSong: function(content) {
         // if there's no song title given,
         // check the songName file picker for a title:
-        if (typeof(content) !== 'string' ) {
-            // get rid of the standard c:\\fakepath beginning
-            // that the HTML file input object adds:
-            content = songName.value.replace("C:\\fakepath\\", "");
+        // TODO
+        // if (typeof(content) !== 'string' ) {
+        //     // get rid of the standard c:\\fakepath beginning
+        //     // that the HTML file input object adds:
+        //     content = songName.value.replace("C:\\fakepath\\", "");
+        // }
+        if (typeof(content) !== 'string' ) { // it's an event?
+            app.songUri = songs[songs.selectedIndex].value;
+            app.songTitle = app.songUri;
         }
 
         // if you have a song title now, and it's not the current one:
-        if (typeof(content) === 'string' && content !== app.songTitle) {
+        if (typeof(content) === 'string' && content !== app.songUri) {
             app.stopAudio();                // stop whatever is playing
             app.songPlaying = null;         // clear the media object
             app.musicState = 0;             // clear the music state
-            app.songTitle = content;        // change the song title
+            app.songUri = content;          // saves the uri of the song
+            // uses the filename for a title 
+            app.songTitle = content.substring(content.lastIndexOf('/')+1);
         }
     },
 
     /*
         sets the song name from the HTML select box.
     */
-    setSong2: function(content) {
+    selectSong: function() {
         app.stopAudio();                // stop whatever is playing
         app.songPlaying = null;         // clear the media object
         app.musicState = 0;             // clear the music state
+        app.songUri = songs[songs.selectedIndex].value;
         app.songTitle = songs[songs.selectedIndex].innerHTML;
     },
 
@@ -456,12 +478,11 @@ var app = {
 
         // attempt to instantiate a song:
         if (app.songPlaying === null) {
-            // Create Media object from songTitle
-            if (app.songTitle) {
-                songPath = app.musicPath + app.songTitle;
+            // Create Media object from songUri
+            if (app.songUri) {
 
                 app.songPlaying = new Media(
-                    songPath,           // filepath of song to play
+                    app.songUri,        // filepath of song to play
                     app.audioSuccess,   // success callback
                     app.audioError,     // error callback
                     app.audioStatus     // update the status  callback
@@ -555,6 +576,8 @@ var app = {
             recordType = nfc.bytesToString(record.type);
             // if you've got a URI, use it to start a song:
             if (recordType === nfc.bytesToString(ndef.RTD_URI)) {
+
+                // TODO use ndef.uriHelper.decodePayload()
                 // cut the first byte of the payload to get the URI:
                 record.payload.shift();
                 // convert the remainder of the payload to a string:
@@ -589,8 +612,8 @@ var app = {
             var lightRecord = ndef.mimeMediaRecord(app.mimeType, huePayload);
             message.push(lightRecord);
         }
-        if (app.songTitle !== null) {
-            var songRecord = ndef.uriRecord(app.songTitle);
+        if (app.songUri !== null) {
+            var songRecord = ndef.uriRecord(app.songUri);
             message.push(songRecord);
         }
 

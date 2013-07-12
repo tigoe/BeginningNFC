@@ -4,8 +4,7 @@
     <head>
         <title>Mood Setter</title>
     </head>
-
-    <body onload="app.initialize();">
+    <body>
         <div class="app">
         	<div id="tagMode">
             	<button id="modeButton">Change Mode</button>
@@ -27,8 +26,7 @@
             </div>
 
             <div id="songPicker">
-                Pick a song:<br/>
-                    <input type="file" id="songName">
+                Song:<br/>
 
                     <select id="songs">
                         <option>Loading Songs</option>
@@ -44,5 +42,8 @@
         <script type="text/javascript" src="js/zepto.min.js"></script>
         <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
+        <script>
+            app.initialize();
+        </script>
     </body>
 </html>
