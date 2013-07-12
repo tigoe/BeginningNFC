@@ -38,7 +38,7 @@ var app = {
 
         // buttons from the UI:
         modeButton.addEventListener('touchend', app.setMode, false);
-        songs.addEventListener('change', app.selectSong, false);
+        songs.addEventListener('change', app.onSongChange, false);
         playButton.addEventListener('touchend', app.toggleAudio, false);
         stopButton.addEventListener('touchend', app.stopAudio, false);
 
@@ -61,8 +61,8 @@ var app = {
                 app.display("Listening for NDEF-formatable tags.");
             },
             function (error) {          // listener fails to initialize
-                app.display("NFC reader failed to initialize "
-                    + JSON.stringify(error));
+                app.display("NFC reader failed to initialize " +
+                    JSON.stringify(error));
             }
         );
 
@@ -73,8 +73,7 @@ var app = {
                 console.log("listening for Ndef tags");
             },
             function(error) {           // listener fails to initialize
-                console.log("ERROR: "
-                + JSON.stringify(error)); }
+                console.log("ERROR: " + JSON.stringify(error)); }
         );
 
         // listen for MIME media types of type 'text/hue' (for read or write)
@@ -86,8 +85,7 @@ var app = {
                 console.log("listening for mime media tags");
             },
             function(error) {           // listener fails to initialize
-                console.log("ERROR: "
-                + JSON.stringify(error)); }
+                console.log("ERROR: " + JSON.stringify(error)); }
         );
 
         app.getSongs();
@@ -102,7 +100,6 @@ var app = {
 
         var foundFiles = function(files) {
 
-
             if (files.length > 0) {
                 // clear existing songs
                 songs.innerHTML = "";
@@ -116,11 +113,12 @@ var app = {
                     option = document.createElement("option");
                     option.value = files[i].fullPath;
                     option.innerHTML = files[i].name;
+                    if (i === 0) { option.selected = true; }
                     songs.appendChild(option);
                 }
             }
 
-            songs.selectedIndex = 0;
+            app.onSongChange();
         };
 
         var foundDirectory = function(directoryEntry) {
@@ -182,7 +180,6 @@ var app = {
         }
     },
 
-
     /*
         runs when an NFC event occurs.
     */
@@ -190,7 +187,17 @@ var app = {
         var tag = nfcEvent.tag;
 
         if (app.mode === "read") {
-            app.readTag(tag);   // in read mode, read the tag
+
+            // in read mode, read the tag
+            // when app is launched by scanning text/hue tag
+            // we need to add a delay so the call to get the 
+            // hub address can finish before we call the api
+            var timeout = hub.ipaddress ? 0 : 500;
+
+            setTimeout(function() {
+                app.readTag(tag);
+            }, timeout);
+    
         } else {
             app.makeMessage();  // in write mode, write to the tag
         }
@@ -228,8 +235,8 @@ var app = {
                 }
             },
             error: function(xhr, type){     // alert box with the error
-                navigator.notification.alert(xhr.responseText
-                    + " (" + xhr.status + ")", null, "Error");
+                navigator.notification.alert(xhr.responseText +
+                    " (" + xhr.status + ")", null, "Error");
             }
         });
     },
@@ -257,8 +264,8 @@ var app = {
                 }
             },
             error: function(xhr, type){     // error message from the hub
-                navigator.notification.alert(xhr.responseText
-                    + " (" + xhr.status + ")", null, "Error");
+                navigator.notification.alert(xhr.responseText +
+                    " (" + xhr.status + ")", null, "Error");
             }
         });
     },
@@ -287,14 +294,14 @@ var app = {
                     navigator.notification.alert(message,
                         app.authorize, "Not Authorized");
                 } else {                   // if authorized, give an alert box
-                    navigator.notification.alert("Authorized user "
-                        + hub.username)
+                    navigator.notification.alert("Authorized user " +
+                        hub.username)
                     app.getHueSettings();  // if authorized, get the settings
                 }
             },
             error: function(xhr, type){     // error reply from the hub
-                navigator.notification.alert(xhr.responseText
-                    + " (" + xhr.status + ")", null, "Error");
+                navigator.notification.alert(xhr.responseText +
+                    " (" + xhr.status + ")", null, "Error");
             }
         });
     },
@@ -428,42 +435,24 @@ var app = {
     },
 
     /*
-        sets the song name from the HTML file input field.
+        sets the song uri
     */
-    setSong: function(content) {
-        // if there's no song title given,
-        // check the songName file picker for a title:
-        // TODO
-        // if (typeof(content) !== 'string' ) {
-        //     // get rid of the standard c:\\fakepath beginning
-        //     // that the HTML file input object adds:
-        //     content = songName.value.replace("C:\\fakepath\\", "");
-        // }
-        if (typeof(content) !== 'string' ) { // it's an event?
-            app.songUri = songs[songs.selectedIndex].value;
-            app.songTitle = app.songUri;
-        }
+    setSong: function(uri) {
 
-        // if you have a song title now, and it's not the current one:
-        if (typeof(content) === 'string' && content !== app.songUri) {
+        if (uri !== app.songUri) {
             app.stopAudio();                // stop whatever is playing
             app.songPlaying = null;         // clear the media object
             app.musicState = 0;             // clear the music state
-            app.songUri = content;          // saves the uri of the song
+            app.songUri = uri;              // saves the uri of the song
             // uses the filename for a title 
-            app.songTitle = content.substring(content.lastIndexOf('/')+1);
+            app.songTitle = uri.substring(uri.lastIndexOf('/')+1);
+            $(songs).val(uri);              // ensure the UI matches selection
         }
     },
 
-    /*
-        sets the song name from the HTML select box.
-    */
-    selectSong: function() {
-        app.stopAudio();                // stop whatever is playing
-        app.songPlaying = null;         // clear the media object
-        app.musicState = 0;             // clear the music state
-        app.songUri = songs[songs.selectedIndex].value;
-        app.songTitle = songs[songs.selectedIndex].innerHTML;
+    onSongChange: function(event) {
+        var uri = songs[songs.selectedIndex].value;
+        app.setSong(uri);
     },
 
     /*
@@ -503,10 +492,11 @@ var app = {
                     app.songUri,        // filepath of song to play
                     app.audioSuccess,   // success callback
                     app.audioError,     // error callback
-                    app.audioStatus     // update the status  callback
+                    app.audioStatus     // update the status callback
                 );
             } else {
-                navigator.notification.alert("Pick a song!")
+                // TODO can this happen with the select?
+                navigator.notification.alert("Pick a song!");
             }
         }
 
@@ -525,8 +515,12 @@ var app = {
         displays an error if there's a problem with playback.
     */
     audioError: function(error) {
-        console.log("error starting audio callback: " +
-            JSON.stringify(error) );
+
+        // Without timeout message is overwritten by "Currently Playing: ..."
+        setTimeout(function() {
+            app.display("Unable to play song.");
+        }, 300);
+
     },
 
     /*
@@ -609,8 +603,9 @@ var app = {
 
                 content = nfc.bytesToString(record.payload);
                 content = JSON.parse(content);    // convert to JSON object
+
                 app.setAllLights(content.lights); // use it to set lights
-              }
+            }
         }
     },
 
