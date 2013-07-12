@@ -1,19 +1,20 @@
 <!DOCTYPE html>
 
 <html>
-   <head>
-     <title>File Sender</title>
-   </head>
+  <head>
+    <title>File Sender</title>
+  </head>
 
-   <body onload="app.initialize();">
-     <div class="app">
-       <h1 id="cameraButton">Take Picture</h1>
-       <h1 id="filePicker">Choose File</h1>
+  <body>
+    <h1 id="cameraButton">Take Picture</h1>
+    <h1 id="filePicker">Choose File</h1>
 
-       <div id="messageDiv"></div>
-       <div id="photoDiv"></div>
-
-     <script type="text/javascript" src="cordova.js"></script>
-     <script type="text/javascript" src="js/index.js"></script>
+    <div id="messageDiv"></div>
+    <div id="photoDiv"></div>
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
+    <script type="text/javascript">
+      app.initialize();
+    </script>
    </body>
 </html>
