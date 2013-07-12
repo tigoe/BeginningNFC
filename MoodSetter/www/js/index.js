@@ -101,8 +101,15 @@ var app = {
         };
 
         var foundFiles = function(files) {
-            // clear existing songs
-            songs.innerHTML = "";
+
+
+            if (files.length > 0) {
+                // clear existing songs
+                songs.innerHTML = "";
+            } else {
+                navigator.notification.alert(
+                    "Use `adb` to add songs to " + app.musicPath, {}, "No Music");   
+            }
 
             for (var i = 0; i < files.length; i++) {
                 if (files[i].isFile) {
@@ -112,6 +119,8 @@ var app = {
                     songs.appendChild(option);
                 }
             }
+
+            songs.selectedIndex = 0;
         };
 
         var foundDirectory = function(directoryEntry) {
@@ -119,7 +128,12 @@ var app = {
             directoryReader.readEntries(foundFiles, failure);
         };
 
-        window.resolveLocalFileSystemURI(app.musicPath, foundDirectory, failure);
+        var missingDirectory = function(error) {
+            navigator.notification.alert("Music directory " + app.musicPath + 
+                " does not exist", {}, "Music Directory");
+        };
+
+        window.resolveLocalFileSystemURI(app.musicPath, foundDirectory, missingDirectory);
     },
 
     /*
