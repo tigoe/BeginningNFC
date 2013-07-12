@@ -13,7 +13,6 @@ var app = {
    bindEvents: function() {
       // bind events to the UI elements:
       document.addEventListener('deviceready', this.onDeviceReady, false);
-      checkbox.addEventListener('change', app.onChange, false);
    },
    
    /*
@@ -120,25 +119,13 @@ var app = {
       nfc.stopHandover(
          function () {                  // success callback
             navigator.notification.vibrate(100);
-            app.clear();
             app.display("File is no longer shared");
+            setTimeout(app.clearAll, 5000);          
          }, 
          function (reason) {         // failure callback
-            app.clear();
             app.display("Failed to unshare file " + reason);
          }
       );
-   },
-   
-   /*
-   enables or disables sharing, with the checkbox
-   */
-   onChange: function (e) {
-      if (e.target.checked) {     // if the checkbox is checked
-         app.shareMessage();       // share the record
-      } else {
-         app.unshareMessage();     // don't share
-      }
    },
    
    /*
@@ -156,5 +143,10 @@ var app = {
    */
    clear: function() {
       messageDiv.innerHTML = "";
+   },
+
+   clearAll: function() {
+      app.clear()
+      photoDiv.innerHTML = "";
    }
 };     // end of app

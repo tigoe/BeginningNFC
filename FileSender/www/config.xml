@@ -2,12 +2,12 @@
 <widget id="net.tigoe.filesender" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>FileSender</name>
     <description>
-        A sample Apache Cordova application that responds to the deviceready event.
+        Send a file to another device with Android Beam.
     </description>
     <author email="dev@callback.apache.org" href="http://cordova.io">
         Apache Cordova Team
     </author>
     <access origin="*" />
-    <preference name="fullscreen" value="true" />
+    <preference name="fullscreen" value="false" />
     <preference name="webviewbounce" value="true" />
 </widget>
