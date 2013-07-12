@@ -88,18 +88,18 @@ var app = {
             console.log("ERROR: " + JSON.stringify(error)); }
       );
 
-      app.getSongs();
+      app.getSongs();                // load the drop-down menu with songs
    },
 
-   // get a list of files in our music directory
-   getSongs: function() {
-
-      var failure = function(error) {
+   // get a list of files in your music directory
+   getSongs: function() { 
+      // failure handler for directoryReader.readEntries(), below:
+      var failure = function(error) {     
          alert("Error: " + JSON.stringify(error));
       };
 
+      // success handler for directoryReader.readEntries(), below:
       var foundFiles = function(files) {
-
          if (files.length > 0) {
             // clear existing songs
             songs.innerHTML = "";
@@ -107,30 +107,33 @@ var app = {
             navigator.notification.alert(
                "Use `adb` to add songs to " + app.musicPath, {}, "No Music");   
          }
-
+         
+         // once you have the list of files, put the valid ones in the selector:
          for (var i = 0; i < files.length; i++) {
-            if (files[i].isFile) {
-               option = document.createElement("option");
-               option.value = files[i].fullPath;
-               option.innerHTML = files[i].name;
-               if (i === 0) { option.selected = true; }
-               songs.appendChild(option);
+            if (files[i].isFile) {        // if the filename is a valid file
+               option = document.createElement("option");   // create an option element
+               option.value = files[i].fullPath;            // value = song's filepath
+               option.innerHTML = files[i].name;            // label = song name
+               if (i === 0) { option.selected = true; }     // select the first one
+               songs.appendChild(option);                   // add it to the selector
             }
          }
-
-         app.onSongChange();
+         app.onSongChange();        // update the current song
       };
-
+      
+      // success handler for window.resolveLocalFileSystemURI(), below:
       var foundDirectory = function(directoryEntry) {
          var directoryReader = directoryEntry.createReader();
          directoryReader.readEntries(foundFiles, failure);
       };
 
+      // failure handler for window.resolveLocalFileSystemURI(), below:
       var missingDirectory = function(error) {
          navigator.notification.alert("Music directory " + app.musicPath + 
             " does not exist", {}, "Music Directory");
       };
 
+      // look for the music directory:
       window.resolveLocalFileSystemURI(app.musicPath, foundDirectory, missingDirectory);
    },
 
@@ -347,7 +350,16 @@ var app = {
       if (!lightId) {
          lightId = hub.currentLight;
       }
-
+      // if the light's not on, you can't set the other properties.
+      // so delete the other properties before sending them:
+      if (!settings.on) {  
+         for (var prop in settings) {
+            if (settings.hasOwnProperty(prop)   // if this property is not inherited
+               && prop != "on") {               // and it's not the "on" property
+               delete(settings[prop]);          // delete it
+            }  
+         }
+      }
       // set the property for the light:
       $.ajax({
          type: 'PUT',
