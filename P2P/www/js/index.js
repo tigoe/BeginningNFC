@@ -258,16 +258,16 @@ var app = {
     /*
         appends @message to the message div:
     */
-    display: function(thisText) {
-        var label = document.createTextNode(thisText),
-        	lineBreak = document.createElement("br");
-        message.appendChild(lineBreak);					// add a line break
-        message.appendChild(label);						// add the text
+    display: function(message) {
+        var label = document.createTextNode(message),
+            lineBreak = document.createElement("br");
+        messageDiv.appendChild(lineBreak);            // add a line break
+        messageDiv.appendChild(label);                // add the text
     },
     /*
         clears the message div:
     */
     clear: function() {
-         message.innerHTML = "";
+         messageDiv.innerHTML = "";
     }
 };      // end of app
