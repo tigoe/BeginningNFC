@@ -97,9 +97,45 @@ var app = {
          sampleField.appendChild(option);             // add this element to sampleField 
       }
 
+       nfc.addNdefListener(
+         app.onNfc,               // nfcEvent received
+         function (status) {        // listener successfully initialized
+            app.displayMessage("Listening for NDEF messages.");
+         },
+         function (error) {         // listener fails to initialize
+            app.displayMessage("NFC reader failed to initialize "
+               + JSON.stringify(error));
+         }
+      );
+      
       app.showSampleData();
    },
 
+   /*
+   displays info from @nfcEvent in message div:
+   */
+    onNfc: function(nfcEvent) {
+       // if there is an NDEF message on the tag, display it:
+      var thisTag = nfcEvent.tag,
+          thisMessage = thisTag.ndefMessage,
+          tagData = "";
+      
+      // display the tag properties:
+      tagData = "Tag ID: " + nfc.bytesToHexString(thisTag.id) + "<br />"
+      	+ "Tag Type: " +  thisTag.type + "<br />"
+			+ "Max Size: " +  thisTag.maxSize + " bytes<br />"
+			+ "Is Writable: " +  thisTag.isWritable + "<br />"
+			+ "Can Make Read Only: " +  thisTag.canMakeReadOnly + "<br />";
+      
+      if (thisMessage !== null) {
+         // get and display the NDEF record count:
+         tagData += "<p>Tag has NDEF message with " + thisMessage.length
+            + " records.</p>";
+         }
+         
+      app.displayMessage(tagData);
+   },
+   
    /*
       Share the message from the form via peer-to-peer:
    */
