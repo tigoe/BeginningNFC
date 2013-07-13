@@ -3,14 +3,37 @@
 <html>
    <head>
       <title>Mood Setter</title>
+      <style>
+      input {
+         margin-top: 10px;
+         margin-bottom: 10px;
+      }
+      input[type='range'] { /* finger sized sliders */
+         display:block;
+         width: 100%;
+      }
+      .button {
+         display: inline-block;
+         padding: 10px;
+         min-width: 80px;
+         margin-top: 10px;
+         margin-bottom: 5px;
+         text-align: center;
+         background-color: #177bbd;
+         color: #ffffff;
+      }
+      select {
+         font-size: 1.25em;
+      }
+      </style>
    </head>
    <body>
       <div class="app">
-      	<div id="tagMode">
-         	<button id="modeButton">Change Mode</button>
-         	<span id="modeValue"></span><br />
+         <div id="tagMode">
+            <button id="modeButton">Change Mode</button>
+            <span id="modeValue"></span><br />
             <span id="tagModeMessage"></span>
-      	</div>
+         </div>
 
          <div id="lightControl">
             Light Location:
@@ -19,21 +42,23 @@
                <option value="2" >No Lights Found</option>
                <option value="3" >No Lights Found</option>
             </select><br />
-         	On: <input type="checkbox" id="lightOn"><br />
-         	Brightness: <input type="range" id="bri" min="0" max="254"><br />
-         	Hue: <input type="range" id="hue"  min="0" max="65535"><br />
-         	Saturation: <input type="range" id="sat" min="0" max="254">
+            <label for="lightOn">On:</label>
+               <input type="checkbox" id="lightOn"><br />
+            Brightness: <input type="range" id="bri" min="0" max="254">
+            Hue: <input type="range" id="hue"  min="0" max="65535">
+            Saturation: <input type="range" id="sat" min="0" max="254">
          </div>
 
          <div id="songPicker">
-            Song:<br/>
-
-               <select id="songs">
-                  <option>Loading Songs</option>
-               </select>
+            Song:
                <div>
-                  <button id="playButton">Play</button>
-                  <button id="stopButton">Stop</button>
+                  <select id="songs">
+                     <option>Loading Songs</option>
+                  </select>
+               </div>
+               <div>
+                  <h2 id="playButton" class="button">Play</h2>
+                  <h2 id="stopButton" class="button">Stop</h2>
                </div>
          </div>
 

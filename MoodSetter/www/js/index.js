@@ -37,10 +37,10 @@ var app = {
       lightNumber.addEventListener('change', app.getHueSettings, false);
 
       // buttons from the UI:
-      modeButton.addEventListener('touchend', app.setMode, false);
+      modeButton.addEventListener('click', app.setMode, false);
       songs.addEventListener('change', app.onSongChange, false);
-      playButton.addEventListener('touchend', app.toggleAudio, false);
-      stopButton.addEventListener('touchend', app.stopAudio, false);
+      playButton.addEventListener('touchstart', app.toggleAudio, false);
+      stopButton.addEventListener('touchstart', app.stopAudio, false);
 
       // pause and resume functionality for the whole app:
       document.addEventListener('pause', this.onPause, false);
