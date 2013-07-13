@@ -58,7 +58,7 @@ var app = {
       nfc.addNdefFormatableListener(
          app.onWritableNfc,          // tag successfully scanned
          function (status) {         // listener successfully initialized
-            app.display("Listening for NDEF-formatable tags.");
+            console.log("Listening for NDEF-formatable tags.");
          },
          function (error) {          // listener fails to initialize
             app.display("NFC reader failed to initialize " +
@@ -602,8 +602,19 @@ var app = {
          if (recordType === nfc.bytesToString(ndef.RTD_URI)) {
 
             content = ndef.uriHelper.decodePayload(record.payload);
-            app.setSong(content);  // set the song name
-            app.startAudio();      // play the song
+
+            // make sure the song exists
+            window.resolveLocalFileSystemURI(
+               content,
+               function() {
+                  app.setSong(content);
+                  app.startAudio();
+               },
+               function() {
+                  navigator.notification.alert("Can't find " + content,
+                     {}, "Missing Song");
+               }
+            );
          }
 
          // if you've got a hue JSON object, set the lights:
