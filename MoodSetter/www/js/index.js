@@ -66,7 +66,7 @@ var app = {
          }
       );
 
-      // listen for NDEF tags so we can overwrite MIME message onto them
+      // listen for NDEF tags so you can overwrite MIME message onto them
       nfc.addNdefListener(
          app.onWritableNfc,          // NDEF type successfully found
          function() {                // listener successfully initialized
@@ -89,55 +89,6 @@ var app = {
       );
 
       app.getSongs();                // load the drop-down menu with songs
-   },
-
-   /*
-      gets a list of the songs in your music directory and
-      populates an options list in the UI with them
-   */
-    getSongs: function() { 
-      // failure handler for directoryReader.readEntries(), below:
-      var failure = function(error) {     
-         alert("Error: " + JSON.stringify(error));
-      };
-
-      // success handler for directoryReader.readEntries(), below:
-      var foundFiles = function(files) {
-         if (files.length > 0) {
-            // clear existing songs
-            songs.innerHTML = "";
-         } else {
-            navigator.notification.alert(
-               "Use `adb` to add songs to " + app.musicPath, {}, "No Music");   
-         }
-         
-         // once you have the list of files, put the valid ones in the selector:
-         for (var i = 0; i < files.length; i++) {
-            if (files[i].isFile) {                  // if the filename is a valid file
-               option = document.createElement("option");   // create an option element
-               option.value = files[i].fullPath;            // value = song's filepath
-               option.innerHTML = files[i].name;            // label = song name
-               if (i === 0) { option.selected = true; }     // select the first one
-               songs.appendChild(option);                   // add it to the selector
-            }
-         }
-         app.onSongChange();        // update the current song
-      };
-      
-      // success handler for window.resolveLocalFileSystemURI(), below:
-      var foundDirectory = function(directoryEntry) {
-         var directoryReader = directoryEntry.createReader();
-         directoryReader.readEntries(foundFiles, failure);
-      };
-
-      // failure handler for window.resolveLocalFileSystemURI(), below:
-      var missingDirectory = function(error) {
-         navigator.notification.alert("Music directory " + app.musicPath + 
-            " does not exist", {}, "Music Directory");
-      };
-
-      // look for the music directory:
-      window.resolveLocalFileSystemURI(app.musicPath, foundDirectory, missingDirectory);
    },
 
    /*
@@ -206,7 +157,7 @@ var app = {
          app.makeMessage();  // in write mode, write to the tag
       }
    },
-
+   
    /*
       Sets the tag read/write mode for the app.
    */
@@ -220,7 +171,6 @@ var app = {
       }
       modeValue.innerHTML = app.mode; // set text in the UI
    },
-
    /*
       Find the Hue controller address and get its settings
    */
@@ -273,6 +223,7 @@ var app = {
          }
       });
    },
+   
    /*
       Authorizes the username for this hub.
    */
@@ -381,8 +332,7 @@ var app = {
                xhr.status + ")", null, "Error");
          }
       });
-   },
-
+   }, 
    /*
       Set the value of the UI controls using the values from the Hue:
    */
@@ -410,28 +360,28 @@ var app = {
    setBrightness: function() {
       var thisBrightness = parseInt(bri.value, 10); // get the value from the UI control
       var thisLight = hub.lights[hub.currentLight]; // get the property from hub object
-      thisLight.state.bri = thisBrightness;         // change the property in the hub object
+      thisLight.state.bri = thisBrightness;         // change the property in hub object
       app.putHueSettings({ "bri": thisBrightness });// update Hue hub with the new value
    },
 
    setHue: function() {
       var thisHue = parseInt(hue.value, 10);        // get the value from the UI control
       var thisLight = hub.lights[hub.currentLight]; // get the property from hub object
-      thisLight.state.hue = thisHue;                // change the property in the hub object
+      thisLight.state.hue = thisHue;                // change the property in hub object
       app.putHueSettings( { "hue": thisHue } );     // update Hue hub with the new value
    },
 
    setSaturation: function() {
       var thisSaturation = parseInt(bri.value, 10); // get the value from the UI control
       var thisLight = hub.lights[hub.currentLight]; // get the property from hub object
-      thisLight.state.sat = thisSaturation;         // change the property in the hub object
+      thisLight.state.sat = thisSaturation;         // change the property in hub object
       app.putHueSettings({ "sat": thisSaturation });// update Hue hub with the new value
    },
 
    setLightOn: function() {
       var thisOn = lightOn.checked;                 // get the value from the UI control
       var thisLight = hub.lights[hub.currentLight]; // get the property from hub object
-      thisLight.state.on = thisOn;                  // change the property in the hub object
+      thisLight.state.on = thisOn;                  // change the property in hub object
       app.putHueSettings( { "on": thisOn } );       // update Hue hub with the new value
    },
 
@@ -449,6 +399,63 @@ var app = {
           app.putHueSettings(settings[thisLight].state, thisLight);
       }
    },
+   
+   /*
+      gets a list of the songs in your music directory and
+      populates an options list in the UI with them
+   */
+    getSongs: function() { 
+      // failure handler for directoryReader.readEntries(), below:
+      var failure = function(error) {     
+         alert("Error: " + JSON.stringify(error));
+      };
+
+      // success handler for directoryReader.readEntries(), below:
+      var foundFiles = function(files) {
+         if (files.length > 0) {
+            // clear existing songs
+            songs.innerHTML = "";
+         } else {
+            navigator.notification.alert(
+               "Use `adb` to add songs to " + app.musicPath, {}, "No Music");   
+         }
+         
+         // once you have the list of files, put the valid ones in the selector:
+         for (var i = 0; i < files.length; i++) {
+            if (files[i].isFile) {                  // if the filename is a valid file
+               option = document.createElement("option");   // create an option element
+               option.value = files[i].fullPath;            // value = song's filepath
+               option.innerHTML = files[i].name;            // label = song name
+               if (i === 0) { option.selected = true; }     // select the first one
+               songs.appendChild(option);                   // add it to the selector
+            }
+         }
+         app.onSongChange();        // update the current song
+      };
+      
+      // success handler for window.resolveLocalFileSystemURI(), below:
+      var foundDirectory = function(directoryEntry) {
+         var directoryReader = directoryEntry.createReader();
+         directoryReader.readEntries(foundFiles, failure);
+      };
+
+      // failure handler for window.resolveLocalFileSystemURI(), below:
+      var missingDirectory = function(error) {
+         navigator.notification.alert("Music directory " + app.musicPath + 
+            " does not exist", {}, "Music Directory");
+      };
+
+      // look for the music directory:
+      window.resolveLocalFileSystemURI(app.musicPath, foundDirectory, missingDirectory);
+   },
+
+   /*
+      changes the song URI and sets the new song:
+   */
+   onSongChange: function(event) {
+      var uri = songs[songs.selectedIndex].value;
+      app.setSong(uri);
+   },
 
    /*
       sets the song uri
@@ -465,12 +472,7 @@ var app = {
          $(songs).val(uri);          // ensure the UI matches selection
       }     
    },
-
-   onSongChange: function(event) {
-      var uri = songs[songs.selectedIndex].value;
-      app.setSong(uri);
-   },
-
+   
    /*
       toggles audio playback depending on current state of playback.
    */
