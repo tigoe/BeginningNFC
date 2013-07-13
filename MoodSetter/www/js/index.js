@@ -350,16 +350,21 @@ var app = {
       if (!lightId) {
          lightId = hub.currentLight;
       }
+    
       // if the light's not on, you can't set the other properties.
       // so delete the other properties before sending them:
-      if (!settings.on) {  
-         for (var prop in settings) {
+      if (settings.hasOwnProperty("on") && !settings.on) {  // if "on" is a property and it's false
+         for (var prop in settings) {				// go through all the other properties
             if (settings.hasOwnProperty(prop)   // if this property is not inherited
                && prop != "on") {               // and it's not the "on" property
                delete(settings[prop]);          // delete it
             }  
          }
       }
+            
+      // if the light's not on, you can't set the other properties.
+      // so delete the other properties before sending them:
+
       // set the property for the light:
       $.ajax({
          type: 'PUT',
