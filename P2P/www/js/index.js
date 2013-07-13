@@ -74,6 +74,10 @@ var app = {
    bindEvents: function() {
       document.addEventListener('deviceready', this.onDeviceReady, false);
       sampleField.addEventListener('change', app.showSampleData, false);
+      document.forms[0].onsubmit = function(evt) {
+         evt.preventDefault(); // don't submit
+         payloadField.focus();
+      };
       typeField.onchange = app.shareMessage;
       payloadField.onchange = app.shareMessage;
    },
@@ -159,9 +163,9 @@ var app = {
 
       // get the type and payload from the form
       var index = sampleField.value,
-          record = data[index];  // TODO rename
+          record = data[index]; // TODO rename record
    
-      // fill the field with the data from the record:
+      // fill form with the data from the record:
       kindField.value = record.kind;
       typeField.value = record.type;
       payloadField.value = record.data;

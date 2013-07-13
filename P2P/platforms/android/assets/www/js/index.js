@@ -74,6 +74,10 @@ var app = {
    bindEvents: function() {
       document.addEventListener('deviceready', this.onDeviceReady, false);
       sampleField.addEventListener('change', app.showSampleData, false);
+      document.forms[0].onsubmit = function(evt) {
+         evt.preventDefault(); // don't submit
+         payloadField.focus();
+      };
       typeField.onchange = app.shareMessage;
       payloadField.onchange = app.shareMessage;
    },
