@@ -1,32 +1,26 @@
 <!DOCTYPE html>
 
 <html>
-    <head>
-        <title>PhoneGap NFC P2P</title>
-    </head>
-    <body onload="app.initialize();">
-        <h2>PhoneGap NFC P2P</h2>
-        <div class="app">
-            <div id="message"></div>
-            <form>
-              Mime Type:<br/>
-              <input type="text" id="mimeTypeField" value="text/plain" size="30" /><br/>
-              Payload:<br/>      
-              <textarea id="payloadField" rows="10" cols="30">Hello, World!</textarea>
-               <br/>
-                <select id="sampleField">
-                   <option value="0" >Plain text</option>
-                    <option value="1" >Hue Settings</option>
-                    <option value="2" >Address</option>
-                    <option value="3" >Android Application Record</option>
-                    <option value="4" selected="selected">Make your own</option>
-                </select>
-                <br />
-                <input type="checkbox" name="share" id="checkbox" value="Share"/>
-                <label for="checkbox">Share message</label>        
-            </form>
-          </div>
-        <script type="text/javascript" src="cordova.js"></script>
-        <script type="text/javascript" src="js/index.js"></script>
-    </body>
+   <head>
+      <title>PhoneGap NFC P2P</title>
+   </head>
+   <body onload="app.initialize();">
+      <h2>PhoneGap NFC P2P</h2>
+      <div class="app">
+         <div id="messageDiv"></div>
+         <form>
+            <select id="sampleField"></select><br />
+            <input type="hidden" id="kindField" /><br/>
+            <div id="typeDiv">
+              Type:<br/>
+              <input type="text" id="typeField" value="" size="30" />
+            </div>
+            Payload:<br/>     
+            <textarea id="payloadField" rows="10" cols="30"></textarea>
+            <br/>
+         </form>
+        </div>
+      <script type="text/javascript" src="cordova.js"></script>
+      <script type="text/javascript" src="js/index.js"></script>
+   </body>
 </html>
