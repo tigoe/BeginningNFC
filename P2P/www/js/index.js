@@ -1,5 +1,5 @@
 var data = [
-      {         
+      {
          name: "Text Record",
          kind: "text",
          data: "hello, world"
@@ -81,13 +81,13 @@ var app = {
       typeField.onchange = app.shareMessage;
       payloadField.onchange = app.shareMessage;
    },
-   
+
    /*
       this runs when the device is ready for user interaction:
    */
    onDeviceReady: function() {
       var option;
-      app.displayMessage("Starting P2P App."); 
+      app.displayMessage("Starting P2P App.");
 
       // populate the combo from the data array
       sampleField.innerHTML = "";
@@ -97,11 +97,11 @@ var app = {
          option.innerHTML = data[i].name;
          if (i === 0) { option.selected = true; }
          sampleField.appendChild(option);
-      }     
+      }
 
       app.showSampleData();
    },
-   
+
    shareMessage: function () {
 
       // get the mimeType, and payload from the form and create a new record:
@@ -111,7 +111,7 @@ var app = {
           record;
 
       app.displayMessage("Publishing message");
-               
+
       switch (kind) {
          case "text":
             record = ndef.textRecord(payloadData);
@@ -133,18 +133,18 @@ var app = {
       }
 
       console.log(JSON.stringify(record));
-      
+
       // share the message:
       nfc.share(
          [record],                // NDEF message to share
          function () {            // success callback
             navigator.notification.vibrate(100);
-            app.displayMessage("Success! Message sent to peer.");            
+            app.displayMessage("Success! Message sent to peer.");
          }, function (reason) {      // failure callback
             app.displayMessage("Failed to share message " + reason);
          });
    },
-   
+
    unshareMessage: function () {
       // stop sharing this message:
       nfc.unshare(
@@ -155,7 +155,7 @@ var app = {
             app.displayMessage("Failed to unshare message " + reason);
          });
    },
-   
+
    /*
       Get data from the data array and put it in the form fields:
    */
@@ -164,7 +164,7 @@ var app = {
       // get the type and payload from the form
       var index = sampleField.value,
           record = data[index]; // TODO rename record
-   
+
       // fill form with the data from the record:
       kindField.value = record.kind;
       typeField.value = record.type;
