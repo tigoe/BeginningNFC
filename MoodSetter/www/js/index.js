@@ -91,8 +91,11 @@ var app = {
       app.getSongs();                // load the drop-down menu with songs
    },
 
-   // get a list of files in your music directory
-   getSongs: function() { 
+   /*
+      gets a list of the songs in your music directory and
+      populates an options list in the UI with them
+   */
+    getSongs: function() { 
       // failure handler for directoryReader.readEntries(), below:
       var failure = function(error) {     
          alert("Error: " + JSON.stringify(error));
@@ -110,7 +113,7 @@ var app = {
          
          // once you have the list of files, put the valid ones in the selector:
          for (var i = 0; i < files.length; i++) {
-            if (files[i].isFile) {        // if the filename is a valid file
+            if (files[i].isFile) {                  // if the filename is a valid file
                option = document.createElement("option");   // create an option element
                option.value = files[i].fullPath;            // value = song's filepath
                option.innerHTML = files[i].name;            // label = song name
@@ -174,34 +177,32 @@ var app = {
    },
 
    /*
-      runs when an NFC event occurs.
+      runs when an NdefListener or NdefFormatableListener event occurs.
    */
    onWritableNfc: function(nfcEvent) {
-
       if (app.mode === "write") {
          app.makeMessage();  // in write mode, write to the tag
       }
    },
 
    /*
-      runs when an NFC event occurs.
+      runs when an MimeMedia event occurs.
    */
    onMimeMediaNfc: function(nfcEvent) {
       var tag = nfcEvent.tag;
 
-      if (app.mode === "read") {
-
-         // in read mode, read the tag
+      if (app.mode === "read") {   // in read mode, read the tag
          // when app is launched by scanning text/hue tag
-         // we need to add a delay so the call to get the 
-         // hub address can finish before we call the api
+         // you need to add a delay so the call to get the 
+         // hub address can finish before you call the api.
+         // if you have the address, delay 0, otherwise, delay 50:
          var timeout = hub.ipaddress ? 0 : 500;
 
          setTimeout(function() {
             app.readTag(tag);
          }, timeout);
    
-      } else {
+      } else {               // if you're in write mode
          app.makeMessage();  // in write mode, write to the tag
       }
    },
@@ -352,19 +353,17 @@ var app = {
       }
     
       // if the light's not on, you can't set the other properties.
-      // so delete the other properties before sending them:
-      if (settings.hasOwnProperty("on") && !settings.on) {  // if "on" is a property and it's false
-         for (var prop in settings) {				// go through all the other properties
+      // so delete the other properties before sending them.
+      // if "on" is a property and it's false:
+      if (settings.hasOwnProperty("on") && !settings.on) {  
+         for (var prop in settings) {           // go through all the other properties
             if (settings.hasOwnProperty(prop)   // if this property is not inherited
                && prop != "on") {               // and it's not the "on" property
                delete(settings[prop]);          // delete it
             }  
          }
       }
-            
-      // if the light's not on, you can't set the other properties.
-      // so delete the other properties before sending them:
-
+          
       // set the property for the light:
       $.ajax({
          type: 'PUT',
