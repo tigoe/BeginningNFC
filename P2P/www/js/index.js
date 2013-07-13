@@ -69,10 +69,12 @@ var app = {
    bindEvents: function() {
       document.addEventListener('deviceready', this.onDeviceReady, false);
       sampleField.addEventListener('change', app.showSampleData, false);
+      // modify the form so it doesn't generate a submit event:
       document.forms[0].onsubmit = function(evt) {
-         evt.preventDefault(); // don't submit
-         payloadField.focus();
+         evt.preventDefault();      // don't submit
+         payloadField.focus();      // put the payload field in focus
       };
+      // if either type or payload is changed, update the share:
       typeField.onchange = app.shareMessage;
       payloadField.onchange = app.shareMessage;
    },
@@ -82,24 +84,28 @@ var app = {
    */
    onDeviceReady: function() {
       var option;
-      app.displayMessage("Starting P2P App.");
-
-      // populate the combo from the data array
+      
+      // populate the sampleField from the data array
       sampleField.innerHTML = "";
       for (var i = 0; i < data.length; i++) {
-         option = document.createElement("option");
-         option.value = i;
-         option.innerHTML = data[i].name;
-         if (i === 0) { option.selected = true; }
-         sampleField.appendChild(option);
+         option = document.createElement("option");   // make an option element
+         option.value = i;                            // give it this number
+         option.innerHTML = data[i].name;             // get the corresponding data object
+         if (i === 0) {                               // select the first element
+            option.selected = true; 
+         }
+         sampleField.appendChild(option);             // add this element to sampleField 
       }
 
       app.showSampleData();
    },
 
+   /*
+      Share the message from the form via peer-to-peer:
+   */
    shareMessage: function () {
-
-      // get the mimeType, and payload from the form and create a new record:
+      // get the mimeType, and payload from the form 
+      // and create a new record:
       var payloadType = typeField.value,
           payloadData = payloadField.value,
           kind = kindField.value,
@@ -107,6 +113,8 @@ var app = {
 
       app.displayMessage("Publishing message");
 
+      // use a different ndef helper to format the message
+      // depending on the kind:
       switch (kind) {
          case "text":
             record = ndef.textRecord(payloadData);
@@ -135,18 +143,23 @@ var app = {
          function () {            // success callback
             navigator.notification.vibrate(100);
             app.displayMessage("Success! Message sent to peer.");
-         }, function (reason) {      // failure callback
+         }, 
+         function (reason) {      // failure callback
             app.displayMessage("Failed to share message " + reason);
          });
    },
 
+   /*
+      Stop sharing:
+   */
    unshareMessage: function () {
       // stop sharing this message:
       nfc.unshare(
          function () {                     // success callback
             navigator.notification.vibrate(100);
             app.displayMessage("message is no longer shared");
-         }, function (reason) {               // failure callback
+         }, 
+         function (reason) {               // failure callback
             app.displayMessage("Failed to unshare message " + reason);
          });
    },
@@ -155,10 +168,9 @@ var app = {
       Get data from the data array and put it in the form fields:
    */
    showSampleData: function() {
-
       // get the type and payload from the form
       var index = sampleField.value,
-          record = data[index]; // TODO rename record
+          record = data[index];
 
       // fill form with the data from the record:
       kindField.value = record.kind;
@@ -175,6 +187,9 @@ var app = {
       app.shareMessage();
    },
 
+   /*
+      A simpler variation on display()
+   */
    displayMessage: function(message) {
       messageDiv.innerHTML = message;
    }
