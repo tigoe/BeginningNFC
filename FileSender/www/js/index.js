@@ -57,7 +57,7 @@ var app = {
    onCameraSuccess: function (imageURI) {
       var img = document.createElement("img");
       img.src = imageURI;
-      photoDiv.innerHTML = ""; // clear old image
+      photoDiv.innerHTML = ""; 			// clear old image
       photoDiv.appendChild(img);
       app.display(imageURI);
       app.shareMessage(imageURI);
@@ -93,6 +93,7 @@ var app = {
 
       app.clear();
       app.display("Ready to beam " + uri);
+      app.display("Place your device back to back with another device to beam.")
       // beam the file:
       nfc.handover(
          uri,
@@ -102,7 +103,6 @@ var app = {
             // the request but you don't know if the beam completes or fails
             app.display("Success! Beam sent.");
             app.unshareMessage();       // unshare the file when complete
-            checkbox.checked = false;   // turn off the checkbox
          },
          function (reason) {       // failure callback
             app.clear();
