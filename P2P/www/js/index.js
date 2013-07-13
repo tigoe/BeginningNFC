@@ -7,13 +7,7 @@ var data = [
       {
          name: "URI Record",
          kind: "uri",
-         data: "http://cordova.io"
-      },
-      {
-         name: "MIME Media Record",
-         kind: "mime",
-         type: "text/json",
-         data: JSON.stringify({ message: "hello, world" })
+         data: "http://oreilly.com"
       },
       {
          name: "Address",
@@ -33,7 +27,8 @@ var data = [
          name: "Hue Settings",
          kind: "mime",
          type: 'text/hue',
-         data: JSON.stringify({"1":
+         data: JSON.stringify({
+         "1":
             {"state":
                {"on":true,"bri":65,"hue":44591,"sat":254}
             },
@@ -51,7 +46,7 @@ var data = [
          name: "Android Application Record",
          kind: "external",
          type: "android.com:pkg",
-         data: "com.chariotsolutions.xpn"
+         data: "com.joelapenna.foursquared"
       },
       {
          name: "Empty",
