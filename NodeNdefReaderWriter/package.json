@@ -1,0 +1,18 @@
+{
+  "name": "mifare-classic-example",
+  "preferGlobal": false,
+  "version": "0.0.0",
+  "author": "Don Coleman <dcoleman@chariotsolutions.com>",
+  "description": "Read and Write Mifare Classic Tags",
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@bitbucket.org/doncoleman/mifare-classic-example.git"
+  },
+  "dependencies" : {
+    "ndef"   :  "0.0.1"
+  },
+  "license": "BSD",
+  "engines": {
+    "node": ">=0.10"
+  }
+}
