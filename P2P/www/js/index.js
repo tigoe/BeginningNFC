@@ -122,10 +122,10 @@ var app = {
       
       // display the tag properties:
       tagData = "Tag ID: " + nfc.bytesToHexString(thisTag.id) + "<br />"
-      	+ "Tag Type: " +  thisTag.type + "<br />"
-			+ "Max Size: " +  thisTag.maxSize + " bytes<br />"
-			+ "Is Writable: " +  thisTag.isWritable + "<br />"
-			+ "Can Make Read Only: " +  thisTag.canMakeReadOnly + "<br />";
+         + "Tag Type: " +  thisTag.type + "<br />"
+         + "Max Size: " +  thisTag.maxSize + " bytes<br />"
+         + "Is Writable: " +  thisTag.isWritable + "<br />"
+         + "Can Make Read Only: " +  thisTag.canMakeReadOnly + "<br />";
       
       if (thisMessage !== null) {
          // get and display the NDEF record count:

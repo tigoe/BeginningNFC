@@ -56,11 +56,11 @@ var app = {
    */
    onCameraSuccess: function (imageURI) {
       var img = document.createElement("img");
-      img.src = imageURI;					// add the URI as the img src
-      photoDiv.innerHTML = ""; 			// clear old image
-      photoDiv.appendChild(img);			// add the image element to the photoDiv
-      app.display(imageURI);				// show the URI
-      app.shareMessage(imageURI);		// share the image
+      img.src = imageURI;              // add the URI as the img src
+      photoDiv.innerHTML = "";         // clear old image
+      photoDiv.appendChild(img);       // add the image element to the photoDiv
+      app.display(imageURI);           // show the URI
+      app.shareMessage(imageURI);      // share the image
    },
 
    /*
@@ -120,7 +120,7 @@ var app = {
          function () {                  // success callback
             navigator.notification.vibrate(100);
             app.display("File is no longer shared");
-            setTimeout(app.clearAll, 5000);		// clear the screen after 5 seconds
+            setTimeout(app.clearAll, 5000);     // clear the screen after 5 seconds
          },
          function (reason) {         // failure callback
             app.display("Failed to unshare file " + reason);
