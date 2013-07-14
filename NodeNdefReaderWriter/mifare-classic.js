@@ -38,7 +38,7 @@ function write(data, callback) {
         
     fs.writeFile(fileName, buffer, function(err) {
         if (err) callback(err);
-        writeMifareClassic = spawn('mifare-classic-write-ndef', [ '-i', fileName]);
+        writeMifareClassic = spawn('mifare-classic-write-ndef', [ '-y', '-i', fileName]);
         
         writeMifareClassic.stdout.on('data', function (data) {
             console.log('stdout:' + data);
