@@ -10,12 +10,12 @@ function read(callback) {
         readMifareClassic = spawn('mifare-classic-read-ndef', [ '-y', '-o', fileName]);
 
     readMifareClassic.stdout.on('data', function (data) {
-        console.log('stdout: ' + data);        
+        console.log(data);        
     });
 
     readMifareClassic.stderr.on('data', function (data) {
         errorMessage += data;
-        console.log('stderr: ' + data);
+        // console.log('stderr: ' + data);
     });
 
     readMifareClassic.on('close', function (code) {
@@ -41,12 +41,12 @@ function write(data, callback) {
         writeMifareClassic = spawn('mifare-classic-write-ndef', [ '-y', '-i', fileName]);
         
         writeMifareClassic.stdout.on('data', function (data) {
-            console.log('stdout:' + data);
+            console.log(data);
         });
         
         writeMifareClassic.stderr.on('data', function (data) {
             errorMessage += data;
-            console.log('stderr: ' + data);
+            // console.log('stderr: ' + data);
         });
 
         writeMifareClassic.on('close', function (code) {
