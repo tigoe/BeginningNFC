@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+   <head>
+   <script type="text/javascript">
+   		
+   	function tick() {
+   		var now = Date(),
+   			clock = document.getElementById("clock"),
+	   	clock.innerHTML = now.toString();
+   	}
+   	
+   </script>
+	</head>
+	<body onload="setInterval(tick, 1000);">
+		<span id="clock"></span><br>
+		<a href="read">Read Tag</a>
+	</body>
+</html>
