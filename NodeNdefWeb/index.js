@@ -27,8 +27,9 @@ app.get('/read', function (request, response) {
   // wait 500 ms before responding to browser, so that
   // you can get a response from the writer:
   setTimeout(function() { 
-	  var message;
-	  
+	  var message,
+	  		result;
+	
 	  // get the data:
 	   mifare.read(function(err, buffer) {
 			if (err) {
@@ -38,7 +39,7 @@ app.get('/read', function (request, response) {
 				message = ndef.decodeMessage(buffer.toJSON());
 				console.log("Found NDEF message with " + message.length +
 				(message.length === 1 ? " record" : " records" ));
-				printRecords(message);            
+				result = printRecords(message);            
 			}
 		});
   
@@ -48,7 +49,7 @@ app.get('/read', function (request, response) {
 
    // if you got a response from the writer, send it too:
    if (deviceMessage != "") {
-     response.write("response from tag: " + message + "<p>");
+     response.write("response from tag: " + result + "<p>");
       deviceMessage = "";
    }
    // send the link back to the index and close the link:
@@ -96,6 +97,8 @@ function printRecords(message) {
 }
 
 function printWellKnown(record) {
+  	var result;
+  	
     if (record.tnf !== ndef.TNF_WELL_KNOWN) {
         result += "ERROR expecting TNF Well Known";
         return;
