@@ -34,6 +34,8 @@ app.get('/read', function (request, response) {
         if (err) {
             console.log("Read failed ");
             console.log(err);
+	    response.write("There was a problem.<br/>");
+            response.write(err);
         } else {
             message = ndef.decodeMessage(buffer.toJSON());
             console.log("Found NDEF message with " + message.length +
