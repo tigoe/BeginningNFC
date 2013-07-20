@@ -57,8 +57,8 @@ var app = {
 
    makeMessage: function() {
       // Put together the pieces for the NDEF message:
-      var tnf = ndef.TNF_EXTERNAL_TYPE,         // NDEF Type Name Format
-         recordType = "android.com:pkg",        // NDEF Record Type
+      var tnf = ndef.TNF_EXTERNAL_TYPE,           // NDEF Type Name Format
+         recordType = "android.com:pkg",          // NDEF Record Type
          payload = "com.joelapenna.foursquared",  // content of the record
          record,                  // NDEF record object
          message = [];            // NDEF Message to pass to writeTag()
