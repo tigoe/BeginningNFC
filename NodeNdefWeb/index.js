@@ -7,7 +7,7 @@ var express = require('express'),               // make an instance of express
    server = require('http').createServer(app), // start an HTTP server
    deviceMessage = "",                         // messages from the writer device
    ndef = require('ndef'),
-	mifare = require('./mifare-classic');
+   mifare = require('mifare-classic');
 
  
 app.use(express.bodyParser());        // use the bodyParser middleware for express
