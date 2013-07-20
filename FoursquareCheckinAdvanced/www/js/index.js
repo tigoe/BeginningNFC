@@ -59,11 +59,11 @@
    makeMessage: function() {
      // get the app type that the user wants to emulate from the HTML form:
      var appType = parseInt(appPicker.value, 10),
-       tnf,         // NDEF Type Name Format
+       tnf,             // NDEF Type Name Format
        recordType,      // NDEF Record Type
-       payload,       // content of the record
-       record,        // NDEF record object
-       message = [];     // NDEF Message to pass to writeTag()
+       payload,         // content of the record
+       record,          // NDEF record object
+       message = [];    // NDEF Message to pass to writeTag()
 
       switch (appType) {
        case 1:      // like NFC Task Launcher
@@ -90,7 +90,7 @@
          // add the URI identifier code for "http://":
          payload.unshift(0x03);
          record = ndef.record(tnf, recordType, [], payload);
-         message.push(record);    // push the record onto the message
+         message.push(record);         // push the record onto the message
          break;
         case 3:      // like NXP TagWriter
           // The payload of a Smart Poster record is an NDEF message
@@ -145,8 +145,8 @@
          break;
      }   // end of switch-case statement
      app.writeTag(message);
-   },
-
+   },   // end of makeMessage()
+   
    writeTag: function(message) {
      // write the record to the tag:
      nfc.write(
