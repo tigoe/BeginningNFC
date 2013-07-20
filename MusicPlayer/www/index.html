@@ -4,7 +4,7 @@
    <head>
       <title>Audio Player</title>
    </head>
-   <body onload="app.initialize();">
+   <body>
       <div class="app">
 
       <button id="playButton" onclick="app.playAudio(app.songName);">Play</button>
@@ -14,6 +14,9 @@
          <div id="messageDiv">No tag found</div>
       </div>
       <script type="text/javascript" src="cordova.js"></script>
-      <script type="text/javascript" src="js/index.js"></script>
+     <script type="text/javascript" src="js/index.js"></script>
+      <script type="text/javascript">
+       app.initialize();
+     </script>
    </body>
 </html>

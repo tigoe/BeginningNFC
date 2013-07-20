@@ -4,11 +4,14 @@
    <head>
       <title>NDEF Reader</title>
    </head>
-   <body onload="app.initialize();">
+   <body>
       <div class="app">
          <div id="messageDiv">No tag found</div>
       </div>
       <script type="text/javascript" src="cordova.js"></script>
-      <script type="text/javascript" src="js/index.js"></script>
+     <script type="text/javascript" src="js/index.js"></script>
+     <script type="text/javascript">
+       app.initialize();
+     </script>
     </body>
 </html>

@@ -4,7 +4,7 @@
    <head>
       <title>Foursquare Checkin Tag Writer</title>
    </head>
-   <body onload="app.initialize();">
+   <body>
       <div class="app">
          <div id="messageDiv">No tag found</div>
          <button id="writeButton">Write to tag</button>
@@ -12,5 +12,8 @@
       
       <script type="text/javascript" src="cordova.js"></script>
       <script type="text/javascript" src="js/index.js"></script>
+      <script type="text/javascript">
+            app.initialize();
+        </script>
    </body>
 </html>

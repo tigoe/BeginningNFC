@@ -4,7 +4,7 @@
    <head>
       <title>PhoneGap NFC P2P</title>
    </head>
-   <body onload="app.initialize();">
+   <body>
       <h2>PhoneGap NFC P2P</h2>
       <div class="app">
          <div id="messageDiv"></div>
@@ -21,6 +21,9 @@
          </form>
         </div>
       <script type="text/javascript" src="cordova.js"></script>
-      <script type="text/javascript" src="js/index.js"></script>
+     <script type="text/javascript" src="js/index.js"></script>
+     <script type="text/javascript">
+       app.initialize();
+     </script>
    </body>
 </html>
