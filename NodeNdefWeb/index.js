@@ -24,8 +24,7 @@ app.get('/', function (request, response) {
 // take anything that begins with /read:
 app.get('/read', function (request, response) {
    
-    var message,
-        result;
+    var message;
 
     // get the data:
     mifare.read(function(err, buffer) {
@@ -34,15 +33,20 @@ app.get('/read', function (request, response) {
         if (err) {
             console.log("Read failed ");
             console.log(err);
-	    response.write("There was a problem.<br/>");
+            response.write("There was a problem.<br/>");
             response.write(err);
-        } else {
+        } else {            
             message = ndef.decodeMessage(buffer.toJSON());
-            console.log("Found NDEF message with " + message.length +
-            (message.length === 1 ? " record" : " records" ));
-            response.write(ndef.stringify(message, "<br/>"));
-            response.end("<a href=\"/\">Return to form</a>");                   
+            if (message.length > 0) {
+                var text = "Found NDEF message with " + message.length + (message.length === 1 ? " record" : " records" );
+                response.write("<p>" + text + "</p>");                
+                response.write(ndef.stringify(message, "<br/>"));                
+            } else {
+                response.write("Did not find any messages<br/>");                
+            }
         }
+        
+        response.end("<a href=\"/\">Return to form</a>");                           
     });
 
 }); 
