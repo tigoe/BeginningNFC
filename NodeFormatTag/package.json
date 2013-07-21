@@ -1,0 +1,17 @@
+{
+  "name": "NodeFormatTag",
+  "author": "username",
+  "version": "0.0.1",
+  "description": "Format a tag",
+  "main": "index.js",
+  "keywords": [
+    "NDEF",
+    "NFC"
+  ],
+   "dependencies" : {
+    "mifare-classic": "0.0.1"
+  },
+  "engines": {
+    "node": ">=0.8"
+  }
+}

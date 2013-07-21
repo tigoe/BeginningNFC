@@ -1,0 +1,18 @@
+{
+  "name": "NodeNdefReader",
+  "author": "username",
+  "version": "0.0.1",
+  "description": "Read a tag",
+  "main": "index.js",
+  "keywords": [
+    "NDEF",
+    "NFC"
+  ],
+   "dependencies" : {
+    "mifare-classic": "0.0.1",
+    "ndef"   :  ">=0.0.4"
+  },
+  "engines": {
+    "node": ">=0.8"
+  }
+}
