@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+		// open a connection to the serial server:
+		var socket = io.connect('http://192.168.2.2:8080');
+
+		 // when you get a serialdata event, do this:
+		socket.on('tagEvent', function (data) {
+			// you're going to move the div in the HTML:
+			messageDiv.innerHTML = data;	// set the text itself	
+		});
+	</script>
+
+	</head>
+	<body>
+	<div id="messageDiv">Hello</p>
+	</body>
+</html>

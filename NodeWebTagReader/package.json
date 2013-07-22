@@ -1,0 +1,21 @@
+{
+  "name": "NodeWebTagReader",
+  "author": "username",
+  "version": "0.0.1",
+  "description": "Read a tag",
+  "main": "index.js",
+  "keywords": [
+    "NDEF",
+    "NFC",
+    "WebSocket"
+  ],
+   "dependencies" : {
+    "mifare-classic": "0.0.1",
+    "ndef"   :  ">=0.0.4",
+    "socket.io": ">=0.9.0",
+    "express": ">=3.0.0"
+  },
+  "engines": {
+    "node": ">=0.8"
+  }
+}
