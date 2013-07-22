@@ -1,0 +1,19 @@
+{
+  "name": "NodeNdefWriterWeb",
+  "author": "username",
+  "version": "0.0.2",
+  "description": "Write a tag from a browser",
+  "main": "index.js",
+  "keywords": [
+    "NDEF",
+    "NFC"
+  ],
+   "dependencies" : {
+    "express": ">=3.0",
+    "mifare-classic": "0.0.1",
+    "ndef"   :  ">=0.0.4"
+  },
+  "engines": {
+    "node": ">=0.8"
+  }
+}
