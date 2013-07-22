@@ -1,0 +1,21 @@
+{
+  "name": "NodeTagToLed",
+  "author": "username",
+  "version": "0.0.1",
+  "description": "Read a tag, light LEDs",
+  "main": "index.js",
+  "keywords": [
+    "NDEF",
+    "NFC",
+    "Bonescript"
+  ],
+   "dependencies" : {
+    "mifare-classic": "0.0.1",
+    "ndef"   :  ">=0.0.4"
+    // note: Bonescript is built into the BB distribution.
+    // if you include it in your package.json, it will cause errors
+  },
+  "engines": {
+    "node": ">=0.8"
+  }
+}
