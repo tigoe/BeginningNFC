@@ -13,7 +13,7 @@
     "mifare-classic": "0.0.1",
     "ndef"   :  ">=0.0.4"
   },
-  "NOTE": "Bonescript is built into the BB distribution. If you include it in your package.json, it will cause errors"
+  "NOTE": "Bonescript is built into the BB distribution. If you include it in your package.json, it will cause errors",
   "engines": {
     "node": ">=0.8"
   }
