@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 var ndef = require('ndef'),               // require ndef package
     mifare = require('mifare-classic'),   // require this package
     message,                              // an NDEF message

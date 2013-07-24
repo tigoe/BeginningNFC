@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 var mifare = require('mifare-classic');    // require mifare-classic
     
 mifare.format(function(error) {           // format tag

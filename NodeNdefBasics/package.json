@@ -1,9 +1,9 @@
 {
-  "name": "NodeNdefWriter",
+  "name": "NodeNdefBasics",
   "author": "username",
   "version": "0.0.1",
-  "description": "Read a tag",
-  "main": "index.js",
+  "description": "Read, write, or format a tag",
+  "main": "reader.js",
   "keywords": [
     "NDEF",
     "NFC"

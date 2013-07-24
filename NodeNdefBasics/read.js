@@ -1,5 +1,3 @@
-#!/usr/bin/env node		// let the shell know you're a node script
-
 var ndef = require('ndef'),      			// require ndef package
     mifare = require('mifare-classic');   // require this package
     
