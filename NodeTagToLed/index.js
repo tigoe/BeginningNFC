@@ -1,5 +1,3 @@
-#!/usr/bin/env node     // let the shell know you're a node script
-
 var ndef = require('ndef'),               // require ndef package
     mifare = require('mifare-classic'),   // require this package
     io = require('bonescript');           // bonescript is built into the BB
@@ -33,7 +31,6 @@ function printMessage(message) {
       console.log("Found NDEF message with " + message.length + records);
       console.log(ndef.stringify(message));
    }
-
 }
 
 function lightLEDs(number) {
