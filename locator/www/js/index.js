@@ -11,7 +11,7 @@ var app = {
 */
    bindEvents: function() {
       document.addEventListener('deviceready', this.onDeviceReady, false);
-      locatorButton.addEventListener('touchstart', app.toggleLocator, false);
+      locatorButton.addEventListener('click', app.toggleLocator, false);
    },
 
 /*
@@ -36,9 +36,9 @@ var app = {
       };
 
       // this function is run if getCurrentPosition fails:
-      var failure = function() {
+      var failure = function(error) {
          app.clear();                        // clear the message div
-         app.display("No location found");   // display failure message
+         app.display("No location found " + error.message);   // display failure message
       };
 
       // attempt to get the current position:
