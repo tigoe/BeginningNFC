@@ -28,7 +28,7 @@ var app = {
       // this function is run if the getCurrentPosition is successful:
       var success = function(here) {
          var location = here.coords;   // get the coordinates
-         app.clear();                  // clear the messave div
+         app.clear();                  // clear the message div
 
          // show the location in the message div
          app.display("Latitude: " + location.latitude);
@@ -37,7 +37,7 @@ var app = {
 
       // this function is run if getCurrentPosition fails:
       var failure = function() {
-         app.clear();                        // clear the messave div
+         app.clear();                        // clear the message div
          app.display("No location found");   // display failure message
       };
 
@@ -53,7 +53,7 @@ var app = {
    toggleLocator: function() {
       // if the timer variable's empty, start it running:
       if (app.locatorTimer === null) {
-         // set an inteval of 1 second (1000 ms):
+         // set an interval of 1 second (1000 ms):
          app.locatorTimer = setInterval(app.getLocation, 1000);
          // ... and change the label of the button:
          document.getElementById("locatorButton").innerHTML = "Stop";
