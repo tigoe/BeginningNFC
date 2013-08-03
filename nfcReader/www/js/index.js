@@ -17,18 +17,17 @@ var app = {
    this runs when the device is ready for user interaction:
 */
    onDeviceReady: function() {
-      app.display("Tap a tag to read its id number.");
 
       nfc.addTagDiscoveredListener(
          app.onNfc,             // tag successfully scanned
          function (status) {    // listener successfully initialized
-            app.display("Listening for NFC tags.");
+            app.display("Tap a tag to read its id number.");
          },
          function (error) {     // listener fails to initialize
-            app.display("NFC reader failed to initialize "
-               + JSON.stringify(error));
+            app.display("NFC reader failed to initialize " +
+               JSON.stringify(error));
          }
-      )
+      );
    },
 
 /*
