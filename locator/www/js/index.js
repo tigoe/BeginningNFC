@@ -52,7 +52,7 @@ var app = {
 */
    toggleLocator: function() {
       // if the timer variable's empty, start it running:
-      if (app.locatorTimer == null) {
+      if (app.locatorTimer === null) {
          // set an inteval of 1 second (1000 ms):
          app.locatorTimer = setInterval(app.getLocation, 1000);
          // ... and change the label of the button:
