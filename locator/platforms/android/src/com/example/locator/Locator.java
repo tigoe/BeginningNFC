@@ -22,7 +22,7 @@ package com.example.locator;
 import android.os.Bundle;
 import org.apache.cordova.*;
 
-public class HelloCordova extends DroidGap
+public class Locator extends DroidGap
 {
     @Override
     public void onCreate(Bundle savedInstanceState)
