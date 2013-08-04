@@ -11,58 +11,53 @@ var app = {
 */
    bindEvents: function() {
       document.addEventListener('deviceready', this.onDeviceReady, false);
-      locatorButton.addEventListener('click', app.toggleLocator, false);
+      locatorButton.addEventListener('touchstart', app.toggleLocator, false);
    },
 
 /*
    this runs when the device is ready for user interaction:
 */
    onDeviceReady: function() {
-      app.display("Click to start location service.");
+      app.display("Click start to start location service.");
    },
 
-/*
-   Displays the current position in the message div:
-*/
-   getLocation: function() {
-      // this function is run if the getCurrentPosition is successful:
-      var success = function(here) {
-         var location = here.coords;   // get the coordinates
-         app.clear();                  // clear the message div
+   watchLocation: function() {
+     
+       // onSuccess Callback
+       //   This method accepts a `Position` object, which contains
+       //   the current GPS coordinates
+       //
+       function onSuccess(position) {
+           app.clear();
+           app.display('Latitude: '  + position.coords.latitude);
+           app.display('Longitude: ' + position.coords.longitude);
+           app.display(new Date().toString());                      
+       }
 
-         // show the location in the message div
-         app.display("Latitude: " + location.latitude);
-         app.display("Longitude: " + location.longitude);
-      };
+       // onError Callback receives a PositionError object
+       //
+       function onError(error) {
+           app.display(error.message);
+       }
 
-      // this function is run if getCurrentPosition fails:
-      var failure = function(error) {
-         app.clear();                        // clear the message div
-         app.display("No location found " + error.message);   // display failure message
-      };
-
-      // attempt to get the current position:
-      navigator.geolocation.getCurrentPosition(success, failure);
+       // Options: throw an error if no update is received every 30 seconds.
+       //
+       app.watchId = navigator.geolocation.watchPosition(onSuccess, onError, { timeout: 30000,  enableHighAccuracy: true });  
    },
-
-   locatorTimer: null,   // variable to hold a locator timer when it's running
+   
+   watchId: null,
 
 /*
    turns on or off the locator:
 */
    toggleLocator: function() {
-      // if the timer variable's empty, start it running:
-      if (app.locatorTimer === null) {
-         // set an interval of 1 second (1000 ms):
-         app.locatorTimer = setInterval(app.getLocation, 1000);
-         // ... and change the label of the button:
+      if (app.watchId === null) {
+         app.watchLocation();
          document.getElementById("locatorButton").innerHTML = "Stop";
 
-      // if the timer's running, clear it:
       } else {
-         clearInterval(app.locatorTimer);
-         app.locatorTimer = null;       // set the timer variable to null
-         // ... and change the label of the button:
+         navigator.geolocation.clearWatch(app.watchId);
+         app.clear();
          document.getElementById("locatorButton").innerHTML = "Start";
       }
    },
