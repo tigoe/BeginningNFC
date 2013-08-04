@@ -36,7 +36,7 @@ var app = {
        }
 
        // onError Callback receives a PositionError object
-       //
+       // 
        function onError(error) {
            app.display(error.message);
        }
