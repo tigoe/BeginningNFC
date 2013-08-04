@@ -18,7 +18,8 @@ var app = {
    this runs when the device is ready for user interaction:
 */
    onDeviceReady: function() {
-      app.display("Click start to start location service.");
+      app.display("Locating...");
+      app.watchLocation();
    },
 
    watchLocation: function() {
@@ -42,24 +43,7 @@ var app = {
 
        // Options: throw an error if no update is received every 30 seconds.
        //
-       app.watchId = navigator.geolocation.watchPosition(onSuccess, onError, { timeout: 30000,  enableHighAccuracy: true });  
-   },
-   
-   watchId: null,
-
-/*
-   turns on or off the locator:
-*/
-   toggleLocator: function() {
-      if (app.watchId === null) {
-         app.watchLocation();
-         document.getElementById("locatorButton").innerHTML = "Stop";
-
-      } else {
-         navigator.geolocation.clearWatch(app.watchId);
-         app.clear();
-         document.getElementById("locatorButton").innerHTML = "Start";
-      }
+       var watchId = navigator.geolocation.watchPosition(onSuccess, onError, { timeout: 30000,  enableHighAccuracy: true });  
    },
    /*
       appends @message to the message div:
