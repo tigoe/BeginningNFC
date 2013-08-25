@@ -78,12 +78,10 @@ var app = {
          function () {      // when complete, run this callback function:
             app.clear();    // clear the message div
             app.display("Wrote data to tag.");   // write to the message div
-            navigator.notification.vibrate(100); // vibrate the device
          },
          // this function runs if the write command fails:
          function (reason) {
-            navigator.notification.alert(reason, function(){},
-               "There was a problem");
+            alert("There was a problem " + reason);
          }
       );
    }
