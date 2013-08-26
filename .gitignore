@@ -13,3 +13,8 @@ FoursquareCheckin/platforms/android/cordova/appinfo.jar
 *.jar
 
 FoursquareCheckin/platforms/android/libs/cordova-3.0.0.jar
+
+*/platforms/android/local.properties
+*/platforms/android/bin
+*/platforms/android/gen
+*/platforms/android/assets/www
