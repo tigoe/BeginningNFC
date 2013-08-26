@@ -11,7 +11,6 @@ var app = {
 */
    bindEvents: function() {
       document.addEventListener('deviceready', this.onDeviceReady, false);
-      locatorButton.addEventListener('touchstart', app.toggleLocator, false);
    },
 
 /*
@@ -22,12 +21,13 @@ var app = {
       app.watchLocation();
    },
 
+/*
+   Displays the current position in the message div:
+*/
    watchLocation: function() {
-     
-       // onSuccess Callback
-       //   This method accepts a `Position` object, which contains
-       //   the current GPS coordinates
-       //
+         // onSuccess Callback
+         //    This method accepts a `Position` object, which contains
+         //    the current GPS coordinates
        function onSuccess(position) {
            app.clear();
            app.display('Latitude: '  + position.coords.latitude);
@@ -35,7 +35,7 @@ var app = {
            app.display(new Date().toString());                      
        }
 
-       // onError Callback receives a PositionError object
+       // onError Callback receives a PositionError object:
        // 
        function onError(error) {
            app.display(error.message);
@@ -43,7 +43,10 @@ var app = {
 
        // Options: throw an error if no update is received every 30 seconds.
        //
-       var watchId = navigator.geolocation.watchPosition(onSuccess, onError, { timeout: 30000,  enableHighAccuracy: true });  
+       var watchId = navigator.geolocation.watchPosition(onSuccess, onError, { 
+            timeout: 30000,  
+            enableHighAccuracy: true 
+         });  
    },
    /*
       appends @message to the message div:
