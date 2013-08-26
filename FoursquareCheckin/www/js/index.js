@@ -1,4 +1,7 @@
 var app = {
+	writeFlag: false,			// write flag for NFC event handler
+	messageToWrite: [],		// message to write on next NFC event
+	
    // Application constructor
    initialize: function() {
       this.bindEvents();
@@ -37,6 +40,11 @@ var app = {
    onNfc: function(nfcEvent) {
       var tag = nfcEvent.tag;
       app.display("Read tag: " + nfc.bytesToHexString(tag.id));
+      if (app.writeFlag === true) {
+	       //write the message if the write flag is set:
+			 app.writeTag(app.messageToWrite);
+			 app.writeFlag = false;			// clear the write flag
+	    }
    },
 
    /*
@@ -67,8 +75,10 @@ var app = {
       record = ndef.record(tnf, recordType, [], payload);
       // put the record in the message array:
       message.push(record);
-      //write the message:
-      app.writeTag(message);
+     // set the writeFlag so that the next time a tag appears, you write to it:
+     app.writeFlag = true;
+     app.messageToWrite = message;
+     app.display("waiting for a writable tag to appear...");
    },
 
    writeTag: function(message) {
