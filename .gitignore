@@ -9,3 +9,5 @@ HotelNodeApp/node_modules/
 *.jar
 
 FoursquareCheckin/platforms/android/cordova/appinfo.jar
+
+*.jar
