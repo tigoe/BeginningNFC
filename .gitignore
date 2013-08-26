@@ -3,3 +3,9 @@ HotelNodeApp/node_modules/
 
 .DS_Store
 
+
+*.jar
+
+*.jar
+
+FoursquareCheckin/platforms/android/cordova/appinfo.jar
