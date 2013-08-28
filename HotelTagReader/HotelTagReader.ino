@@ -8,8 +8,10 @@
  }
  */
 
-#include <SPI.h>
-#include <PN532SPI.h>
+//#include <SPI.h>
+//#include <PN532SPI.h>
+#include <Wire.h>
+#include <PN532_I2C.h>
 #include <PN532.h>
 #include <NfcAdapter.h>
 
@@ -19,8 +21,10 @@
 #include <Time.h>
 
 //NfcAdapter nfc = NfcAdapter();     // instance of the nfcAdapter
-PN532SPI pn532spi(SPI, 10);
-NfcAdapter nfc = NfcAdapter(pn532spi);
+//PN532SPI pn532spi(SPI, 10);
+//NfcAdapter nfc = NfcAdapter(pn532spi);
+PN532_I2C pn532_i2c(Wire);
+NfcAdapter nfc = NfcAdapter(pn532_i2c);
 
 const int lockPin = 7;             // pin that the solenoid door lock is on
 const int greenLed = 9;            // pin for the green LED
