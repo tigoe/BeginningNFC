@@ -32,24 +32,23 @@ time_t checkout = 0;               // checkout time
 String cardName = "";              // name on the card
 long cardRoomNumber = 0;           // room number on the card
 long readTime = 0;               // last time you read a card, or tried to
-boolean unlocked = false;
 boolean goodRead = false;
 
 void setup() {
   Serial.begin(9600);
   // set the clock to the date & time
   // hour (24-hour format), minute, second, day, month, year:
-  setTime(22, 10, 00, 27, 8, 2013);
-
-  Serial.println("Hotel NDEF Reader");
+  setTime(22, 10, 00, 27, 8, 2013); 
   
   nfc.begin();                   // initialize the NFC reader
   pinMode(lockPin, OUTPUT);      // make the door lock pin an output
   digitalWrite(lockPin, LOW);    // set it low to lock the door
   pinMode(greenLed, OUTPUT);     // make pin 9 an output
   pinMode(redLed, OUTPUT);       // make pin 10 an output
-  
-  Serial.print("Current Hotel Time is ");printTime(now());
+
+  Serial.println("\nHotel NDEF Reader");  
+  Serial.println("Current Hotel Time is " + formatTime(now()));
+  Serial.print("This is the lock for room ");Serial.println(roomNumber);
 }
 
 void loop() {
@@ -62,7 +61,6 @@ void loop() {
     digitalWrite(greenLed, LOW);        // turn off green LED
     digitalWrite(redLed, LOW);          // turn off red LED
     digitalWrite(lockPin, LOW);         // lock door
-    resetValues();
     goodRead = listenForTag();          // listen for tags
   }
 }
@@ -72,47 +70,55 @@ void resetValues() {
   checkout = 0;
   cardName = "";
   cardRoomNumber = 0;
-  unlocked = false;
   goodRead = false;
 }
 
 boolean listenForTag() {
-  boolean result = false;
-  // listen for tags 
-  // Serial.println("\nScan a NFC tag\n");  Yuihi's code doesn't block! Woot!
+  
+  boolean unlockDoor = false;
+  resetValues();
+
+  // Serial.println("\nScan a NFC tag\n");
   if (nfc.tagPresent())   {       // if there's a tag present
     readTime = millis();          // timestamp the last time you saw a card  
     NfcTag tag = nfc.read();
     if (tag.hasNdefMessage()) {   // every tag won't have a message        
       NdefMessage message = tag.getNdefMessage();
-      // cycle through the records, printing some info from each:
-      int recordCount = message.getRecordCount();
-      for (int i = 0; i < recordCount; i++) {
-        NdefRecord record = message[i];
+      NdefRecord record = message.getRecord(0);
 
-        // you can't generically get the payload, since the tnf and type 
-        // determine how the payload is decoded. so find that out:
-        int payloadLength = record.getPayloadLength();
-        byte payload[payloadLength];
-        record.getPayload(payload);
-
-        // this block would make a nice helper function, to return the payload as a String:
-        String result = "";
-        for (int c=0; c< payloadLength; c++) {
-          result += (char)payload[c]; 
-        }          
-        // assuming it's text, look for the hotel data fields:
-        parsePayload(result);   
-      }
+      // TODO we should be checking the TNF and Type
+      
+      // Assume the payload can be converted to a String
+      String payload = getPayloadAsString(record);
+      parsePayload(payload);   
 
       // check if you can let them in or not:
-      result = checkTime(checkin, checkout); 
+      unlockDoor = isValidKey(); 
     } 
   } 
+  return unlockDoor;
+}
+
+/*
+  Convert the NdefRecord payload from a byte array into a String
+*/
+String getPayloadAsString(NdefRecord record) {
+  int payloadLength = record.getPayloadLength();
+  byte payload[payloadLength];
+  record.getPayload(payload);
+      
+  // this block would make a nice helper function, to return the payload as a String:
+  String result = "";
+  for (int c=0; c < payloadLength; c++) {
+    result += (char)payload[c]; 
+  }
   return result;
 }
 
-// This is parsing JSON out of the payload
+/* 
+  Parse the JSON data from the payload String
+  Save the values we care about into local variables
+*/
 void parsePayload(String data) {
   // you only care about what's between the brackets, so:
   int openingBracket = data.indexOf('{');      
@@ -143,24 +149,23 @@ void parsePayload(String data) {
     value.trim();                // trim away the spaces
 
     // now, look for the possible data you care about:
-    saveValue(key, value);
+    setValue(key, value);
     lastComma = comma;
   } 
 }
 
 /*
-  Check key/value string pairs to see if they are ones you care about:
-  Save the value if it's something we care about. Ignore other values.
+  Set the variable if it's something we care about, ignore other values.
  */
-void saveValue(String thisKey, String thisValue) {
+void setValue(String thisKey, String thisValue) {
   
   if (thisKey == "checkout"){ 
     checkout = thisValue.toInt();
-  } else if (thisKey == "checkin"){       
+  } else if (thisKey == "checkin") {       
     checkin = thisValue.toInt();
-  } else if (thisKey == "name"){
+  } else if (thisKey == "name") {
     cardName = thisValue; 
-  } else if (thisKey == "room"){
+  } else if (thisKey == "room") {
     cardRoomNumber = thisValue.toInt();
   } 
   
@@ -170,48 +175,51 @@ void saveValue(String thisKey, String thisValue) {
   Check to see if the current time is between the checkin time
  and the checkout time. Return true if so:
  */
-boolean checkTime(time_t arrival, time_t departure) {
+boolean isValidKey() {
   boolean result = false;
+  time_t arrival = checkin;
+  time_t departure = checkout;
+  
   if (cardRoomNumber == roomNumber) {
-    if (now() <= arrival) {
+    if (now() <= checkin) {
       Serial.println("You haven't checked in yet.");
-      Serial.print("Current time ");printTime(now());
-      Serial.print("Your arrival ");printTime(arrival);
+      Serial.println("Current time " + formatTime(now()));
+      Serial.println("Your arrival " + formatTime(checkin));
       
-    } else if ((now() >= arrival) && (now() <= departure))  {
+    } else if ((now() >= checkin) && (now() <= checkout))  {
       Serial.println("Welcome back to your room, " + cardName + ".");
       result = true; 
       
-    } else if (now() >= departure) {
+    } else if (now() >= checkout) {
       Serial.println("Thanks for staying with us! You've checked out.");
-      Serial.print("Current time ");printTime(now());
-      Serial.print("Your departure ");printTime(departure);
+      Serial.println("Current time " + formatTime(now()));
+      Serial.println("Your departure " + formatTime(checkout));
+      
     } 
   } else {
-    // alternate "This card can't unlock room " + roomNumber
-    Serial.print("The key for room ");
-    Serial.print(cardRoomNumber);
-    Serial.print(" can't unlock room ");
+    Serial.print("This card can't unlock room ");
     Serial.print(roomNumber);
     Serial.println(".");
+    
   }
   return result;
 }
 
-void printTime(time_t time) {
+String formatTime(time_t time) {
   TimeElements element; // TODO rename me
   breakTime(time, element);
-  Serial.print(element.Month);
-  Serial.print("/");
-  Serial.print(element.Day);
-  Serial.print("/");
-  Serial.print(element.Year + 1970);
-  Serial.print(" ");
-  Serial.print(element.Hour);
-  Serial.print(":");
-  Serial.println(element.Minute);
+  String formatted = "";
+  formatted += element.Month;
+  formatted += "/";
+  formatted += element.Day;
+  formatted += "/";
+  formatted += element.Year + 1970;
+  formatted += " ";
+  formatted += element.Hour;
+  formatted += ":";
+  formatted += element.Minute;
+  return formatted;
 }
-
 
 
 
