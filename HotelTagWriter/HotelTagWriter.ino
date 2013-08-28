@@ -8,14 +8,32 @@
  }
  */
 
+// ADAFRUIT
 #include <Wire.h>
-#include <Adafruit_NFCShield_I2C.h>
+#include <PN532_I2C.h>
+// end ADAFRUIT
+
+#include <PN532.h>
 #include <NfcAdapter.h>
+
+// SEEED STUDIO
+//PN532SPI pn532spi(SPI, 10);
+//NfcAdapter nfc = NfcAdapter(pn532spi);
+// end SEEED STUDIO
+
+// ADAFRUIT
+PN532_I2C pn532_i2c(Wire);
+NfcAdapter nfc = NfcAdapter(pn532_i2c);
+// end ADAFRUIT
+
+//#include <Wire.h>
+//#include <Adafruit_NFCShield_I2C.h>
+//#include <NfcAdapter.h>
 
 const int greenLed = 9;         // pin for the green LED
 const int redLed = 8;          // pin for the red LED
 
-NfcAdapter nfc = NfcAdapter();  // instance of the NFC adapter library
+//NfcAdapter nfc = NfcAdapter();  // instance of the NFC adapter library
 String inputString = "";        // string for input from serial port
 long lightOnTime = 0;           // last time the LEDs were turned on, in ms
 
