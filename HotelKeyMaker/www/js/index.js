@@ -6,11 +6,21 @@ var app = {
         document.addEventListener('deviceready', this.onDeviceReady, false);
     },
     onDeviceReady: function() {
+
+        // listen for NDEF tags
         nfc.addNdefListener(
             app.onNfc, 
-            function() { console.log("Listening for NFC"); }, 
+            function() { console.log("Listening for NDEF tags."); },
             function(reason) { alert("NFC Failed " + reason); }
         );        
+
+        // listen for unformatted tags
+        nfc.addNdefFormatableListener(
+             app.onNfc,
+             function() { console.log("Listening for Unformatted tags."); },
+             function(reason) { alert("NFC Failed " + reason); }
+         );
+
     },
     onNfc: function(nfcEvent) {
         // ignore tag contents and blindly overwrite
