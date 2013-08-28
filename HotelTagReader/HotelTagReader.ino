@@ -1,5 +1,5 @@
 /*
-  Tag format: 1 JSON-formatted text record:
+ Tag format: 1 JSON-formatted text record:
  {
  name: username,
  room: room number (long int),
@@ -7,24 +7,38 @@
  checkout: checkout time (unix time, long int),
  }
  */
+ 
+// This code requires the new Seeed PN532 Drivers
+// https://github.com/xiongyihui/PN532.git
+// There is one git repo, but it must be included as 3 libraries. I use symlinks.
+// This also requries the modified version of Ndef
+// https://github.com/xiongyihui/Ndef.git
 
+// Uncomment the SEEED or ADAFRUIT sections below based on which shield you are using
+
+// SEEED STUDIO
 //#include <SPI.h>
 //#include <PN532SPI.h>
+// end SEEED STUDIO
+
+// ADAFRUIT
 #include <Wire.h>
 #include <PN532_I2C.h>
+// end ADAFRUIT
+
 #include <PN532.h>
 #include <NfcAdapter.h>
-
-//#include <Wire.h>
-//#include <Adafruit_NFCShield_I2C.h>
-//#include <NfcAdapter.h>
 #include <Time.h>
 
-//NfcAdapter nfc = NfcAdapter();     // instance of the nfcAdapter
+// SEEED STUDIO
 //PN532SPI pn532spi(SPI, 10);
 //NfcAdapter nfc = NfcAdapter(pn532spi);
+// end SEEED STUDIO
+
+// ADAFRUIT
 PN532_I2C pn532_i2c(Wire);
 NfcAdapter nfc = NfcAdapter(pn532_i2c);
+// end ADAFRUIT
 
 const int lockPin = 7;             // pin that the solenoid door lock is on
 const int greenLed = 9;            // pin for the green LED
@@ -35,14 +49,14 @@ time_t checkin = 0;                // checkin time
 time_t checkout = 0;               // checkout time
 String cardName = "";              // name on the card
 long cardRoomNumber = 0;           // room number on the card
-long readTime = 0;               // last time you read a card, or tried to
+long readTime = 0;                 // last time you read a card, or tried to
 boolean goodRead = false;
 
 void setup() {
   Serial.begin(9600);
   // set the clock to the date & time
   // hour (24-hour format), minute, second, day, month, year:
-  setTime(22, 10, 00, 27, 8, 2013); 
+  setTime(00, 00, 00, 29, 8, 2013); 
   
   nfc.begin();                   // initialize the NFC reader
   pinMode(lockPin, OUTPUT);      // make the door lock pin an output
@@ -82,8 +96,7 @@ boolean listenForTag() {
   boolean unlockDoor = false;
   resetValues();
 
-  // Serial.println("\nScan a NFC tag\n");
-  if (nfc.tagPresent())   {       // if there's a tag present
+  if (nfc.tagPresent()) {         // if there's a tag present
     readTime = millis();          // timestamp the last time you saw a card  
     NfcTag tag = nfc.read();
     if (tag.hasNdefMessage()) {   // every tag won't have a message        
