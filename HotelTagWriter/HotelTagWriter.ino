@@ -51,12 +51,6 @@ void setup() {
   pinMode(redLed, OUTPUT);      // make pin 8 an output
 }
 
-// While Serial avaiable process data
-// if (NdefMessage) {
-  // write message
-  // message == null
-  // }
- 
 void loop() {
   
   while (Serial.available() > 0) {
@@ -67,92 +61,39 @@ void loop() {
     // if the incoming character is }, you're done. Look for a tag:
     if (thisChar == '}') {
       readyToWrite = true;
-      //boolean success = lookForTag(inputString);
-//      message = NdefMessage();
-//      message.addTextRecord(inputString);   // add the input string as a record
-//      inputString = "";
     }
   }
   
   if (readyToWrite) {
     lookForTag();
-//    boolean success = lookForTag(inputString);
-//    
-//    if (success) {
-//        Serial.println("Result: tag written."); // let the desktop app know you succeeded
-//        inputString = "";                       // clear the string for another read
-//        digitalWrite(greenLed, HIGH);           // turn on the success light
-//        lightOnTime = millis();
-//        readyToWrite = false; // TODO should allow keep writing, reset input on "{"
-//      } 
-//      else {
-//        // let the desktop app know you failed:
-//        Serial.println("Result: failed to write to tag"); 
-//        digitalWrite(redLed, HIGH);              // turn on the failure light
-//        lightOnTime = millis();
-//      }
   }
-  
-//  // look for incoming serial data:
-//  if (Serial.available() > 0) { 
-//    char thisChar = Serial.read();
-//    // add incoming character to the end of inputString:
-//    inputString += thisChar; 
-//    // if the incoming character is }, you're done. Look for a tag:
-//    if (thisChar == '}' && inputString != "") {
-//      boolean success = lookForTag(inputString);
-//      if (success) {
-//        Serial.println("Result: tag written."); // let the desktop app know you succeeded
-//        inputString = "";                       // clear the string for another read
-//        digitalWrite(greenLed, HIGH);           // turn on the success light
-//        lightOnTime = millis();
-//      } 
-//      else {
-//        // let the desktop app know you failed:
-//        Serial.println("Result: failed to write to tag"); 
-//        digitalWrite(redLed, HIGH);              // turn on the failure light
-//        lightOnTime = millis();
-//      }
-//    }
-//  }
-  
+    
   if (millis() - lightOnTime > 3000 ) {    // check every three seconds
     digitalWrite(greenLed, LOW);           // turn off pin 9
     digitalWrite(redLed, LOW);             // turn off pin 8
   }
 }
 
-boolean lookForTag2(String myString) {
-  boolean result = false;
-  if (nfc.tagPresent()) {              // if there's a tag present
-    NdefMessage message;               // make a new NDEF message
-    message.addTextRecord(myString);   // add the input string as a record
-    result = nfc.write(message);       // attempt to write to the tag
-  } 
-  return result;                       // return success or failure
-}
-
 void lookForTag() {
 
-  if (nfc.tagPresent()) {              // if there's a tag present
-    NdefMessage message;               // make a new NDEF message
-    message.addTextRecord(inputString);   // add the input string as a record
+  if (nfc.tagPresent()) {                       // if there's a tag present
+    NdefMessage message;                        // make a new NDEF message
+    message.addTextRecord(inputString);         // add the input string as a record
     boolean success = nfc.write(message);       // attempt to write to the tag
     
     if (success) {
-        Serial.println("Result: tag written."); // let the desktop app know you succeeded
-        inputString = "";                       // clear the string for another read
-        digitalWrite(greenLed, HIGH);           // turn on the success light
-        lightOnTime = millis();
-        readyToWrite = false; // TODO should allow keep writing, reset input on "{"
-     } else {
-        // let the desktop app know you failed:
-        Serial.println("Result: failed to write to tag"); 
-        digitalWrite(redLed, HIGH);              // turn on the failure light
-        lightOnTime = millis();
-      }
+      Serial.println("Result: tag written."); // let the desktop app know you succeeded
+      inputString = "";                       // clear the string for another read
+      digitalWrite(greenLed, HIGH);           // turn on the success light
+      lightOnTime = millis();
+      readyToWrite = false; // TODO should allow keep writing, reset input on "{"
+    } else {
+      // let the desktop app know you failed:
+      Serial.println("Result: failed to write to tag"); 
+      digitalWrite(redLed, HIGH);              // turn on the failure light
+      lightOnTime = millis();
+    }
   } 
-  
 }
 
 
