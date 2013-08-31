@@ -12,7 +12,7 @@
 
 // SEEED STUDIO
 //#include <SPI.h>
-//#include <PN532SPI.h>
+//#include <PN532_SPI.h>
 //#include <PN532.h>
 //#include <NfcAdapter.h>
 //#include <Time.h>
