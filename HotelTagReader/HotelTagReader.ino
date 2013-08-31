@@ -95,7 +95,7 @@ boolean listenForTag() {
       NdefMessage message = tag.getNdefMessage();
       NdefRecord record = message.getRecord(0);
 
-      if (record.getTnf() == TNF_MIME_MEDIA && record.getType() == "application/json") {
+      if (record.getTnf() == TNF_MIME_MEDIA && record.getType() == "text/hotelkey") {
 
         // payload is a byte array
         int payloadLength = record.getPayloadLength();
