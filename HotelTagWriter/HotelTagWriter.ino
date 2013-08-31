@@ -8,25 +8,26 @@
  }
  */
 
+// Uncomment the SEEED or ADAFRUIT sections below based on which shield you are using
+
 // SEEED STUDIO
 //#include <SPI.h>
-//#include <PN532SPI.h>
+//#include <PN532_SPI.h>
+//#include <PN532.h>
+//#include <NfcAdapter.h>
+//#include <Time.h>
+//
+//PN532_SPI pn532spi(SPI, 10);
+//NfcAdapter nfc = NfcAdapter(pn532spi);
 // end SEEED STUDIO
 
 // ADAFRUIT
 #include <Wire.h>
 #include <PN532_I2C.h>
-// end ADAFRUIT
-
 #include <PN532.h>
 #include <NfcAdapter.h>
+#include <Time.h>
 
-// SEEED STUDIO
-//PN532SPI pn532spi(SPI, 10);
-//NfcAdapter nfc = NfcAdapter(pn532spi);
-// end SEEED STUDIO
-
-// ADAFRUIT
 PN532_I2C pn532_i2c(Wire);
 NfcAdapter nfc = NfcAdapter(pn532_i2c);
 // end ADAFRUIT
@@ -82,7 +83,7 @@ void lookForTag() {
   if (millis() - lastReadTime > 3000) {           // read every three seconds
     if (nfc.tagPresent()) {                       // if there's a tag present
       NdefMessage message;                        // make a new NDEF message
-      message.addTextRecord(inputString);         // add the input string as a record
+      message.addMimeMediaRecord("text/hotelkey", inputString); // add the input string as a record
       boolean success = nfc.write(message);       // attempt to write to the tag
     
       if (success) {
