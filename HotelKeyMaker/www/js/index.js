@@ -29,9 +29,8 @@ var app = {
         
         data = JSON.stringify(app.getTagData());
         
-        // TODO switch to a MIME tag "hotel/key" or External Record Type
         message = [
-            ndef.textRecord(data)
+            ndef.mimeMediaRecord("text/hotelkey", data)
         ];
         
         nfc.write(message, app.writeSuccess, app.writeFailure);
