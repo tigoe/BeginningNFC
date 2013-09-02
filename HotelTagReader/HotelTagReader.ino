@@ -41,7 +41,7 @@ time_t checkin = 0;                // checkin time
 time_t checkout = 0;               // checkout time
 String cardName = "";              // name on the card
 long cardRoomNumber = 0;           // room number on the card
-long readTime = 0;                 // last time you read a card, or tried to
+long readTime = 0;                 // last time you tried to read a card
 boolean goodRead = false;
 
 void setup() {
@@ -57,15 +57,17 @@ void setup() {
   pinMode(redLed, OUTPUT);       // make pin 10 an output
 
   Serial.println(F("\nHotel NDEF Reader"));
-  Serial.print(F("Current Hotel Time is "));Serial.println(formatTime(now()));
-  Serial.print(F("This is the lock for room "));Serial.println(roomNumber);
+  Serial.print(F("Current Hotel Time is "));
+  Serial.println(formatTime(now()));
+  Serial.print(F("This is the lock for room "));
+  Serial.println(roomNumber);
 }
 
 void loop() {
-  if (millis() - readTime < 3000) {      // less than three seconds since last tag
-    digitalWrite(greenLed, goodRead);    // green LED lights if you get a good read
-    digitalWrite(lockPin, goodRead);     // lock opens if you get a good read
-    digitalWrite(redLed, !goodRead);     // red LED lights if you don't
+  if (millis() - readTime < 3000) {     // less than three seconds since last tag
+    digitalWrite(greenLed, goodRead);   // green LED lights if you get a good read
+    digitalWrite(lockPin, goodRead);    // lock opens if you get a good read
+    digitalWrite(redLed, !goodRead);    // red LED lights if you don't
   }
   else {                                // after three seconds, lock no matter what
     digitalWrite(greenLed, LOW);        // turn off green LED
@@ -84,7 +86,6 @@ void resetValues() {
 }
 
 boolean listenForTag() {
-
   boolean unlockDoor = false;
   resetValues();
 
@@ -95,11 +96,11 @@ boolean listenForTag() {
       NdefMessage message = tag.getNdefMessage();
       NdefRecord record = message.getRecord(0);
 
-      if (record.getTnf() == TNF_MIME_MEDIA && record.getType() == "text/hotelkey") {
-
-        // payload is a byte array
+      if (record.getTnf() == TNF_MIME_MEDIA && 
+        record.getType() == "text/hotelkey") {
+        // Get the length of the payload:
         int payloadLength = record.getPayloadLength();
-        byte payload[payloadLength];
+        byte payload[payloadLength];	// make a byte array to hold the payload
         record.getPayload(payload);
 
         // convert the payload to a String
@@ -107,8 +108,7 @@ boolean listenForTag() {
         for (int c=0; c< payloadLength; c++) {
           json += (char)payload[c];
         }
-
-        parsePayload(json);
+        parsePayload(json);		// parse the payload
 
         // check if you can let them in or not:
         unlockDoor = isValidKey();
@@ -120,8 +120,8 @@ boolean listenForTag() {
 
 /*
   Parse the JSON data from the payload String
-  Save the values we care about into local variables
-*/
+ Save the values we care about into local variables
+ */
 void parsePayload(String data) {
   // you only care about what's between the brackets, so:
   int openingBracket = data.indexOf('{');
@@ -161,23 +161,24 @@ void parsePayload(String data) {
   Set the variable if it's something we care about, ignore other values.
  */
 void setValue(String thisKey, String thisValue) {
-
   if (thisKey == "checkout"){
     checkout = thisValue.toInt();
-  } else if (thisKey == "checkin") {
+  } 
+  else if (thisKey == "checkin") {
     checkin = thisValue.toInt();
-  } else if (thisKey == "name") {
+  } 
+  else if (thisKey == "name") {
     cardName = thisValue;
-  } else if (thisKey == "room") {
+  } 
+  else if (thisKey == "room") {
     cardRoomNumber = thisValue.toInt();
   }
-
 }
 
 /*
   Check to see if this key should open this door.
-  Does the room number match? Is the current time between
-  the checkin time and checkout time?
+ Does the room number match? Is the current time between
+ the checkin time and checkout time?
  */
 boolean isValidKey() {
   boolean result = false;
@@ -188,17 +189,20 @@ boolean isValidKey() {
       Serial.println("Current time " + formatTime(now()));
       Serial.println("Your arrival " + formatTime(checkin));
 
-    } else if ((now() >= checkin) && (now() <= checkout))  {
+    } 
+    else if ((now() >= checkin) && (now() <= checkout))  {
       Serial.println("Welcome back to your room, " + cardName + ".");
       result = true;
 
-    } else if (now() >= checkout) {
+    } 
+    else if (now() >= checkout) {
       Serial.println("Thanks for staying with us! You've checked out.");
       Serial.println("Current time " + formatTime(now()));
       Serial.println("Your departure " + formatTime(checkout));
 
     }
-  } else {
+  } 
+  else {
     Serial.print("This card can't unlock room ");
     Serial.print(roomNumber);
     Serial.println(".");
@@ -222,4 +226,6 @@ String formatTime(time_t time) {
   formatted += elements.Minute;
   return formatted;
 }
+
+
 

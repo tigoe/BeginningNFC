@@ -37,9 +37,9 @@ const int redLed = 8;           // pin for the red LED
 
 String inputString = "";        // string for input from serial port
 long lightOnTime = 0;           // last time the LEDs were turned on, in ms
-long lastReadTime = 0;          // last time we checked for NFC tag, in ms
+long lastReadTime = 0;          // last time you checked for NFC tag, in ms
 
-boolean readyToWrite = false;   // true when we are ready to write to NFC tag
+boolean readyToWrite = false;   // true when you are ready to write to NFC tag
 
 void setup() {
   Serial.begin(9600);           // initialize serial communications
@@ -49,9 +49,8 @@ void setup() {
 }
 
 void loop() {
-  
+  // if there's incoming data, read it into a string:
   while (Serial.available() > 0) {
-
     char thisChar = Serial.read();
     // add incoming character to the end of inputString:
     inputString += thisChar; 
@@ -65,9 +64,9 @@ void loop() {
       Serial.println("Ready to write data to tag");
       readyToWrite = true;
     }
-
   }
-  
+  // keep looking for a tag to write to when
+  // you've got a string to write:
   if (readyToWrite) {
     lookForTag();
   }
@@ -79,15 +78,16 @@ void loop() {
 }
 
 void lookForTag() {
-
   if (millis() - lastReadTime > 3000) {           // read every three seconds
     if (nfc.tagPresent()) {                       // if there's a tag present
       NdefMessage message;                        // make a new NDEF message
-      message.addMimeMediaRecord("text/hotelkey", inputString); // add the input string as a record
+      // add the input string as a record:
+      message.addMimeMediaRecord("text/hotelkey", inputString); 
       boolean success = nfc.write(message);       // attempt to write to the tag
     
       if (success) {
-        Serial.println("Result: tag written.");   // let the desktop app know you succeeded
+         // let the desktop app know you succeeded:
+        Serial.println("Result: tag written.");  
         digitalWrite(greenLed, HIGH);             // turn on the success light
         lightOnTime = millis();
       } else {
