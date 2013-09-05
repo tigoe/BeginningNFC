@@ -54,12 +54,12 @@ void loop() {
     char thisChar = Serial.read();
     // add incoming character to the end of inputString:
     inputString += thisChar; 
-
     if (thisChar == '{') {
       // new message, reset buffer
       inputString = "{";
       readyToWrite = false;
-    } else if (thisChar == '}') {
+    } 
+    else if (thisChar == '}') {
       // end of message, ready to write to tag
       Serial.println("Ready to write data to tag");
       readyToWrite = true;
@@ -68,9 +68,9 @@ void loop() {
   // keep looking for a tag to write to when
   // you've got a string to write:
   if (readyToWrite) {
-    lookForTag();
+    lookForTag();  
   }
-    
+
   if (millis() - lightOnTime > 3000 ) {    // check every three seconds
     digitalWrite(greenLed, LOW);           // turn off pin 9
     digitalWrite(redLed, LOW);             // turn off pin 8
@@ -78,26 +78,27 @@ void loop() {
 }
 
 void lookForTag() {
-  if (millis() - lastReadTime > 3000) {           // read every three seconds
-    if (nfc.tagPresent()) {                       // if there's a tag present
-      NdefMessage message;                        // make a new NDEF message
-      // add the input string as a record:
-      message.addMimeMediaRecord("text/hotelkey", inputString); 
-      boolean success = nfc.write(message);       // attempt to write to the tag
-    
-      if (success) {
-         // let the desktop app know you succeeded:
-        Serial.println("Result: tag written.");  
-        digitalWrite(greenLed, HIGH);             // turn on the success light
-        lightOnTime = millis();
-      } else {
-        // let the desktop app know you failed:
-        Serial.println("Result: failed to write to tag"); 
-        digitalWrite(redLed, HIGH);              // turn on the failure light
-        lightOnTime = millis();
-      }
+  if (nfc.tagPresent()) {                       // if there's a tag present
+    NdefMessage message;                        // make a new NDEF message
+    // add the input string as a record:
+    message.addMimeMediaRecord("text/hotelkey", inputString); 
+    boolean success = nfc.write(message);       // attempt to write to the tag
+
+    if (success) {
+      // let the desktop app know you succeeded:
+      Serial.println("Result: tag written.");  
+      digitalWrite(greenLed, HIGH);             // turn on the success light
+      lightOnTime = millis();
+      readyToWrite = false;                     // clear write flag
+    } 
+    else {
+      // let the desktop app know you failed:
+      Serial.println("Result: failed to write to tag"); 
+      digitalWrite(redLed, HIGH);              // turn on the failure light
+      lightOnTime = millis();
     }
-    lastReadTime = millis();
-  } 
+  }
+  lastReadTime = millis();
 }
+
 

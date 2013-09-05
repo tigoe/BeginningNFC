@@ -63,20 +63,24 @@ app.post('/submit', function (request, response) {
   // send it out the serial port:
   myPort.write(JSON.stringify(record) + "\n");
   
-  // wait 750 ms before responding to browser, so that
+  // write the HTML head back to the browser:
+  response.writeHead(200, {'Content-Type': 'text/html'});   
+  // send the data:
+  response.write("<p><a href=\"/\">Return to form</a></p>");
+  response.write("Sent the following to the writer device:<br>");
+  response.write(JSON.stringify(record) + "<p>");   
+   
+  // wait 3 seconds before closing the connection, so that
   // you can get a response from the writer:
-  setTimeout(function() { 
-   // write the HTML head back to the browser:
-   response.writeHead(200, {'Content-Type': 'text/html'});   
-   // send the data:
-   response.write("Sent the following to the writer device:<br>");
-   response.write(JSON.stringify(record) + "<p>");
+  setTimeout(function() {   
    // if you got a response from the writer, send it too:
    if (deviceMessage != "") {
      response.write("response from writer device: " + deviceMessage + "<p>");
       deviceMessage = "";
+   } else {
+	  response.write("no tag present");
    }
    // send the link back to the index and close the link:
-   response.end("<a href=\"/\">Return to form</a>");   
-  }, 750);     // end of setTimeout()
+   response.end();   
+  }, 3000);     // end of setTimeout()
 });            // end of app.post()
