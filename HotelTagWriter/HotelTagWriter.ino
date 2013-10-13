@@ -100,6 +100,3 @@ void lookForTag() {
     }
   }
 }
-
-
-

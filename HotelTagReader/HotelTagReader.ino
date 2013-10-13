@@ -188,18 +188,15 @@ boolean isValidKey() {
       Serial.println("You haven't checked in yet.");
       Serial.println("Current time " + formatTime(now()));
       Serial.println("Your arrival " + formatTime(checkin));
-
     } 
     else if ((now() >= checkin) && (now() <= checkout))  {
       Serial.println("Welcome back to your room, " + cardName + ".");
       result = true;
-
     } 
     else if (now() >= checkout) {
       Serial.println("Thanks for staying with us! You've checked out.");
       Serial.println("Current time " + formatTime(now()));
       Serial.println("Your departure " + formatTime(checkout));
-
     }
   } 
   else {
