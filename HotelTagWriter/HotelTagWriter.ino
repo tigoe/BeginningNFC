@@ -86,6 +86,7 @@ void lookForTag() {
     if (success) {
       // let the desktop app know you succeeded:
       Serial.println("Result: tag written.");  
+      digitalWrite(redLed, LOW);                // turn off the failure light if on
       digitalWrite(greenLed, HIGH);             // turn on the success light
       lightOnTime = millis();
       readyToWrite = false;                     // clear write flag
@@ -93,10 +94,12 @@ void lookForTag() {
     else {
       // let the desktop app know you failed:
       Serial.println("Result: failed to write to tag"); 
+      digitalWrite(greenLed, LOW);             // turn off the success light if on
       digitalWrite(redLed, HIGH);              // turn on the failure light
       lightOnTime = millis();
     }
   }
 }
+
 
 
