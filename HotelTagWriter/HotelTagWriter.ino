@@ -37,7 +37,6 @@ const int redLed = 8;           // pin for the red LED
 
 String inputString = "";        // string for input from serial port
 long lightOnTime = 0;           // last time the LEDs were turned on, in ms
-long lastReadTime = 0;          // last time you checked for NFC tag, in ms
 
 boolean readyToWrite = false;   // true when you are ready to write to NFC tag
 
@@ -98,7 +97,6 @@ void lookForTag() {
       lightOnTime = millis();
     }
   }
-  lastReadTime = millis();
 }
 
 
