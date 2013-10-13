@@ -106,7 +106,7 @@ var app = {
 
       // if there is an NDEF message on the tag, display it:
       var thisMessage = tag.ndefMessage;
-      if (tag.ndefMessage !== null) {
+      if (thisMessage !== null) {
          // get and display the NDEF record count:
          app.display("Tag has NDEF message with " + thisMessage.length
             + " records.");
