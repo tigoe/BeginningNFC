@@ -140,7 +140,6 @@
          payload = "com.samsung.tectile";
          record = ndef.record(tnf, recordType, [], payload);
          message.push(record);    // push the record onto the message
-         console.log("External type.");
          break;
        case 5:      // like App Launcher NFC
          // format the Android Application Record:
