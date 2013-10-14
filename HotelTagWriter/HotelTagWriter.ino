@@ -70,32 +70,32 @@ void loop() {
     lookForTag();  
   }
 
-  if (millis() - lightOnTime > 3000 ) {    // check every three seconds
-    digitalWrite(greenLed, LOW);           // turn off pin 9
-    digitalWrite(redLed, LOW);             // turn off pin 8
+  if (millis() - lightOnTime > 3000 ) {   // check every three seconds
+    digitalWrite(greenLed, LOW);          // turn off pin 9
+    digitalWrite(redLed, LOW);            // turn off pin 8
   }
 }
 
 void lookForTag() {
-  if (nfc.tagPresent()) {                       // if there's a tag present
-    NdefMessage message;                        // make a new NDEF message
+  if (nfc.tagPresent()) {                 // if there's a tag present
+    NdefMessage message;                  // make a new NDEF message
     // add the input string as a record:
     message.addMimeMediaRecord("text/hotelkey", inputString); 
-    boolean success = nfc.write(message);       // attempt to write to the tag
+    boolean success = nfc.write(message); // attempt to write to the tag
 
     if (success) {
       // let the desktop app know you succeeded:
       Serial.println("Result: tag written.");  
-      digitalWrite(redLed, LOW);                // turn off the failure light if on
-      digitalWrite(greenLed, HIGH);             // turn on the success light
+      digitalWrite(redLed, LOW);          // turn off the failure light if on
+      digitalWrite(greenLed, HIGH);       // turn on the success light
       lightOnTime = millis();
-      readyToWrite = false;                     // clear write flag
+      readyToWrite = false;               // clear write flag
     } 
     else {
       // let the desktop app know you failed:
       Serial.println("Result: failed to write to tag"); 
-      digitalWrite(greenLed, LOW);             // turn off the success light if on
-      digitalWrite(redLed, HIGH);              // turn on the failure light
+      digitalWrite(greenLed, LOW);       // turn off the success light if on
+      digitalWrite(redLed, HIGH);        // turn on the failure light
       lightOnTime = millis();
     }
   }
