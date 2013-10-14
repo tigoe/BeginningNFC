@@ -100,10 +100,10 @@ var app = {
        nfc.addNdefListener(
          app.onNfc,               // nfcEvent received
          function (status) {        // listener successfully initialized
-            app.displayMessage("Listening for NDEF messages.");
+            app.display("Listening for NDEF messages.");
          },
          function (error) {         // listener fails to initialize
-            app.displayMessage("NFC reader failed to initialize "
+            app.display("NFC reader failed to initialize "
                + JSON.stringify(error));
          }
       );
@@ -132,8 +132,8 @@ var app = {
          tagData += "<p>Tag has NDEF message with " + thisMessage.length
             + " records.</p>";
          }
-         
-      app.displayMessage(tagData);
+      app.clear();				// clear the message div   
+      app.display(tagData);	// display the message data
    },
    
    /*
@@ -147,7 +147,8 @@ var app = {
           kind = kindField.value,
           record;
 
-      app.displayMessage("Publishing message");
+	   app.clear();								// clear the message div   
+      app.display("Publishing message");	// display the notification
 
       // use a different ndef helper to format the message
       // depending on the kind:
@@ -178,10 +179,10 @@ var app = {
          [record],                // NDEF message to share
          function () {            // success callback
             navigator.notification.vibrate(100);
-            app.displayMessage("Success! Message sent to peer.");
+            app.display("Success! Message sent to peer.");
          }, 
          function (reason) {      // failure callback
-            app.displayMessage("Failed to share message " + reason);
+            app.display("Failed to share message " + reason);
          });
    },
 
@@ -193,10 +194,11 @@ var app = {
       nfc.unshare(
          function () {                     // success callback
             navigator.notification.vibrate(100);
-            app.displayMessage("message is no longer shared");
+            app.clear();
+            app.display("message is no longer shared");
          }, 
          function (reason) {               // failure callback
-            app.displayMessage("Failed to unshare message " + reason);
+            app.display("Failed to unshare message " + reason);
          });
    },
 
@@ -224,10 +226,18 @@ var app = {
    },
 
    /*
-      A simpler variation on display()
+      appends @message to the message div:
    */
-   displayMessage: function(message) {
-      messageDiv.innerHTML = message;
-   }
-
+   display: function(message) {
+      var label = document.createTextNode(message),
+         lineBreak = document.createElement("br");
+      messageDiv.appendChild(lineBreak);         // add a line break
+      messageDiv.appendChild(label);             // add the text
+   },
+   /*
+      clears the message div:
+   */
+   clear: function() {
+       messageDiv.innerHTML = "";
+   },
 };     // end of app
