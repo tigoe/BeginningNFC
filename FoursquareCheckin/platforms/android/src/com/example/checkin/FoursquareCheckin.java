@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /*
        Licensed to the Apache Software Foundation (ASF) under one
        or more contributor license agreements.  See the NOTICE file
@@ -17,13 +15,23 @@
        KIND, either express or implied.  See the License for the
        specific language governing permissions and limitations
        under the License.
-*/
+ */
 
-var emulators = require('./emulator');
+package com.example.checkin;
 
-// Usage support for when args are given
-var emulator_list = emulators.list_started();
-for(emulator in emulator_list) {
-    console.log(emulator_list[emulator]);
-    process.exit(0);
+import android.os.Bundle;
+import org.apache.cordova.*;
+
+public class FoursquareCheckin extends CordovaActivity 
+{
+    @Override
+    public void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        super.init();
+        // Set by <content src="index.html" /> in config.xml
+        super.loadUrl(Config.getStartUrl());
+        //super.loadUrl("file:///android_asset/www/index.html")
+    }
 }
+

@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 /*
        Licensed to the Apache Software Foundation (ASF) under one
        or more contributor license agreements.  See the NOTICE file
@@ -15,22 +17,11 @@
        KIND, either express or implied.  See the License for the
        specific language governing permissions and limitations
        under the License.
- */
+*/
 
-package net.tigoe.foursquarecheckin;
+var check_reqs = require('./lib/check_reqs');
 
-import android.os.Bundle;
-import org.apache.cordova.*;
-
-public class FoursquareCheckin extends DroidGap
-{
-    @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-        // Set by <content src="index.html" /> in config.xml
-        super.loadUrl(Config.getStartUrl());
-        //super.loadUrl("file:///android_asset/www/index.html")
-    }
+if(!check_reqs.run()) {
+      process.exit(2);
 }
 
