@@ -29,7 +29,7 @@ var app = {
       );
 
       nfc.addNdefFormatableListener(
-         app.onNfc,               // tag successfully scanned
+         app.onNdef,               // tag successfully scanned
          function (status) {      // listener successfully initialized
             app.display("Listening for NDEF Formatable tags.");
          },
@@ -41,7 +41,7 @@ var app = {
 
 
       nfc.addNdefListener(
-         app.onNfc,               // tag successfully scanned
+         app.onNdef,               // tag successfully scanned
          function (status) {      // listener successfully initialized
             app.display("Listening for NDEF messages.");
          },
@@ -53,7 +53,7 @@ var app = {
 
       nfc.addMimeTypeListener(
          "text/plain",
-         app.onNfc,               // tag successfully scanned
+         app.onNdef,               // tag successfully scanned
          function (status) {      // listener successfully initialized
             app.display("Listening for plain text MIME Types.");
          },
@@ -86,6 +86,18 @@ var app = {
 */
 
    onNfc: function(nfcEvent) {
+      app.clear();              // clear the message div
+      // display the event type:
+      app.display("Event Type: " + nfcEvent.type);
+      var tag = nfcEvent.tag;
+      app.display("Tag ID: " + nfc.bytesToHexString(tag.id));
+      app.display("Tech Types: ");
+      for (var i = 0; i < tag.techTypes.length; i++) {
+         app.display("  " + tag.techTypes[i]);
+      }
+   },
+
+   onNdef: function(nfcEvent) {
       app.clear();              // clear the message div
       // display the event type:
       app.display(" Event Type: " + nfcEvent.type);
