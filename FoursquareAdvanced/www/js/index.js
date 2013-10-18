@@ -128,7 +128,7 @@
           // language code
           payload.push.apply(payload, nfc.stringToBytes("en"));
           // Task Name
-          payload.push.apply(payload, nfc.stringToBytes("Task 1"));
+          payload.push.apply(payload, nfc.stringToBytes("Task"));
           // 4 mystery bytes, copied verbatim
           payload.push.apply(payload, [10, 31, 29, 19]);
           // Application Name
