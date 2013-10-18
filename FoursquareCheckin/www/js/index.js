@@ -75,10 +75,10 @@ var app = {
       record = ndef.record(tnf, recordType, [], payload);
       // put the record in the message array:
       message.push(record);
-     // set the writeFlag so that the next time a tag appears, you write to it:
-     app.writeFlag = true;
-     app.messageToWrite = message;
-     app.display("waiting for a writable tag to appear...");
+      // set the writeFlag so that the next time a tag appears, you write to it:
+      app.writeFlag = true;
+      app.messageToWrite = message;
+      app.display("waiting for a writable tag to appear...");
    },
 
    writeTag: function(message) {
