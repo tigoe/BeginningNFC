@@ -13,7 +13,6 @@
    bindEvents: function() {
      document.addEventListener('deviceready', this.onDeviceReady, false);
      appPicker.addEventListener('change', app.makeMessage, false);
-     appPicker.disabled = true;
    },
 
    /*
@@ -25,8 +24,6 @@
      nfc.addTagDiscoveredListener(
        app.onNfc,             // tag successfully scanned
        function (status) {    // listener successfully initialized
-         //app.display("Listening for NFC tags.");
-         appPicker.disabled = false;
          app.makeMessage();
        },
        function (error) {     // listener fails to initialize
