@@ -1,5 +1,4 @@
 var app = {
-	writeFlag: false,			// write flag for NFC event handler
 	messageToWrite: [],		// message to write on next NFC event
 	
    // Application constructor
@@ -12,7 +11,6 @@ var app = {
    */
    bindEvents: function() {
       document.addEventListener('deviceready', this.onDeviceReady, false);
-      writeButton.addEventListener('touchstart', app.makeMessage, false);
    },
 
    /*
@@ -20,12 +18,12 @@ var app = {
    */
    onDeviceReady: function() {
       app.clear();
-      app.display("Tap a tag to read its id number.");
 
       nfc.addTagDiscoveredListener(
          app.onNfc,             // tag successfully scanned
          function (status) {    // listener successfully initialized
-            app.display("Listening for NFC tags.");
+            app.makeMessage();
+            app.display("Tap an NFC tag to write data");
          },
          function (error) {     // listener fails to initialize
             app.display("NFC reader failed to initialize "
@@ -35,16 +33,10 @@ var app = {
    },
 
    /*
-      displays tag ID from @nfcEvent in message div:
+      called when a NFC tag is read:
    */
    onNfc: function(nfcEvent) {
-      var tag = nfcEvent.tag;
-      app.display("Read tag: " + nfc.bytesToHexString(tag.id));
-      if (app.writeFlag === true) {
-	       //write the message if the write flag is set:
-			 app.writeTag(app.messageToWrite);
-			 app.writeFlag = false;			// clear the write flag
-	    }
+	   app.writeTag(app.messageToWrite);
    },
 
    /*
@@ -75,10 +67,7 @@ var app = {
       record = ndef.record(tnf, recordType, [], payload);
       // put the record in the message array:
       message.push(record);
-      // set the writeFlag so that the next time a tag appears, you write to it:
-      app.writeFlag = true;
       app.messageToWrite = message;
-      app.display("waiting for a writable tag to appear...");
    },
 
    writeTag: function(message) {
@@ -86,7 +75,6 @@ var app = {
       nfc.write(
          message,           // write the record itself to the tag
          function () {      // when complete, run this callback function:
-            app.clear();    // clear the message div
             app.display("Wrote data to tag.");   // write to the message div
          },
          // this function runs if the write command fails:
