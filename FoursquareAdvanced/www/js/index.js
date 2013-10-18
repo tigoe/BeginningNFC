@@ -106,17 +106,12 @@
             ndef.uriRecord(
               "http://m.foursquare.com/venue/4a917563f964a520401a20e3"),
             ndef.textRecord("foursquare checkin"),
-            ndef.record( // Android Application Record
-              ndef.TNF_EXTERNAL_TYPE,
-              "android.com:pkg", [],
-              "com.joelapenna.foursquared"
-            )
           ];
 
           // Create the Smart Poster Record from the array:
           record = ndef.smartPoster(smartPosterPayload);
           // push the smart poster record onto the message:
-          message.push(record);
+          message.push(record);          
           break;
       case 4:      // like TecTiles
          // format the record as a Well-Known Type
