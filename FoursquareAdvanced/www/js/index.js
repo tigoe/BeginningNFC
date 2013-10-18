@@ -108,28 +108,44 @@
           message.push(record);
           break;
       case 4:      // like TecTiles
-         // format the record as a Well-Known Type
-         tnf = ndef.TNF_WELL_KNOWN;
-         recordType = ndef.RTD_URI;    // add the URI record type
-         // this is a long URI, so for formatting's sake, it's broken
-         // into four lines. But it's just a string:
-         var uri = "tectile://www/samsung.com/us/microsite/error?"
-            + "action=foursquare_checkin&"
-            + "payload=http://m.foursquare.com/"
-            + "venue/4a917563f964a520401a20e3";
-         payload = nfc.stringToBytes(uri);
-         // URI identifier 0x00 because there's no ID for "tectile://":
-         payload.unshift(0x00);
-         record = ndef.record(tnf, recordType, [], payload);
-         message.push(record);    // push the record onto the message
+          // format the record as a Well-Known Type
+          tnf = ndef.TNF_WELL_KNOWN;
+          recordType = ndef.RTD_URI;    // add the URI record type
+          var uri = "tectiles://www.samsung.com/tectiles";
+          payload = nfc.stringToBytes(uri);
+          var id = nfc.stringToBytes("0");
+          // URI identifier 0x00 because there's no ID for "tectile://":
+          payload.unshift(0x00);
+          record = ndef.record(tnf, recordType, id, payload);
+          message.push(record);    // push the record onto the message
 
-         // format the Android Application Record:
-         tnf = ndef.TNF_EXTERNAL_TYPE;
-         recordType = "android.com:pkg";
-         payload = "com.samsung.tectile";
-         record = ndef.record(tnf, recordType, [], payload);
-         message.push(record);    // push the record onto the message
-         break;
+          // text record with binary data
+          tnf = ndef.TNF_WELL_KNOWN;
+          recordType = ndef.RTD_TEXT;
+          payload = [];
+          // language code length
+          payload.push(2);
+          // language code
+          payload.push.apply(payload, nfc.stringToBytes("en"));
+          // Task Name
+          payload.push.apply(payload, nfc.stringToBytes("Task 1"));
+          // 4 mystery bytes, copied verbatim
+          payload.push.apply(payload, [10, 31, 29, 19]);
+          // Application Name
+          payload.push.apply(payload, nfc.stringToBytes("Foursquare"));
+          // NULL terminator
+          payload.push(0);
+          // Activity to launch
+          payload.push.apply(payload, nfc.stringToBytes("com.joelapenna.foursquared.MainActivity"));
+          // NULL terminator
+          payload.push(0);
+          // Application packageName
+          payload.push.apply(payload, nfc.stringToBytes("com.joelapenna.foursquared"));
+          id = nfc.stringToBytes("1");
+          record = ndef.record(tnf, recordType, id, payload);
+          message.push(record);    // push the record onto the message
+          break;
+
        case 5:      // like App Launcher NFC
          // format the Android Application Record:
          tnf = ndef.TNF_EXTERNAL_TYPE;
