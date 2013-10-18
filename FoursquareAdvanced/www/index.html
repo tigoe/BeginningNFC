@@ -3,22 +3,24 @@
 <html>
    <head>
     <title>Foursquare Checkin Tag Writer - Advanced</title>
+    <style>
+        body { margin: 20px }
+    </style>
    </head>
    <body>
+    <p>Foursquare Checkin Tag Writer - Advanced</p>
     <div class="app">
-      <div id="messageDiv">No tag found</div>
-
       <form>
-       Format tag like: <br />
+       Write a tag like: <br />
        <select id="appPicker">
-         <option value="1" >NFC Task Launcher</option>
-         <option value="2" >TagStand Writer</option>
-         <option value="3" >NXP TagWriter</option>
-         <option value="4" >Samsung TecTiles</option>
-         <option value="5" >App Launcher NFC</option>
+         <option value="1">NFC Task Launcher</option>
+         <option value="2">TagStand Writer</option>
+         <option value="3">NXP TagWriter</option>
+         <option value="4">Samsung TecTiles</option>
+         <option value="5">App Launcher NFC</option>
        </select>
       </form>
-      <button id="writeButton">Write to tag</button>
+      <div id="messageDiv"></div>
     </div>
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="js/index.js"></script>
