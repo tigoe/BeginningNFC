@@ -15,10 +15,9 @@ var app = {
    this runs when the device is ready for user interaction:
 */
    onDeviceReady: function() {
-      app.display("Tap a tag to read its id number.");
 
       nfc.addTagDiscoveredListener(
-         app.onNfc,               // tag successfully scanned
+         app.onNonNdef,           // tag successfully scanned
          function (status) {      // listener successfully initialized
             app.display("Listening for NFC tags.");
          },
@@ -29,7 +28,7 @@ var app = {
       );
 
       nfc.addNdefFormatableListener(
-         app.onNfc,               // tag successfully scanned
+         app.onNonNdef,           // tag successfully scanned
          function (status) {      // listener successfully initialized
             app.display("Listening for NDEF Formatable tags.");
          },
@@ -38,7 +37,6 @@ var app = {
                + JSON.stringify(error));
          }
       );
-
 
       nfc.addNdefListener(
          app.onNfc,               // tag successfully scanned
@@ -62,6 +60,8 @@ var app = {
                + JSON.stringify(error));
          }
       );
+
+      app.display("Tap a tag to read data.");
    },
 
    /*
@@ -81,10 +81,28 @@ var app = {
    },
 
 
-/*
-   displays tag ID from @nfcEvent in message div:
-*/
+   /*
+      Process non-NDEF tag data from the nfcEvent
+      This includes 
+       * Non NDEF NFC Tags
+       * NDEF Formatable Tags
+       * Mifare Classic Tags on Nexus 4, Samsung S4 (because Broadcom doesn't support Mifare Classic)
+   */
+   onNonNdef: function(nfcEvent) {
+      app.clear();              // clear the message div
+      // display the event type:
+      app.display("Event Type: " + nfcEvent.type);
+      var tag = nfcEvent.tag;
+      app.display("Tag ID: " + nfc.bytesToHexString(tag.id));
+      app.display("Tech Types: ");
+      for (var i = 0; i < tag.techTypes.length; i++) {
+         app.display("  * " + tag.techTypes[i]);
+      }
+   },
 
+   /*
+      Process NDEF tag data from the nfcEvent
+   */
    onNfc: function(nfcEvent) {
       app.clear();              // clear the message div
       // display the event type:
