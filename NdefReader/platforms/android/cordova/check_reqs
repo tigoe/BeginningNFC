@@ -19,11 +19,9 @@
        under the License.
 */
 
-var emulators = require('./emulator');
+var check_reqs = require('./lib/check_reqs');
 
-// Usage support for when args are given
-var emulator_list = emulators.list_started();
-for(emulator in emulator_list) {
-    console.log(emulator_list[emulator]);
-    process.exit(0);
+if(!check_reqs.run()) {
+      process.exit(2);
 }
+

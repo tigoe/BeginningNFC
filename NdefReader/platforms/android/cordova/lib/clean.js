@@ -19,11 +19,25 @@
        under the License.
 */
 
-var emulators = require('./emulator');
+var shell = require('shelljs'),
+    path  = require('path'),
+    ROOT = path.join(__dirname, '..', '..');
 
-// Usage support for when args are given
-var emulator_list = emulators.list_started();
-for(emulator in emulator_list) {
-    console.log(emulator_list[emulator]);
+/*
+ * Cleans the project using ant
+ */
+module.exports.run = function() {
+    var cmd = 'ant clean -f ' + path.join(ROOT, 'build.xml');
+    var result = shell.exec(cmd, {silent:false, async:false});
+    if (result.code > 0) {
+        console.error('ERROR: Failed to clean android project.');
+        console.error(result.output);
+        process.exit(2);
+    }
+}
+
+module.exports.help = function() {
+    console.log('Usage: ' + path.relative(process.cwd(), process.argv[1]));
+    console.log('Cleans the project directory.');
     process.exit(0);
 }
