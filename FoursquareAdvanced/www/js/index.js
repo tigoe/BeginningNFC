@@ -131,7 +131,7 @@ var app = {
             payload.push.apply(payload, nfc.stringToBytes("en"));
             // Task Name
             payload.push.apply(payload, nfc.stringToBytes("Task"));
-            // 4 mystery bytes, copied verbatim
+            // 4-byte token proprietary to TecTiles:
             payload.push.apply(payload, [10, 31, 29, 19]);
             // Application Name
             payload.push.apply(payload, nfc.stringToBytes("Foursquare"));
@@ -166,7 +166,7 @@ var app = {
    writeTag: function(message) {
       // write the record to the tag:
       nfc.write(
-         message, // write the record itself to the tag
+         message,     // write the record itself to the tag
          function() { // when complete, run this callback function:
             app.display("Wrote data to tag."); // write to the message div
          },

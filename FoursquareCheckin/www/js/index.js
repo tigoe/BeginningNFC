@@ -1,6 +1,6 @@
 var app = {
-	messageToWrite: [],		// message to write on next NFC event
-	
+   messageToWrite: [],     // message to write on next NFC event
+   
    // Application constructor
    initialize: function() {
       this.bindEvents();
@@ -36,7 +36,7 @@ var app = {
       called when a NFC tag is read:
    */
    onNfc: function(nfcEvent) {
-	   app.writeTag(app.messageToWrite);
+      app.writeTag(app.messageToWrite);
    },
 
    /*
