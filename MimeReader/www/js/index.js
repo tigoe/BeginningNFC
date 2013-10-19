@@ -19,14 +19,12 @@ var app = {
    this runs when the device is ready for user interaction:
 */
    onDeviceReady: function() {
-      app.clear();
-      app.display("Tap a tag to read its id number.");
 
       nfc.addMimeTypeListener(
          "text/plain",              // listen for plain text messages
          app.onNfc,                 // tag successfully scanned
          function (status) {        // listener successfully initialized
-            app.display("Listening for plan text MIME messages.");
+            app.display("Tap an NFC tag to begin");
          },
          function (error) {         // listener fails to initialize
             app.display("NFC reader failed to initialize " + JSON.stringify(error));
@@ -39,13 +37,26 @@ var app = {
 */
 
    onNfc: function(nfcEvent) {
-      var tag = nfcEvent.tag;
+      var tag = nfcEvent.tag,
+         text = "",
+         payload;
+
+      app.clear();
       app.display("Read tag: " + nfc.bytesToHexString(tag.id));
 
-      var thisMessage = tag.ndefMessage;
-      if (thisMessage !== null) {
-         app.display("Message: " + nfc.bytesToString(thisMessage[0].payload));
+      // get the playload from the first message
+      payload = tag.ndefMessage[0].payload;
+
+      if (payload[0] < 5) {
+         // assume langCodeLength + langCode + text
+         text = ndef.textHelper.decodePayload(payload);
+      } else {
+         // assume it's text without language info
+         text = nfc.bytesToString(payload);
       }
+
+      app.display("Message: " + text);
+
    },
 
    /*

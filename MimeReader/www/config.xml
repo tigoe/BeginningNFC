@@ -2,13 +2,13 @@
 <widget id="net.tigoe.mimereader" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>MimeReader</name>
     <description>
-        A sample Apache Cordova application that responds to the deviceready event.
+        Sample app the only reads text records.
     </description>
     <author email="dev@callback.apache.org" href="http://cordova.io">
         Apache Cordova Team
     </author>
     <access origin="*" />
-    <preference name="fullscreen" value="true" />
+    <preference name="fullscreen" value="false" />
     <preference name="webviewbounce" value="true" />
     <content src="index.html" />
 </widget>

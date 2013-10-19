@@ -6,12 +6,18 @@
    </head>
    <body>
       <div class="app">
-         <div id="messageDiv">No tag found</div>
+         <p>This app reads plain text NFC tags.</p>
+         Try tags with
+         <ul>
+            <li>TNF 03 with type "text/plain"</li>
+            <li>TNF 01 with RTD "T"</li>
+         </ul>
+         <div id="messageDiv"></div>
       </div>
       <script type="text/javascript" src="cordova.js"></script>
-     <script type="text/javascript" src="js/index.js"></script>
-     <script type="text/javascript">
-       app.initialize();
-     </script>
+      <script type="text/javascript" src="js/index.js"></script>
+      <script type="text/javascript">
+         app.initialize();
+      </script>
    </body>
 </html>
