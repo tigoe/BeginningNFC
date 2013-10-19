@@ -131,7 +131,7 @@ var app = {
             payload.push.apply(payload, nfc.stringToBytes("en"));
             // Task Name
             payload.push.apply(payload, nfc.stringToBytes("Task"));
-            // 4 mystery bytes, copied verbatim
+            // 4-byte token proprietary to TecTiles:
             payload.push.apply(payload, [10, 31, 29, 19]);
             // Application Name
             payload.push.apply(payload, nfc.stringToBytes("Foursquare"));
