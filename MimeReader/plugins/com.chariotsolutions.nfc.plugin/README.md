@@ -25,9 +25,13 @@ Supported Platforms
  
 # Installing
 
-See [INSTALL.md](INSTALL.md) for details on how to install the nfc-plugin into your PhoneGap project.
+<!-- See [INSTALL.md](INSTALL.md) for details on how to install the nfc-plugin into your PhoneGap project. -->
 
-Phonegap 2.8.0 is required for Android and recommended for other platforms. BlackBerry and Windows Phone *should* work with Corodva 2.5 and greater.
+Phonegap 2.9.0+ is required for Android and recommended for other platforms. BlackBerry and Windows Phone *should* work with Corodva 2.5 and greater.
+
+**Cordova 3.0 is the recommended way to use phonegap-nfc, see [Getting Started Cordova CLI](https://github.com/chariotsolutions/phonegap-nfc/blob/master/doc/GettingStartedCLI.md).**
+
+[INSTALL.md](INSTALL.md) has **older** instructions for installing the nfc-plugin into your PhoneGap project.
 
 See the [doc](doc) directory for additional documentation.
 
@@ -43,7 +47,7 @@ See the [doc](doc) directory for additional documentation.
 - [nfc.addNdefFormatableListener](#nfcaddndefformatablelistener)
 - [nfc.write](#nfcwrite)
 - [nfc.share](#nfcshare)
-- [nfc.unshare](#nfcshare)
+- [nfc.unshare](#nfcunshare)
 - [nfc.erase](#nfcerase)
 
 ## nfc.addTagDiscoveredListener
@@ -150,13 +154,13 @@ A ndef-formatable event occurs when a tag is read that can be NDEF formatted.  T
 Writes an NDEF Message to a NFC tag.
 
 A NDEF Message is an array of one or more NDEF Records
-
-    var ndefRecord = ndef.textRecord("Hello World"),
-    	ndefMessage = [];
     
-    ndefMessage.push(ndefRecord);
+    var message = [
+        ndef.textRecord("hello, world"),
+        ndef.uriRecord("http://github.com/chariotsolutions/phonegap-nfc")
+    ];
     
-    nfc.write(ndefMessage, [onSuccess], [onFailure]);
+    nfc.write(message, [onSuccess], [onFailure]);
 
 ### Parameters
 
@@ -182,12 +186,11 @@ Shares an NDEF Message via peer-to-peer.
 
 A NDEF Message is an array of one or more NDEF Records
 
-    var ndefRecord = ndef.textRecord("Hello World"),
-    	ndefMessage = [];
-    
-    ndefMessage.push(ndefRecord);
+    var message = [
+        ndef.textRecord("hello, world")
+    ];
 
-    nfc.share(ndefMessage, [onSuccess], [onFailure]);
+    nfc.share(message, [onSuccess], [onFailure]);
     
 ### Parameters
 
@@ -479,7 +482,7 @@ License
 
 The MIT License
 
-Copyright (c) 2011-2012 Chariot Solutions
+Copyright (c) 2011-2013 Chariot Solutions
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
