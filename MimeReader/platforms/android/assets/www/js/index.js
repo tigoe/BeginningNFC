@@ -1,3 +1,5 @@
+/*jshint indent:3, quotmark:false, strict:false, unused:vars */
+/*global nfc, messageDiv */
 var app = {
 /*
    Application constructor
@@ -29,7 +31,7 @@ var app = {
          function (error) {         // listener fails to initialize
             app.display("NFC reader failed to initialize " + JSON.stringify(error));
          }
-      )
+      );
    },
 
 /*
@@ -40,8 +42,8 @@ var app = {
       var tag = nfcEvent.tag;
       app.display("Read tag: " + nfc.bytesToHexString(tag.id));
 
-       var thisMessage = tag.ndefMessage;
-       if (thisMessage !== null) {
+      var thisMessage = tag.ndefMessage;
+      if (thisMessage !== null) {
          app.display("Message: " + nfc.bytesToString(thisMessage[0].payload));
       }
    },
@@ -59,6 +61,6 @@ var app = {
       clears the message div:
    */
    clear: function() {
-       messageDiv.innerHTML = "";
+      messageDiv.innerHTML = "";
    }
 };     // end of app
