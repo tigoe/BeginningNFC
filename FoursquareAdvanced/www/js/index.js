@@ -24,11 +24,11 @@ var app = {
       app.clear();
 
       nfc.addTagDiscoveredListener(
-         app.onNfc, // tag successfully scanned
-         function(status) { // listener successfully initialized
+         app.onNfc,          // tag successfully scanned
+         function(status) {  // listener successfully initialized
             app.makeMessage();
          },
-         function(error) { // listener fails to initialize
+         function(error) {    // listener fails to initialize
             app.display("NFC reader failed to initialize " +
                JSON.stringify(error));
          }
@@ -48,7 +48,7 @@ var app = {
       var label = document.createTextNode(message),
          lineBreak = document.createElement("br");
       messageDiv.appendChild(lineBreak); // add a line break
-      messageDiv.appendChild(label); // add the text
+      messageDiv.appendChild(label);     // add the text
    },
    /*
       clears the message div:
@@ -60,11 +60,11 @@ var app = {
    makeMessage: function() {
       // get the app type that the user wants to emulate from the HTML form:
       var appType = parseInt(appPicker.value, 10),
-         tnf, // NDEF Type Name Format
-         recordType, // NDEF Record Type
-         payload, // content of the record
-         record, // NDEF record object
-         message = []; // NDEF Message to pass to writeTag()
+         tnf,            // NDEF Type Name Format
+         recordType,     // NDEF Record Type
+         payload,        // content of the record
+         record,         // NDEF record object
+         message = [];   // NDEF Message to pass to writeTag()
 
       app.clear();
 
