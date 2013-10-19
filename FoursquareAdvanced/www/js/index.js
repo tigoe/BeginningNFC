@@ -166,7 +166,7 @@ var app = {
    writeTag: function(message) {
       // write the record to the tag:
       nfc.write(
-         message, // write the record itself to the tag
+         message,     // write the record itself to the tag
          function() { // when complete, run this callback function:
             app.display("Wrote data to tag."); // write to the message div
          },
