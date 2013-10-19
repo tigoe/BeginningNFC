@@ -1,5 +1,7 @@
 var app = {
-      // Application constructor
+/*
+   Application constructor
+*/
     initialize: function() {
       this.bindEvents();
       console.log("Starting NDEF Events app");
@@ -80,13 +82,23 @@ var app = {
        messageDiv.innerHTML = "";
    },
 
-
+   /*
+      Process NDEF tag data from the nfcEvent
+   */
+   onNfc: function(nfcEvent) {
+      app.clear();              // clear the message div
+      // display the event type:
+      app.display(" Event Type: " + nfcEvent.type);
+      app.showTag(nfcEvent.tag);   // display the tag details
+   },
+   
    /*
       Process non-NDEF tag data from the nfcEvent
       This includes 
        * Non NDEF NFC Tags
        * NDEF Formatable Tags
-       * Mifare Classic Tags on Nexus 4, Samsung S4 (because Broadcom doesn't support Mifare Classic)
+       * Mifare Classic Tags on Nexus 4, Samsung S4 
+       (because Broadcom doesn't support Mifare Classic)
    */
    onNonNdef: function(nfcEvent) {
       app.clear();              // clear the message div
@@ -98,16 +110,6 @@ var app = {
       for (var i = 0; i < tag.techTypes.length; i++) {
          app.display("  * " + tag.techTypes[i]);
       }
-   },
-
-   /*
-      Process NDEF tag data from the nfcEvent
-   */
-   onNfc: function(nfcEvent) {
-      app.clear();              // clear the message div
-      // display the event type:
-      app.display(" Event Type: " + nfcEvent.type);
-      app.showTag(nfcEvent.tag);   // display the tag details
    },
 
 /*
