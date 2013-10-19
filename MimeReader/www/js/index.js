@@ -48,17 +48,11 @@ var app = {
 
       if (payload[0] < 5) {
          // payload begins with a small integer, it's encoded text
-         var languageCodeLength = (payload[0] & 0x1F), // 5 bits
-            languageCode = payload.slice(1, 1 + languageCodeLength),
-            utf16 = (payload[0] & 0x80) !== 0; // assuming UTF-16BE
-            
-         console.log(languageCodeLength);
-         console.log(languageCode);
-         console.log(utf16);
+         var languageCodeLength = payload[0];
 
          // chop off the language code and convert to string
          text = nfc.bytesToString(payload.slice(languageCodeLength + 1));
-         
+
       } else {
          // assume it's text without language info
          text = nfc.bytesToString(payload);
