@@ -131,6 +131,7 @@ var app = {
          app.display("Tag has NDEF message with " + thisMessage.length
             + " record" + (thisMessage.length === 1 ? ".":"s."));
 
+         // switch is part of the extended example
          var type =  nfc.bytesToString(thisMessage[0].type);
          switch (type) {
             case nfc.bytesToString(ndef.RTD_TEXT):
@@ -153,6 +154,7 @@ var app = {
                   " is, must be a custom type");
                break;
          }
+         // end of extended example
 
          app.display("Message Contents: ");
          app.showMessage(thisMessage);
