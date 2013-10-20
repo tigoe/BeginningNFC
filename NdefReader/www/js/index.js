@@ -129,7 +129,7 @@ var app = {
       if (thisMessage !== null) {
          // get and display the NDEF record count:
          app.display("Tag has NDEF message with " + thisMessage.length
-            + " records.");
+            + " record" + (thisMessage.length === 1 ? ".":"s."));
 
          var type =  nfc.bytesToString(thisMessage[0].type);
          switch (type) {
@@ -162,9 +162,9 @@ var app = {
    iterates over the records in an NDEF message to display them:
 */
    showMessage: function(message) {
-      for (var thisRecord in message) {
+      for (var i=0; i < message.length; i++) {
          // get the next record in the message array:
-         var record = message[thisRecord];
+         var record = message[i];
          app.showRecord(record);          // show it
       }
    },
