@@ -513,8 +513,7 @@ var app = {
                app.audioStatus   // update the status callback
             );
          } else {
-            // TODO can this happen with the select?
-            navigator.notification.alert("Pick a song!");
+              navigator.notification.alert("Pick a song!");
          }
       }
 
