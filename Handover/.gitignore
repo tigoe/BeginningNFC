@@ -3,4 +3,4 @@ local.properties
 
 *.iws
 .idea/workspace.xml
-.idea/tasks.xml
+.idea/tasks.xml.gradle
