@@ -473,7 +473,8 @@ var app = {
       };
 
       // look for the music directory:
-      window.resolveLocalFileSystemURI(app.musicPath, foundDirectory, missingDirectory);
+      window.resolveLocalFileSystemURI(app.musicPath, 
+         foundDirectory, missingDirectory);
    },
 
    /*
@@ -694,7 +695,7 @@ var app = {
          message,                  // write the record itself to the tag
          function () {             // when complete, run this callback function:
             app.clear();           // clear the message div
-            app.display("Wrote data to tag.");     // notify the user in message div
+            app.display("Wrote data to tag.");     // notify user in message div
             navigator.notification.vibrate(100);   // vibrate the device as well
          },
          function (reason) {       // runs if the write command fails
