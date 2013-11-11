@@ -27,7 +27,8 @@ var app = {
             app.display("Tap an NFC tag to begin");
          },
          function (error) {         // listener fails to initialize
-            app.display("NFC reader failed to initialize " + JSON.stringify(error));
+            app.display("NFC reader failed to initialize " + 
+               JSON.stringify(error));
          }
       );
    },
