@@ -364,31 +364,47 @@ var app = {
       Brightness, Hue, Saturation, and On State
    */
    setBrightness: function() {
-      var thisBrightness = parseInt(bri.value, 10); // get the value from the UI control
-      var thisLight = hub.lights[hub.currentLight]; // get the property from hub object
-      thisLight.state.bri = thisBrightness;         // change the property in hub object
-      app.putHueSettings({ "bri": thisBrightness });// update Hue hub with the new value
+      // get the value from the UI control:
+      var thisBrightness = parseInt(bri.value, 10); 
+      // get the property from hub object:
+      var thisLight = hub.lights[hub.currentLight]; 
+      // change the property in hub object:
+      thisLight.state.bri = thisBrightness;         
+      // update Hue hub with the new value:
+      app.putHueSettings({ "bri": thisBrightness });
    },
 
    setHue: function() {
-      var thisHue = parseInt(hue.value, 10);        // get the value from the UI control
-      var thisLight = hub.lights[hub.currentLight]; // get the property from hub object
-      thisLight.state.hue = thisHue;                // change the property in hub object
-      app.putHueSettings( { "hue": thisHue } );     // update Hue hub with the new value
+      // get the value from the UI control:
+      var thisHue = parseInt(hue.value, 10);        
+      // get the property from hub object:
+      var thisLight = hub.lights[hub.currentLight]; 
+      // change the property in hub object:
+      thisLight.state.hue = thisHue;                
+      // update Hue hub with the new value:
+      app.putHueSettings( { "hue": thisHue } );     
    },
 
    setSaturation: function() {
-      var thisSaturation = parseInt(bri.value, 10); // get the value from the UI control
-      var thisLight = hub.lights[hub.currentLight]; // get the property from hub object
-      thisLight.state.sat = thisSaturation;         // change the property in hub object
-      app.putHueSettings({ "sat": thisSaturation });// update Hue hub with the new value
+      // get the value from the UI control:
+      var thisSaturation = parseInt(bri.value, 10); 
+      // get the property from hub object:
+      var thisLight = hub.lights[hub.currentLight]; 
+      // change the property in hub object:
+      thisLight.state.sat = thisSaturation;         
+      // update Hue hub with the new value:
+      app.putHueSettings({ "sat": thisSaturation });
    },
 
    setLightOn: function() {
-      var thisOn = lightOn.checked;                 // get the value from the UI control
-      var thisLight = hub.lights[hub.currentLight]; // get the property from hub object
-      thisLight.state.on = thisOn;                  // change the property in hub object
-      app.putHueSettings( { "on": thisOn } );       // update Hue hub with the new value
+      // get the value from the UI control:
+      var thisOn = lightOn.checked;                 
+      // get the property from hub object:
+      var thisLight = hub.lights[hub.currentLight]; 
+      // change the property in hub object:
+      thisLight.state.on = thisOn;                  
+      // update Hue hub with the new value:
+      app.putHueSettings( { "on": thisOn } );       
    },
 
    /*
