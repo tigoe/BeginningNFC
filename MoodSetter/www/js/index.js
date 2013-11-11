@@ -283,10 +283,14 @@ var app = {
                   hub.lights[thisLight] = {};
                   hub.lights[thisLight].name = data.lights[thisLight].name;
                   hub.lights[thisLight].state = {};
-                  hub.lights[thisLight].state.on = data.lights[thisLight].state.on;
-                  hub.lights[thisLight].state.bri = data.lights[thisLight].state.bri;
-                  hub.lights[thisLight].state.hue = data.lights[thisLight].state.hue;
-                  hub.lights[thisLight].state.sat = data.lights[thisLight].state.sat;
+                  hub.lights[thisLight].state.on = 
+                     data.lights[thisLight].state.on;
+                  hub.lights[thisLight].state.bri = 
+                     data.lights[thisLight].state.bri;
+                  hub.lights[thisLight].state.hue = 
+                     data.lights[thisLight].state.hue;
+                  hub.lights[thisLight].state.sat = 
+                     data.lights[thisLight].state.sat;
                }
                app.setControls();
             }
@@ -307,10 +311,12 @@ var app = {
       // so delete the other properties before sending them.
       // if "on" is a property and it's false:
       if (settings.hasOwnProperty("on") && !settings.on) {  
-         for (var prop in settings) {           // go through all the other properties
-            if (settings.hasOwnProperty(prop)   // if this property is not inherited
-               && prop != "on") {               // and it's not the "on" property
-               delete(settings[prop]);          // delete it
+         // go through all the other properties:
+         for (var prop in settings) {           
+            // if this property is not inherited:
+            if (settings.hasOwnProperty(prop)   
+               && prop != "on") {      // and it's not the "on" property
+               delete(settings[prop]); // delete it
             }  
          }
       }
