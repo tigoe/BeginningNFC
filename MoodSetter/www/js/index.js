@@ -444,12 +444,17 @@ var app = {
          
          // once you have the list of files, put the valid ones in the selector:
          for (var i = 0; i < files.length; i++) {
-            if (files[i].isFile) {                  // if the filename is a valid file
-               option = document.createElement("option");   // create an option element
-               option.value = files[i].fullPath;            // value = song's filepath
-               option.innerHTML = files[i].name;            // label = song name
-               if (i === 0) { option.selected = true; }     // select the first one
-               songs.appendChild(option);                   // add it to the selector
+            // if the filename is a valid file:
+            if (files[i].isFile) {                  
+               // create an option element:
+               option = document.createElement("option");   
+               // value = song's filepath:
+               option.value = files[i].fullPath;            
+               // label = song name:
+               option.innerHTML = files[i].name;            
+               // select the first one and add it to the selector:
+               if (i === 0) { option.selected = true; }     
+               songs.appendChild(option);                   
             }
          }
          app.onSongChange();        // update the current song
