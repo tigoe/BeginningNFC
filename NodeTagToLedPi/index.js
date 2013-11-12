@@ -35,7 +35,7 @@ function readTags() {
          // loop over the LEDs and turn on one for each record: 
          for (var pinNum=0; pinNum<4; pinNum++) {  
          	console.log(pinNum);          
-            if (pinNum < message.length) {   // LED0 = 1 record, LED1 = 2 records, etc
+            if (pinNum < message.length) {   //USR0=1 record, USR1=2 records...
                //io.digitalWrite(pin, 1);   	
                led[pinNum].writeSync(1);		// turn on pin
             } else {

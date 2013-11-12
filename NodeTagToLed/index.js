@@ -37,7 +37,7 @@ function lightLEDs(number) {
    // loop over the LEDs and turn on one for each record:
    for (var pinNum=0; pinNum<4; pinNum++) {
       var pin = 'USR' + pinNum;        // set pin name, USR0 - USR3
-      if (pinNum < number) {   // USR0 = 1 record, USR1 = 2 records, etc
+      if (pinNum < number) {   // USR0=1 record, USR1=2 records...
          io.digitalWrite(pin, 1);      // turn on pin
       } else {
          io.digitalWrite(pin, 0);      // turn off pin

@@ -90,11 +90,11 @@ var app = {
       for (var i = 0; i < data.length; i++) {
          option = document.createElement("option");   // make an option element
          option.value = i;                            // give it this number
-         option.innerHTML = data[i].name;             // get the corresponding data object
+         option.innerHTML = data[i].name;             // get the data object
          if (i === 0) {                               // select the first element
             option.selected = true; 
          }
-         sampleField.appendChild(option);             // add this element to sampleField 
+         sampleField.appendChild(option);             // add this to sampleField 
       }
 
        nfc.addNdefListener(

@@ -9,10 +9,10 @@ var ndef = require('ndef'),               // require ndef package
     app = express(),                            // start Express framework
     server = require('http').createServer(app), // start an HTTP server
     record = {},                                // NDEF record to send
-    deviceMessage = "";                         // messages from the writer device
+    deviceMessage = "";                         // messages from writer device
     
-app.use(express.bodyParser());        // use the bodyParser middleware for express
-server.listen(8080);                  // listen for incoming requests on the server
+app.use(express.bodyParser());        // use bodyParser middleware for express
+server.listen(8080);                  // listen for incoming requests on server
 console.log("Listening for new clients on port 8080");
 
 // respond to web GET requests with the index.html page:

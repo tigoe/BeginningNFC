@@ -16,6 +16,6 @@ mifare.write(bytes, function(error) {     // write function
         console.log("Write failed ");     // report the error
         console.log(error);            
     } else {
-        console.log("Tag written successfully");// report that the tag was written
+        console.log("Tag written successfully");// report that tag was written
     }
 });
