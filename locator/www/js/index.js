@@ -30,8 +30,8 @@ var app = {
          //    the current GPS coordinates
        function onSuccess(position) {
            app.clear();
-           app.display('Latitude: '  + position.coords.latitude);
-           app.display('Longitude: ' + position.coords.longitude);
+           app.display('Latitude: '  + position.coords.latitude.toFixed(6));
+           app.display('Longitude: ' + position.coords.longitude.toFixed(6));
            app.display(new Date().toString());                      
        }
 

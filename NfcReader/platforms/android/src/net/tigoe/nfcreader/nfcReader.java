@@ -22,12 +22,13 @@ package net.tigoe.nfcreader;
 import android.os.Bundle;
 import org.apache.cordova.*;
 
-public class nfcReader extends DroidGap
+public class nfcReader extends CordovaActivity 
 {
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        super.init();
         // Set by <content src="index.html" /> in config.xml
         super.loadUrl(Config.getStartUrl());
         //super.loadUrl("file:///android_asset/www/index.html")
