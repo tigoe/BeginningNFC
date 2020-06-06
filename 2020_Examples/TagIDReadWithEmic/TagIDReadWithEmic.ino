@@ -58,7 +58,7 @@ void loop() {
       lastTagReadTime = millis();
 
       // Send it out the EMIC:
-      emic.println("S" + tagString);
+      emic.println("S " + tagString);
       // send it out the serial port too:
       Serial.println(tagString);
       // compare it to a known tag string:
