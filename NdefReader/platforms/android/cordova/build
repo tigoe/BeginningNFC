@@ -24,12 +24,18 @@ var build = require('./lib/build'),
     args  = process.argv;
 
 // Support basic help commands
-if(args[2] == '--help' || args[2] == '/?' || args[2] == '-h' ||
-                    args[2] == 'help' || args[2] == '-help' || args[2] == '/help') {
+if(args[2] == '--help' ||
+   args[2] == '/?' ||
+   args[2] == '-h' ||
+   args[2] == 'help' ||
+   args[2] == '-help' ||
+   args[2] == '/help') {
     build.help();
-} else if(reqs.run()) {
-    build.run(args[2]);
-    process.exit(0);
 } else {
-    process.exit(2);
+    reqs.run().done(function() {
+        return build.run(args.slice(2));
+    }, function(err) {
+        console.error(err);
+        process.exit(2);
+    });
 }
